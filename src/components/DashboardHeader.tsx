@@ -20,7 +20,8 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
   const scrollToAndOpen = (accordionValue: string) => {
     setSheetOpen(false);
     setTimeout(() => {
-      const trigger = document.querySelector(`[data-value="${accordionValue}"] button`);
+    const item = document.getElementById(`accordion-${accordionValue}`);
+      const trigger = item?.querySelector('button');
       if (trigger) {
         trigger.scrollIntoView({ behavior: 'smooth', block: 'center' });
         const isExpanded = trigger.getAttribute('data-state') === 'open';
