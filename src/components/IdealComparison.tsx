@@ -47,7 +47,7 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
   };
 
   return (
-    <AccordionItem value="ideal" className="border-border/50">
+    <AccordionItem value="ideal" className="border-border/50" id="accordion-ideal">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
         Comparado ao ideal?
       </AccordionTrigger>
