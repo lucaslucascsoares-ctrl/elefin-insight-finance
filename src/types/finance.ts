@@ -13,6 +13,7 @@ export interface Category {
   id: string;
   name: string;
   group_type: 'essenciais' | 'desejos' | 'prioridades';
+  user_id?: string | null;
 }
 
 export type GroupType = 'essenciais' | 'desejos' | 'prioridades';
