@@ -33,14 +33,19 @@ const InsightsAccordion = ({ transactions, categories }: InsightsAccordionProps)
             </div>
           </CardContent>
         </Card>
-        <Button
-          variant="outline"
-          className="w-full mt-3 h-10 text-sm text-muted-foreground"
-          onClick={() => {}}
-        >
-          <MessageCircle className="mr-2 h-4 w-4" />
-          Falar com Especialista
-        </Button>
+
+        {/* Help CTA Section */}
+        <div id="help-section" className="mt-6 space-y-2">
+          <h3 className="text-sm font-semibold text-foreground text-center">Precisa de ajuda?</h3>
+          <Button
+            variant="outline"
+            className="w-full h-12 text-sm"
+            onClick={() => {}}
+          >
+            <MessageCircle className="mr-2 h-4 w-4" />
+            Falar com um Especialista
+          </Button>
+        </div>
       </AccordionContent>
     </AccordionItem>
   );

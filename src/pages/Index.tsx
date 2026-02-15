@@ -35,7 +35,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24 max-w-lg mx-auto">
-      <DashboardHeader onSignOut={signOut} />
+      <DashboardHeader onSignOut={signOut} onNewTransaction={() => setModalOpen(true)} />
 
       {isLoading ? (
         <div className="px-4 space-y-4">
