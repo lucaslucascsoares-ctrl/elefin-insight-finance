@@ -18,11 +18,7 @@ const BAR_COLORS: Record<GroupType, string> = {
 };
 
 const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps) => {
-  const now = new Date();
-  const monthExpenses = transactions.filter((t) => {
-    const d = new Date(t.date);
-    return t.type === 'expense' && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
+  const monthExpenses = transactions.filter((t) => t.type === 'expense');
 
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
@@ -51,7 +47,7 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
       <AccordionContent className="px-4 pb-4">
         {totalExpenses === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Nenhuma despesa registrada este mês.
+            Nenhuma despesa registrada neste mês.
           </p>
         ) : (
           <>

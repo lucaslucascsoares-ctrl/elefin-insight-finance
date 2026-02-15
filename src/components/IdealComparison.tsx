@@ -13,18 +13,12 @@ interface IdealComparisonProps {
 }
 
 const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => {
-  const now = new Date();
-  const monthTx = transactions.filter((t) => {
-    const d = new Date(t.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  });
-
-  const totalIncome = monthTx
+  const totalIncome = transactions
     .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
-  const expenses = monthTx.filter((t) => t.type === 'expense');
+  const expenses = transactions.filter((t) => t.type === 'expense');
 
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
   expenses.forEach((t) => {
@@ -39,10 +33,7 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
     if (income === 0) return 'ok';
     const percent = spent / income;
     const limit = GROUP_LIMITS[group];
-
-    if (group === 'prioridades') {
-      return percent < limit ? 'alert' : 'ok';
-    }
+    if (group === 'prioridades') return percent < limit ? 'alert' : 'ok';
     return percent > limit ? 'alert' : 'ok';
   };
 

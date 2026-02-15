@@ -9,16 +9,7 @@ export function generateInsight(
   transactions: Transaction[],
   categories: Category[]
 ): InsightResult {
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  const monthTransactions = transactions.filter((t) => {
-    const d = new Date(t.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-
-  const totalIncome = monthTransactions
+  const totalIncome = transactions
     .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
@@ -29,9 +20,7 @@ export function generateInsight(
     };
   }
 
-  const expenses = monthTransactions.filter((t) => t.type === 'expense');
-
-  // Group expenses by group_type
+  const expenses = transactions.filter((t) => t.type === 'expense');
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
 
   const desejosExpenses = expenses.filter((t) => {
@@ -43,7 +32,6 @@ export function generateInsight(
   const desejosPercent = totalDesejos / totalIncome;
 
   if (desejosPercent > GROUP_LIMITS.desejos) {
-    // Find the category within "desejos" with highest spending
     const categoryTotals = new Map<string, { total: number; count: number; name: string }>();
 
     desejosExpenses.forEach((t) => {
@@ -64,7 +52,7 @@ export function generateInsight(
 
     if (topCategory.count > 0) {
       const avgPerTransaction = topCategory.total / topCategory.count;
-      const monthlySavings = avgPerTransaction * 4; // 1 per week * 4 weeks
+      const monthlySavings = avgPerTransaction * 4;
 
       return {
         message: `Cortar 1 ${topCategory.name} por semana pode liberar R$ ${monthlySavings.toFixed(0)} por mês.`,

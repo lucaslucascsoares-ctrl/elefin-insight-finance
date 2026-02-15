@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Accordion } from '@/components/ui/accordion';
 import DashboardHeader from '@/components/DashboardHeader';
+import MonthPicker from '@/components/MonthPicker';
 import HeroSummary from '@/components/HeroSummary';
 import SpendingAccordion from '@/components/SpendingAccordion';
 import IdealComparison from '@/components/IdealComparison';
@@ -19,6 +20,10 @@ const Index = () => {
   const { data: categories = [], isLoading: catLoading } = useCategories();
   const [modalOpen, setModalOpen] = useState(false);
 
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -33,9 +38,19 @@ const Index = () => {
 
   const isLoading = txLoading || catLoading;
 
+  const monthTransactions = transactions.filter((t) => {
+    const d = new Date(t.date);
+    return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+  });
+
   return (
     <div className="min-h-screen bg-background pb-24 max-w-lg mx-auto">
       <DashboardHeader onSignOut={signOut} onNewTransaction={() => setModalOpen(true)} />
+      <MonthPicker
+        month={selectedMonth}
+        year={selectedYear}
+        onChange={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }}
+      />
 
       {isLoading ? (
         <div className="px-4 space-y-4">
@@ -46,12 +61,12 @@ const Index = () => {
         </div>
       ) : (
         <>
-          <HeroSummary transactions={transactions} />
+          <HeroSummary transactions={monthTransactions} />
 
           <Accordion type="multiple" defaultValue={['spending']} className="mt-2">
-            <SpendingAccordion transactions={transactions} categories={categories} />
-            <IdealComparison transactions={transactions} categories={categories} />
-            <InsightsAccordion transactions={transactions} categories={categories} />
+            <SpendingAccordion transactions={monthTransactions} categories={categories} />
+            <IdealComparison transactions={monthTransactions} categories={categories} />
+            <InsightsAccordion transactions={monthTransactions} categories={categories} />
           </Accordion>
         </>
       )}
