@@ -5,10 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Category, GroupType, GROUP_LABELS } from '@/types/finance';
 import { useAddTransaction } from '@/hooks/useTransactions';
-import { useAddCategory } from '@/hooks/useCategories';
+import { useAddCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Trash2 } from 'lucide-react';
 
 interface NewTransactionModalProps {
   open: boolean;
@@ -25,6 +25,7 @@ const NewTransactionModal = ({ open, onOpenChange, categories }: NewTransactionM
   const [newCatName, setNewCatName] = useState('');
   const addTransaction = useAddTransaction();
   const addCategory = useAddCategory();
+  const deleteCategory = useDeleteCategory();
   const { session } = useAuth();
 
   const groupedCategories = categories.reduce((acc, cat) => {
@@ -148,9 +149,30 @@ const NewTransactionModal = ({ open, onOpenChange, categories }: NewTransactionM
                         </button>
                       </SelectLabel>
                       {groupedCategories[group]?.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
+                        <div key={cat.id} className="flex items-center group">
+                          <SelectItem value={cat.id} className="flex-1">
+                            {cat.name}
+                          </SelectItem>
+                          {cat.user_id && (
+                            <button
+                              type="button"
+                              onClick={async (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (categoryId === cat.id) setCategoryId('');
+                                try {
+                                  await deleteCategory.mutateAsync(cat.id);
+                                  toast.success('Categoria removida');
+                                } catch {
+                                  toast.error('Erro ao remover categoria');
+                                }
+                              }}
+                              className="opacity-0 group-hover:opacity-100 p-1 mr-1 rounded hover:bg-destructive/10 transition-all"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </SelectGroup>
                   ))}
