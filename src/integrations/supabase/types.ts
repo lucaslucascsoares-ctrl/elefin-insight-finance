@@ -19,16 +19,19 @@ export type Database = {
           group_type: string
           id: string
           name: string
+          user_id: string | null
         }
         Insert: {
           group_type: string
           id?: string
           name: string
+          user_id?: string | null
         }
         Update: {
           group_type?: string
           id?: string
           name?: string
+          user_id?: string | null
         }
         Relationships: []
       }
