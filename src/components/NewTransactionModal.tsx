@@ -108,7 +108,7 @@ const NewTransactionModal = ({ open, onOpenChange, categories }: NewTransactionM
                 <SelectTrigger className="h-12">
                   <SelectValue placeholder="Selecione a categoria" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-48">
                   {(Object.keys(groupedCategories) as GroupType[]).map((group) => (
                     <SelectGroup key={group}>
                       <SelectLabel className="text-xs uppercase tracking-wider text-muted-foreground">
