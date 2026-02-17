@@ -6,6 +6,7 @@ import HeroSummary from '@/components/HeroSummary';
 import SpendingAccordion from '@/components/SpendingAccordion';
 import IdealComparison from '@/components/IdealComparison';
 import InsightsAccordion from '@/components/InsightsAccordion';
+import RecentTransactions from '@/components/RecentTransactions';
 import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -66,6 +67,7 @@ const Index = () => {
           <Accordion type="multiple" defaultValue={['spending']} className="mt-2">
             <SpendingAccordion transactions={monthTransactions} categories={categories} />
             <IdealComparison transactions={monthTransactions} categories={categories} />
+            <RecentTransactions transactions={monthTransactions} categories={categories} />
             <InsightsAccordion transactions={monthTransactions} categories={categories} />
           </Accordion>
         </>
