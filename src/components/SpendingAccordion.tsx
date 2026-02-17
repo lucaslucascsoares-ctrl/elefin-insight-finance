@@ -1,11 +1,10 @@
-import { Transaction, Category, GroupType, GROUP_LABELS, GROUP_LIMITS } from '@/types/finance';
+import { Transaction, Category, GroupType, GROUP_LABELS } from '@/types/finance';
 import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from '@/components/ui/accordion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, ResponsiveContainer, Cell } from 'recharts';
-import { Progress } from '@/components/ui/progress';
 
 interface SpendingAccordionProps {
   transactions: Transaction[];
@@ -20,9 +19,6 @@ const BAR_COLORS: Record<GroupType, string> = {
 
 const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps) => {
   const monthExpenses = transactions.filter((t) => t.type === 'expense');
-  const totalIncome = transactions
-    .filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
@@ -82,35 +78,6 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
               {(Object.keys(groups) as GroupType[]).map((g) => (
                 <span key={g}>{GROUP_LABELS[g]}: {formatCurrency(groups[g])}</span>
               ))}
-            </div>
-
-            {/* Barras de referência ideal */}
-            <div className="mt-4 space-y-3 px-1">
-              {(Object.keys(groups) as GroupType[]).map((g) => {
-                const idealValue = totalIncome * GROUP_LIMITS[g];
-                const spent = groups[g];
-                const pct = totalIncome > 0 ? Math.round((spent / idealValue) * 100) : 0;
-                const overBudget = pct > 100;
-
-                return (
-                  <div key={g} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-medium text-foreground">
-                      <span>{GROUP_LABELS[g]} — Meta {Math.round(GROUP_LIMITS[g] * 100)}%</span>
-                      <span className={overBudget ? 'text-destructive' : 'text-muted-foreground'}>
-                        {pct}%
-                      </span>
-                    </div>
-                    <Progress
-                      value={Math.min(pct, 100)}
-                      className={`h-2 ${overBudget ? '[&>div]:bg-destructive' : '[&>div]:bg-success'}`}
-                    />
-                    <p className={`text-[11px] ${overBudget ? 'text-destructive' : 'text-muted-foreground'}`}>
-                      {formatCurrency(spent)} / {formatCurrency(idealValue)}{' '}
-                      ({pct}%)
-                    </p>
-                  </div>
-                );
-              })}
             </div>
           </>
         )}
