@@ -1,30 +1,40 @@
-import { Transaction, Category, GroupType, GROUP_LABELS, GROUP_LIMITS } from '@/types/finance';
+import { Transaction, Category, GroupType, GROUP_LABELS } from '@/types/finance';
 import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from '@/components/ui/accordion';
-import { Progress } from '@/components/ui/progress';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList, ResponsiveContainer, Cell } from 'recharts';
 
 interface SpendingAccordionProps {
   transactions: Transaction[];
   categories: Category[];
 }
 
+const BAR_COLORS: Record<GroupType, string> = {
+  essenciais: 'hsl(var(--chart-essenciais))',
+  desejos: 'hsl(var(--chart-desejos))',
+  prioridades: 'hsl(var(--chart-prioridades))',
+};
+
 const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps) => {
-  const totalIncome = transactions
-    .filter((t) => t.type === 'income')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const monthExpenses = transactions.filter((t) => t.type === 'expense');
 
   const categoryMap = new Map(categories.map((c) => [c.id, c]));
-  const expenses = transactions.filter((t) => t.type === 'expense');
-
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
-  expenses.forEach((t) => {
+
+  monthExpenses.forEach((t) => {
     const cat = categoryMap.get(t.category_id || '');
     if (cat) groups[cat.group_type] += Number(t.amount);
   });
+
+  const totalExpenses = Object.values(groups).reduce((a, b) => a + b, 0);
+
+  const data = (Object.keys(groups) as GroupType[]).map((group) => ({
+    name: GROUP_LABELS[group],
+    value: totalExpenses > 0 ? Math.round((groups[group] / totalExpenses) * 100) : 0,
+    group,
+  }));
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -35,59 +45,41 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
         Como estou gastando?
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
-        {totalIncome === 0 ? (
+        {totalExpenses === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            Adicione receitas para ver a comparação com a meta ideal.
+            Nenhuma despesa registrada neste mês.
           </p>
         ) : (
-          <div className="space-y-5">
-            {(Object.keys(groups) as GroupType[]).map((group) => {
-              const limit = GROUP_LIMITS[group];
-              const idealAmount = totalIncome * limit;
-              const spent = groups[group];
-              const percentOfIdeal = Math.min((spent / idealAmount) * 100, 100);
-              const isOver = spent > idealAmount;
-              const percentLabel = totalIncome > 0 ? Math.round((spent / totalIncome) * 100) : 0;
-
-              return (
-                <div key={group} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {isOver ? (
-                        <AlertTriangle className="h-4 w-4 text-warning" />
-                      ) : (
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                      )}
-                      <span className="text-sm font-medium text-foreground">
-                        {GROUP_LABELS[group]}
-                      </span>
-                    </div>
-                    <span className="text-xs font-semibold text-foreground">
-                      {percentLabel}%
-                    </span>
-                  </div>
-
-                  <div className="relative">
-                    <Progress
-                      value={percentOfIdeal}
-                      className={`h-3 ${isOver ? '[&>div]:bg-warning' : '[&>div]:bg-success'}`}
-                    />
-                    {/* Ideal limit marker */}
-                    <div
-                      className="absolute top-0 h-3 border-r-2 border-dashed border-foreground/40"
-                      style={{ left: `${limit * 100}%` }}
-                      title={`Meta: ${(limit * 100).toFixed(0)}%`}
-                    />
-                  </div>
-
-                  <p className="text-xs text-muted-foreground">
-                    {formatCurrency(spent)} / {formatCurrency(idealAmount)}{' '}
-                    <span className="text-muted-foreground/70">({(limit * 100).toFixed(0)}%)</span>
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis hide domain={[0, 100]} />
+                <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                  {data.map((entry) => (
+                    <Cell key={entry.group} fill={BAR_COLORS[entry.group]} />
+                  ))}
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    formatter={(v: number) => `${v}%`}
+                    style={{ fontSize: 12, fontWeight: 600, fill: 'hsl(var(--foreground))' }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+            <div className="mt-2 flex justify-between text-xs text-muted-foreground px-2">
+              {(Object.keys(groups) as GroupType[]).map((g) => (
+                <span key={g}>{GROUP_LABELS[g]}: {formatCurrency(groups[g])}</span>
+              ))}
+            </div>
+          </>
         )}
       </AccordionContent>
     </AccordionItem>
