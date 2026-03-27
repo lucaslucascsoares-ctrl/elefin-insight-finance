@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion } from '@/components/ui/accordion';
 import DashboardHeader from '@/components/DashboardHeader';
 import MonthPicker from '@/components/MonthPicker';
@@ -10,13 +10,19 @@ import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
 import FinanceMonthCard from '@/components/FinanceMonthCard';
 import PreviousMonthForecastCard from '@/components/PreviousMonthForecastCard';
+import ProjectionMonthlySection from '@/components/projection/ProjectionMonthlySection';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
 import { useMonthBalance, useEnsureMonthBalance } from '@/hooks/useMonthBalance';
+import { useRecurringRules } from '@/hooks/useRecurringRules';
+import { useProjectionTemplates } from '@/hooks/useProjectionTemplates';
+import { useMonthlyProjectionItems } from '@/hooks/useMonthlyProjectionItems';
+import { buildMonthlyForecastData } from '@/lib/forecast';
 import AuthPage from '@/pages/Auth';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DadosMesAnterior, Transaction } from '@/types/finance';
+import { MonthlyProjectionItem, RecurringRuleInput, Transaction } from '@/types/finance';
 
 const getMonthName = (year: number, month: number) =>
   new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long' });
@@ -44,11 +50,25 @@ const filterTransactionsByMonth = (transactions: Transaction[], month: number, y
 
 const Index = () => {
   const { session, loading: authLoading, signOut } = useAuth();
-  const { data: transactions = [], isLoading: txLoading } = useTransactions();
-  const { data: categories = [], isLoading: catLoading } = useCategories();
+  const userId = session?.user.id;
+  const {
+    data: transactions = [],
+    isLoading: txLoading,
+    isError: txError,
+    refetch: refetchTransactions,
+  } = useTransactions(userId);
+  const {
+    data: categories = [],
+    isLoading: catLoading,
+    isError: catError,
+    refetch: refetchCategories,
+  } = useCategories(userId);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
   const [modalLockedType, setModalLockedType] = useState(false);
+  const attemptedMonthBalanceRef = useRef<Set<string>>(new Set());
+  const { activeRules, saveRule } = useRecurringRules(userId);
+  const { templates } = useProjectionTemplates(userId);
 
   const now = new Date();
   const [selectedDate, setSelectedDate] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
@@ -79,10 +99,11 @@ const Index = () => {
     selectedMonth !== now.getMonth() || selectedYear !== now.getFullYear();
 
   // ─── Caixa Inicial persistido ────────────────────────────────────────────
-  const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(selectedMonth, selectedYear);
+  const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(userId, selectedMonth, selectedYear);
   const ensureMonthBalance = useEnsureMonthBalance();
 
-  const isLoading = txLoading || catLoading || balanceLoading;
+  const isLoading = authLoading || (Boolean(session) && (txLoading || catLoading));
+  const hasCriticalError = txError || catError;
   const normalizedTransactions = useMemo(
     () =>
       transactions.map((transaction) => ({
@@ -125,6 +146,10 @@ const Index = () => {
     if (monthBalance !== null && monthBalance !== undefined) return;
     if (ensureMonthBalance.isPending) return;
 
+    const monthBalanceKey = `${session.user.id}-${selectedYear}-${selectedMonth}`;
+    if (attemptedMonthBalanceRef.current.has(monthBalanceKey)) return;
+    attemptedMonthBalanceRef.current.add(monthBalanceKey);
+
     ensureMonthBalance.mutate({
       user_id: session.user.id,
       mes: selectedMonth,
@@ -150,56 +175,27 @@ const Index = () => {
     previousMonthDate.getMonth(),
     previousMonthDate.getFullYear(),
   );
+  const { items: monthlyProjectionItems, saveOverride, clearOverride } = useMonthlyProjectionItems(
+    userId,
+    templates,
+    selectedMonth,
+    selectedYear,
+  );
 
-  const previousMonthData = useMemo<DadosMesAnterior | null>(() => {
-    const previousExpenses = previousMonthTransactions.filter((transaction) => transaction.type === 'expense');
-
-    if (previousExpenses.length === 0) {
-      return null;
-    }
-
-    const categoryMap = new Map(categories.map((category) => [category.id, category]));
-    const initialGroups = {
-      Essenciais: 0,
-      Desejos: 0,
-      Prioridades: 0,
-      Outros: 0,
-    };
-
-    const accumulateGroups = (sourceTransactions: Transaction[]) =>
-      sourceTransactions.reduce((accumulator, transaction) => {
-        if (transaction.type !== 'expense') return accumulator;
-
-        const category = categoryMap.get(transaction.category_id || '');
-        if (!category) {
-          accumulator.Outros += Number(transaction.amount);
-          return accumulator;
-        }
-
-        if (category.group_type === 'essenciais') accumulator.Essenciais += Number(transaction.amount);
-        if (category.group_type === 'desejos') accumulator.Desejos += Number(transaction.amount);
-        if (category.group_type === 'prioridades') accumulator.Prioridades += Number(transaction.amount);
-
-        return accumulator;
-      }, { ...initialGroups });
-
-    const previousGroups = accumulateGroups(previousMonthTransactions);
-    const currentGroups = accumulateGroups(monthTransactions);
-
-    return {
-      mes: previousMonthLabel,
-      ano: previousMonthDate.getFullYear(),
-      categorias: Object.entries(previousGroups).map(([nome, valorReal]) => ({
-        nome,
-        valorReal,
-        previsaoMesAtual:
-          currentGroups[nome as keyof typeof currentGroups] > 0
-            ? currentGroups[nome as keyof typeof currentGroups]
-            : valorReal,
-      })),
-      totalGasto: Object.values(previousGroups).reduce((sum, value) => sum + value, 0),
-    };
-  }, [categories, monthTransactions, previousMonthDate, previousMonthLabel, previousMonthTransactions]);
+  const forecastData = useMemo(
+    () =>
+      userId
+        ? buildMonthlyForecastData({
+            userId,
+            transactions: normalizedTransactions,
+            categories,
+            recurringRules: activeRules,
+            month: selectedMonth,
+            year: selectedYear,
+          })
+        : null,
+    [activeRules, categories, normalizedTransactions, selectedMonth, selectedYear, userId],
+  );
 
   if (authLoading) {
     return (
@@ -213,10 +209,35 @@ const Index = () => {
     return <AuthPage />;
   }
 
+  if (hasCriticalError) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6 text-center">
+        <h1 className="text-2xl font-semibold text-foreground">Nao foi possivel carregar sua pagina</h1>
+        <p className="text-sm text-muted-foreground">
+          Houve uma falha ao buscar seus dados. Tente recarregar e verificar sua conexao.
+        </p>
+        <Button
+          type="button"
+          onClick={() => {
+            void refetchTransactions();
+            void refetchCategories();
+          }}
+          className="mx-auto w-full max-w-xs"
+        >
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
   const openTransactionModal = (type: 'income' | 'expense', lockedType = false) => {
     setModalType(type);
     setModalLockedType(lockedType);
     setModalOpen(true);
+  };
+
+  const handleSaveRecurringRule = (input: RecurringRuleInput) => {
+    saveRule(input);
   };
 
   const handlePreviousMonth = () => {
@@ -229,6 +250,42 @@ const Index = () => {
       const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
       return next > currentMonthDate ? current : next;
+    });
+  };
+
+  const handleSaveMonthEdit = (item: MonthlyProjectionItem, title: string, amount: number) => {
+    const baseTemplate = templates.find((template) => template.id === item.template_id);
+
+    saveOverride({
+      templateId: item.template_id,
+      month: selectedMonth,
+      year: selectedYear,
+      titleOverride: baseTemplate && title === baseTemplate.title ? null : title,
+      amountOverride: baseTemplate && amount === baseTemplate.default_amount ? null : amount,
+      status: 'edited',
+    });
+  };
+
+  const handleIgnoreMonth = (item: MonthlyProjectionItem) => {
+    saveOverride({
+      templateId: item.template_id,
+      month: selectedMonth,
+      year: selectedYear,
+      status: 'ignored',
+    });
+  };
+
+  const handleRestoreMonth = (item: MonthlyProjectionItem) => {
+    clearOverride(item.template_id, selectedMonth, selectedYear);
+  };
+
+  const handleMarkProjectionPaid = (item: MonthlyProjectionItem, transactionId: string) => {
+    saveOverride({
+      templateId: item.template_id,
+      month: selectedMonth,
+      year: selectedYear,
+      status: 'paid',
+      paidTransactionId: transactionId,
     });
   };
 
@@ -259,9 +316,19 @@ const Index = () => {
             onOpenExpense={() => openTransactionModal('expense', true)}
             onOpenGeneric={() => openTransactionModal('expense', false)}
           />
+          <ProjectionMonthlySection
+            items={monthlyProjectionItems}
+            templates={templates}
+            categories={categories}
+            selectedDate={selectedDate}
+            onSaveMonthEdit={handleSaveMonthEdit}
+            onIgnoreMonth={handleIgnoreMonth}
+            onRestoreMonth={handleRestoreMonth}
+            onMarkPaid={handleMarkProjectionPaid}
+          />
           <IdealComparisonCard transactions={monthTransactions} categories={categories} />
           <PreviousMonthForecastCard
-            data={previousMonthData}
+            data={forecastData}
             currentMonthLabel={currentMonthLabel}
             currentMonthShortLabel={currentMonthShortLabel}
             previousMonthShortLabel={previousMonthShortLabel}
@@ -287,6 +354,8 @@ const Index = () => {
         categories={categories}
         initialType={modalType}
         lockedType={modalLockedType}
+        selectedDate={selectedDate}
+        onSaveRecurringRule={handleSaveRecurringRule}
       />
     </div>
   );

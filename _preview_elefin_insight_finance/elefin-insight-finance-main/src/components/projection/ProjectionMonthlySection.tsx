@@ -1,0 +1,203 @@
+import { useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import MonthlyProjectionItemDrawer from '@/components/projection/MonthlyProjectionItemDrawer';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Category, GROUP_LABELS, GroupType, MonthlyProjectionItem, ProjectionTemplate } from '@/types/finance';
+
+interface ProjectionMonthlySectionProps {
+  items: MonthlyProjectionItem[];
+  templates: ProjectionTemplate[];
+  categories: Category[];
+  selectedDate: Date;
+  onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => void;
+  onIgnoreMonth: (item: MonthlyProjectionItem) => void;
+  onRestoreMonth: (item: MonthlyProjectionItem) => void;
+  onMarkPaid: (item: MonthlyProjectionItem, transactionId: string) => void;
+}
+
+const statusClasses: Record<MonthlyProjectionItem['status'], string> = {
+  predicted: 'bg-slate-100 text-slate-700',
+  edited: 'bg-blue-100 text-blue-700',
+  ignored: 'bg-amber-100 text-amber-700',
+  paid: 'bg-emerald-100 text-emerald-700',
+};
+
+const statusLabels: Record<MonthlyProjectionItem['status'], string> = {
+  predicted: 'Prevista',
+  edited: 'Editada',
+  ignored: 'Ignorada',
+  paid: 'Paga',
+};
+
+const ProjectionMonthlySection = ({
+  items,
+  templates,
+  categories,
+  selectedDate,
+  onSaveMonthEdit,
+  onIgnoreMonth,
+  onRestoreMonth,
+  onMarkPaid,
+}: ProjectionMonthlySectionProps) => {
+  const [selectedItem, setSelectedItem] = useState<MonthlyProjectionItem | null>(null);
+  const [expanded, setExpanded] = useState(false);
+
+  const groupedItems = useMemo(() => {
+    const groups: Record<GroupType, MonthlyProjectionItem[]> = {
+      essenciais: [],
+      desejos: [],
+      prioridades: [],
+    };
+
+    items.forEach((item) => {
+      groups[item.group_type].push(item);
+    });
+
+    return groups;
+  }, [items]);
+
+  const totalProjected = items
+    .filter((item) => item.status !== 'ignored')
+    .reduce((sum, item) => sum + item.amount, 0);
+
+  const templateMap = useMemo(
+    () => new Map(templates.map((template) => [template.id, template])),
+    [templates],
+  );
+
+  return (
+    <>
+      <section className="mt-4 px-4" id="projection-section">
+        <Collapsible
+          open={expanded}
+          onOpenChange={setExpanded}
+          className="rounded-[28px] border border-border/70 bg-white px-4 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+        >
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              aria-expanded={expanded}
+              aria-controls="projection-monthly-content"
+              className="flex w-full items-start justify-between gap-3 text-left"
+            >
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Contas projetadas do mes</h2>
+                <p className="mt-1 text-sm text-muted-foreground">Toque para ver suas contas fixas previstas.</p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                  {items.length} contas
+                </span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-background">
+                  <ChevronDown
+                    className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
+                      expanded ? 'rotate-180' : 'rotate-0'
+                    }`}
+                  />
+                </span>
+              </div>
+            </button>
+          </CollapsibleTrigger>
+
+          <CollapsibleContent
+            id="projection-monthly-content"
+            className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+          >
+            <div className="mt-4 space-y-4 border-t border-border/70 pt-4">
+              <div className="rounded-2xl bg-muted/30 px-4 py-4 text-sm leading-6 text-muted-foreground">
+                Essas sao as contas fixas vindas da sua Projecao de Gastos. Elas aparecem automaticamente no mes,
+                mas so entram como gasto real quando voce marcar como paga.
+              </div>
+
+              {items.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border/80 px-4 py-8 text-center text-sm text-muted-foreground">
+                  Nenhuma conta fixa cadastrada ainda. Use a aba Projecao de Gastos para criar sua base mensal.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {(Object.keys(groupedItems) as GroupType[]).map((groupType) => {
+                    const groupItems = groupedItems[groupType];
+                    if (groupItems.length === 0) return null;
+
+                    return (
+                      <div key={groupType} className="rounded-2xl border border-border/70">
+                        <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
+                          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            {GROUP_LABELS[groupType]}
+                          </span>
+                          <span className="text-sm font-medium text-foreground">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                              groupItems.filter((item) => item.status !== 'ignored').reduce((sum, item) => sum + item.amount, 0),
+                            )}
+                          </span>
+                        </div>
+
+                        <div className="divide-y divide-border/70">
+                          {groupItems.map((item) => {
+                            const categoryName =
+                              item.category_name ??
+                              categories.find((category) => category.id === item.category_id)?.name ??
+                              'Sem categoria';
+
+                            return (
+                              <button
+                                key={item.id}
+                                type="button"
+                                onClick={() => setSelectedItem(item)}
+                                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
+                              >
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="truncate text-sm font-semibold text-foreground">{item.title}</span>
+                                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusClasses[item.status]}`}>
+                                      {statusLabels[item.status]}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs text-muted-foreground">{categoryName}</p>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.amount)}
+                                  </span>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  <div className="flex items-center justify-between rounded-2xl bg-slate-900 px-4 py-4 text-white">
+                    <span className="text-sm font-medium text-white/80">Total previsto ativo</span>
+                    <span className="text-xl font-semibold">
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProjected)}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </section>
+
+      <MonthlyProjectionItemDrawer
+        open={Boolean(selectedItem)}
+        onOpenChange={(open) => !open && setSelectedItem(null)}
+        item={selectedItem}
+        template={selectedItem ? templateMap.get(selectedItem.template_id) ?? null : null}
+        categories={categories}
+        selectedDate={selectedDate}
+        onSaveMonthEdit={onSaveMonthEdit}
+        onIgnoreMonth={onIgnoreMonth}
+        onRestoreMonth={onRestoreMonth}
+        onMarkPaid={onMarkPaid}
+      />
+    </>
+  );
+};
+
+export default ProjectionMonthlySection;

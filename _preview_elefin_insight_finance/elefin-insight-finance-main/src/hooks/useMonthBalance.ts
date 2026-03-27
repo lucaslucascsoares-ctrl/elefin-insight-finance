@@ -6,18 +6,22 @@ import { MonthBalance } from '@/types/finance';
  * Busca o registro de caixa_inicial persistido para o mês/ano selecionado.
  * Retorna null se ainda não existir registro (primeiro acesso ao mês).
  */
-export function useMonthBalance(mes: number, ano: number) {
+export function useMonthBalance(userId: string | undefined, mes: number, ano: number) {
   return useQuery({
-    queryKey: ['month_balance', mes, ano],
+    queryKey: ['month_balance', userId, mes, ano],
+    enabled: Boolean(userId),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('month_balances')
         .select('*')
+        .eq('user_id', userId)
         .eq('mes', mes)
         .eq('ano', ano)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        return null;
+      }
       return (data as MonthBalance) ?? null;
     },
   });
@@ -59,7 +63,7 @@ export function useEnsureMonthBalance() {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ['month_balance', variables.mes, variables.ano],
+        queryKey: ['month_balance', variables.user_id, variables.mes, variables.ano],
       });
     },
   });

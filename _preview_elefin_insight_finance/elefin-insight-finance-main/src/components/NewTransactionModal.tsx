@@ -9,13 +9,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
 import { useAddCategory } from '@/hooks/useCategories';
 import { useAddTransaction } from '@/hooks/useTransactions';
 import { cn } from '@/lib/utils';
 import { CATEGORY_TAXONOMY, getCustomCategoriesByGroup } from '@/lib/categoryTaxonomy';
-import { Category, GroupType } from '@/types/finance';
+import { getTransactionDateForMonth } from '@/lib/transactionDates';
+import { Category, GroupType, RecurringRuleInput } from '@/types/finance';
 
 interface NewTransactionModalProps {
   open: boolean;
@@ -23,6 +25,8 @@ interface NewTransactionModalProps {
   categories: Category[];
   initialType?: 'income' | 'expense';
   lockedType?: boolean;
+  selectedDate: Date;
+  onSaveRecurringRule?: (input: RecurringRuleInput) => void;
 }
 
 const GROUP_TITLES: Record<GroupType, string> = {
@@ -38,12 +42,24 @@ const normalize = (value: string) =>
     .toLowerCase()
     .trim();
 
+const getCanonicalCategoryName = (name: string, groupType: GroupType) => {
+  const normalizedName = normalize(name);
+
+  if (groupType === 'essenciais' && (normalizedName === 'espaco' || normalizedName === '')) {
+    return 'Aluguel';
+  }
+
+  return name;
+};
+
 const NewTransactionModal = ({
   open,
   onOpenChange,
   categories,
   initialType = 'expense',
   lockedType = false,
+  selectedDate,
+  onSaveRecurringRule,
 }: NewTransactionModalProps) => {
   const { session } = useAuth();
   const addTransaction = useAddTransaction();
@@ -54,9 +70,10 @@ const NewTransactionModal = ({
   const [description, setDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
-  const [expandedGroup, setExpandedGroup] = useState<GroupType | null>('essenciais');
+  const [expandedGroup, setExpandedGroup] = useState<GroupType | null>(null);
   const [expandedSubcategoryId, setExpandedSubcategoryId] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+  const [repeatMonthly, setRepeatMonthly] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -69,6 +86,7 @@ const NewTransactionModal = ({
     setExpandedGroup(null);
     setExpandedSubcategoryId(null);
     setFormError('');
+    setRepeatMonthly(false);
   }, [initialType, open]);
 
   const selectedCategory = useMemo(
@@ -76,11 +94,17 @@ const NewTransactionModal = ({
     [categories, selectedCategoryId],
   );
 
+  const selectedCategoryLabel = useMemo(() => {
+    if (!selectedCategory) return null;
+    return getCanonicalCategoryName(selectedCategory.name, selectedCategory.group_type);
+  }, [selectedCategory]);
+
   const handleTypeChange = (nextType: 'income' | 'expense') => {
     if (lockedType) return;
 
     setType(nextType);
     setFormError('');
+
     if (nextType === 'income') {
       setCategoryPickerOpen(false);
       setSelectedCategoryId(null);
@@ -88,20 +112,21 @@ const NewTransactionModal = ({
   };
 
   const resolveCategory = async (name: string, groupType: GroupType) => {
-    const match = categories.find(
-      (category) => category.group_type === groupType && normalize(category.name) === normalize(name),
+    const canonicalName = getCanonicalCategoryName(name, groupType);
+    const existing = categories.find(
+      (category) => category.group_type === groupType && normalize(category.name) === normalize(canonicalName),
     );
 
-    if (match) {
-      return match;
+    if (existing) {
+      return existing;
     }
 
     if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado.');
+      throw new Error('Usuario nao autenticado.');
     }
 
     return addCategory.mutateAsync({
-      name,
+      name: canonicalName,
       group_type: groupType,
       user_id: session.user.id,
     });
@@ -114,25 +139,26 @@ const NewTransactionModal = ({
       setSelectedCategoryId(category.id);
       setCategoryPickerOpen(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Não foi possível carregar a categoria.');
+      setFormError(error instanceof Error ? error.message : 'Nao foi possivel carregar a categoria.');
     }
   };
 
   const handleSubmit = async () => {
     const numericAmount = Number(amount.replace(',', '.'));
+    const transactionDate = getTransactionDateForMonth(selectedDate);
 
     if (!session?.user?.id) {
-      setFormError('Sua sessão expirou. Entre novamente.');
+      setFormError('Sua sessao expirou. Entre novamente.');
       return;
     }
 
     if (!numericAmount || numericAmount <= 0) {
-      setFormError('Informe um valor válido.');
+      setFormError('Informe um valor valido.');
       return;
     }
 
     if (type === 'expense' && !selectedCategoryId) {
-      setFormError('Selecione uma categoria para a saída.');
+      setFormError('Selecione uma categoria para a saida.');
       return;
     }
 
@@ -144,29 +170,39 @@ const NewTransactionModal = ({
         amount: numericAmount,
         category_id: type === 'expense' ? selectedCategoryId : null,
         description: description.trim() || null,
-        date: new Date().toISOString().slice(0, 10),
+        date: transactionDate,
       });
+
+      if (type === 'expense' && repeatMonthly && selectedCategoryId && onSaveRecurringRule) {
+        onSaveRecurringRule({
+          type,
+          amount: numericAmount,
+          category_id: selectedCategoryId,
+          description: description.trim() || null,
+          starts_at: transactionDate,
+        });
+      }
+
       onOpenChange(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Não foi possível salvar a movimentação.');
+      setFormError(error instanceof Error ? error.message : 'Nao foi possivel salvar a movimentacao.');
     }
   };
 
   const renderCategoryPanel = () => (
-    <div className="mt-3 rounded-[24px] border border-[#e8e3d8] bg-white shadow-[0_14px_35px_rgba(15,23,42,0.08)]">
-      <div className="max-h-72 overflow-y-auto px-2 py-2">
+    <div className="mt-3 rounded-[20px] border border-[#e8e3d8] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+      <div className="max-h-48 overflow-y-auto px-2 py-2">
         {CATEGORY_TAXONOMY.map((taxonomyGroup) => {
           const groupType = taxonomyGroup.groupType;
           const isGroupExpanded = expandedGroup === groupType;
           const customCategories = getCustomCategoriesByGroup(categories, groupType);
 
           return (
-            <div key={groupType} className="rounded-[18px]">
-              {/* Group header */}
+            <div key={groupType} className="rounded-[16px]">
               <button
                 type="button"
                 onClick={() => {
-                  setExpandedGroup((current) => current === groupType ? null : groupType);
+                  setExpandedGroup((current) => (current === groupType ? null : groupType));
                   setExpandedSubcategoryId(null);
                 }}
                 className="flex w-full items-center justify-between px-4 py-3 text-left"
@@ -182,34 +218,33 @@ const NewTransactionModal = ({
               </button>
 
               {isGroupExpanded && (
-                <div className="space-y-0.5 pb-2">
-                  {/* Taxonomy subcategories */}
+                <div className="space-y-1 pb-2">
                   {taxonomyGroup.subcategorias.map((subcategory) => {
-                    const isSubExpanded = expandedSubcategoryId === subcategory.id;
                     const hasItems = subcategory.itens.length > 0;
+                    const isSubExpanded = expandedSubcategoryId === subcategory.id;
+                    const isDirectSelected =
+                      !hasItems &&
+                      selectedCategory?.group_type === groupType &&
+                      normalize(selectedCategory.name) === normalize(subcategory.nome);
 
                     return (
                       <div key={subcategory.id} className="px-1">
-                        {/* Subcategory header */}
                         <button
                           type="button"
+                          translate="no"
                           onClick={() => {
                             if (!hasItems) {
-                              // Subcategory with no items is directly selectable
                               void handleCategorySelect(subcategory.nome, groupType);
-                            } else {
-                              setExpandedSubcategoryId(
-                                isSubExpanded ? null : subcategory.id,
-                              );
+                              return;
                             }
+
+                            setExpandedSubcategoryId((current) =>
+                              current === subcategory.id ? null : subcategory.id,
+                            );
                           }}
                           className={cn(
-                            'flex w-full items-center justify-between rounded-[14px] px-4 py-2.5 text-left text-[14px] font-medium text-slate-600 transition',
-                            !hasItems &&
-                              selectedCategory?.group_type === groupType &&
-                              normalize(selectedCategory.name) === normalize(subcategory.nome)
-                              ? 'bg-[#e5e5e5] text-slate-900'
-                              : 'hover:bg-[#f6f4ef]',
+                            'flex w-full items-center justify-between rounded-[14px] px-4 py-2.5 text-left text-[14px] font-medium text-orange-600 transition',
+                            isDirectSelected ? 'bg-orange-100 text-orange-700' : 'hover:bg-orange-50',
                           )}
                         >
                           <span>{subcategory.nome}</span>
@@ -222,9 +257,8 @@ const NewTransactionModal = ({
                           ) : null}
                         </button>
 
-                        {/* Items inside subcategory */}
                         {isSubExpanded && hasItems && (
-                          <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-[#f0ece2] pl-2">
+                          <div className="ml-3 mt-1 space-y-1 border-l-2 border-[#f0ece2] pl-2">
                             {subcategory.itens.map((item) => {
                               const isSelected =
                                 selectedCategory?.group_type === groupType &&
@@ -234,15 +268,16 @@ const NewTransactionModal = ({
                                 <button
                                   key={`${subcategory.id}-${item}`}
                                   type="button"
+                                  translate="no"
                                   onClick={() => void handleCategorySelect(item, groupType)}
                                   className={cn(
-                                    'flex w-full items-center rounded-[12px] px-4 py-2.5 text-left text-[14px] text-slate-700 transition',
+                                    'flex w-full items-center rounded-[12px] px-4 py-2.5 text-left text-[14px] text-orange-600 transition',
                                     isSelected
-                                      ? 'bg-[#e5e5e5] font-medium text-slate-900'
-                                      : 'hover:bg-[#f6f4ef]',
+                                      ? 'bg-orange-100 font-medium text-orange-700'
+                                      : 'hover:bg-orange-50',
                                   )}
                                 >
-                                  {item}
+                                  {getCanonicalCategoryName(item, groupType)}
                                 </button>
                               );
                             })}
@@ -252,22 +287,21 @@ const NewTransactionModal = ({
                     );
                   })}
 
-                  {/* Custom categories (not in taxonomy) */}
-                  {customCategories.map((custom) => {
-                    const isSelected = selectedCategory?.id === custom.id;
+                  {customCategories.map((customCategory) => {
+                    const isSelected = selectedCategory?.id === customCategory.id;
+
                     return (
-                      <div key={custom.id} className="px-1">
+                      <div key={customCategory.id} className="px-1">
                         <button
                           type="button"
-                          onClick={() => void handleCategorySelect(custom.name, groupType)}
+                          translate="no"
+                          onClick={() => void handleCategorySelect(customCategory.name, groupType)}
                           className={cn(
                             'flex w-full items-center rounded-[14px] px-4 py-2.5 text-left text-[14px] text-slate-700 transition',
-                            isSelected
-                              ? 'bg-[#e5e5e5] font-medium text-slate-900'
-                              : 'hover:bg-[#f6f4ef]',
+                            isSelected ? 'bg-[#e5e5e5] font-medium text-slate-900' : 'hover:bg-[#f6f4ef]',
                           )}
                         >
-                          {custom.name}
+                          {getCanonicalCategoryName(customCategory.name, groupType)}
                         </button>
                       </div>
                     );
@@ -296,27 +330,28 @@ const NewTransactionModal = ({
           <span className="sr-only">Fechar</span>
         </DialogClose>
 
-        {/* Header fixo — título + toggle */}
-        <div className="flex-shrink-0 px-7 pt-7 pb-4 sm:px-8">
+        <div className="flex-shrink-0 px-7 pb-4 pt-7 sm:px-8">
           <DialogHeader className="space-y-2 text-center">
             <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 sm:text-[24px]">
-              Nova Movimentação
+              Nova Movimentacao
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Registre uma entrada ou saída do mês atual.
+              Registre uma entrada ou saida do mes atual.
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-5 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
             {([
               { value: 'income', label: 'Entrada' },
-              { value: 'expense', label: 'Saída' },
+              { value: 'expense', label: 'Saida' },
             ] as const).map((option) => {
               const active = type === option.value;
+
               return (
                 <button
                   key={option.value}
                   type="button"
+                  translate="no"
                   onClick={() => handleTypeChange(option.value)}
                   className={cn(
                     'rounded-[16px] px-4 py-3 text-[17px] font-medium transition',
@@ -331,7 +366,6 @@ const NewTransactionModal = ({
           </div>
         </div>
 
-        {/* Área scrollável — campos */}
         <div className="flex-1 overflow-y-auto px-7 sm:px-8">
           <div className="space-y-5 pb-2">
             <div className="space-y-2.5">
@@ -354,7 +388,7 @@ const NewTransactionModal = ({
                   onClick={() => setCategoryPickerOpen((current) => !current)}
                   className="flex h-[64px] w-full items-center justify-between rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800"
                 >
-                  <span>{selectedCategory?.name ?? 'Selecione a categoria'}</span>
+                  <span>{selectedCategoryLabel ?? 'Selecione a categoria'}</span>
                   {categoryPickerOpen ? (
                     <ChevronUp className="h-5 w-5 text-slate-500" />
                   ) : (
@@ -366,12 +400,30 @@ const NewTransactionModal = ({
               </div>
             )}
 
+            {showExpenseCategory && (
+              <div className="rounded-[18px] border border-[#e5e1d8] bg-[#faf8f4] px-4 py-3">
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={repeatMonthly}
+                    onCheckedChange={(checked) => setRepeatMonthly(Boolean(checked))}
+                    className="mt-0.5"
+                  />
+                  <span className="flex-1">
+                    <span className="block text-[15px] font-medium text-slate-800">Repetir todo mes</span>
+                    <span className="mt-1 block text-sm text-slate-500">
+                      Se ativado, esta conta entra automaticamente nas proximas previsoes mensais.
+                    </span>
+                  </span>
+                </label>
+              </div>
+            )}
+
             <div className="space-y-2.5">
-              <label className="text-[15px] text-slate-500">Descrição (opcional)</label>
+              <label className="text-[15px] text-slate-500">Descricao (opcional)</label>
               <Input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Ex: Almoço no restaurante"
+                placeholder="Ex: Almoco no restaurante"
                 className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
               />
             </div>
@@ -384,7 +436,6 @@ const NewTransactionModal = ({
           </div>
         </div>
 
-        {/* Footer fixo — botão Salvar sempre visível */}
         <div className="flex-shrink-0 px-7 pb-7 pt-3 sm:px-8 sm:pb-8">
           <Button
             type="button"

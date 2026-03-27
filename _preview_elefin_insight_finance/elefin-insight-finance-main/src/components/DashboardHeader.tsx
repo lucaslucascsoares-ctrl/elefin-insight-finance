@@ -1,33 +1,54 @@
 import { useState } from 'react';
-import { Menu, LogOut, LayoutDashboard, PlusCircle, Ruler, HelpCircle } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard, PlusCircle, Ruler, HelpCircle, WalletCards } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface DashboardHeaderProps {
   onSignOut: () => void;
-  onNewTransaction: () => void;
+  onNewTransaction?: () => void;
+  title?: string;
 }
 
-const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) => {
+const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeaderProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const headerTitle =
+    title ??
+    (location.pathname === '/projection' ? 'Projeção de Gastos' : 'Painel do Mes');
 
   const scrollToElement = (id: string) => {
     setSheetOpen(false);
     setTimeout(() => {
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 300);
+    }, location.pathname === '/' ? 300 : 500);
   };
 
   const scrollToHelp = () => {
     setSheetOpen(false);
     setTimeout(() => {
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
       document.getElementById('help-section')?.scrollIntoView({ behavior: 'smooth' });
-    }, 300);
+    }, location.pathname === '/' ? 300 : 500);
   };
 
   const handleNewTransaction = () => {
     setSheetOpen(false);
-    setTimeout(() => onNewTransaction(), 300);
+    setTimeout(() => {
+      if (location.pathname !== '/') {
+        navigate('/');
+        return;
+      }
+
+      onNewTransaction?.();
+    }, 300);
   };
 
   const menuItems = [
@@ -36,10 +57,23 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
       label: 'Painel do Mes',
       onClick: () => {
         setSheetOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (location.pathname === '/') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        navigate('/');
       },
     },
     { icon: PlusCircle, label: 'Nova Movimentacao', onClick: handleNewTransaction },
+    {
+      icon: WalletCards,
+      label: 'Projeção de Gastos',
+      onClick: () => {
+        setSheetOpen(false);
+        navigate('/projection');
+      },
+    },
     { icon: Ruler, label: 'Regua de Gastos', onClick: () => scrollToElement('ideal-section') },
     { icon: HelpCircle, label: 'Precisa de Ajuda?', onClick: scrollToHelp },
   ];
@@ -50,7 +84,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
         <span className="text-xl font-bold tracking-tight text-foreground">elefin</span>
       </div>
       <div className="text-center">
-        <h1 className="text-sm font-medium text-muted-foreground">Painel do Mes</h1>
+        <h1 className="text-sm font-medium text-muted-foreground">{headerTitle}</h1>
       </div>
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>

@@ -2,13 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, GroupType } from '@/types/finance';
 
-export function useCategories() {
+export function useCategories(userId?: string) {
   return useQuery({
-    queryKey: ['categories'],
+    queryKey: ['categories', userId],
+    enabled: Boolean(userId),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
+        .eq('user_id', userId)
         .order('name');
       if (error) throw error;
       return data as Category[];

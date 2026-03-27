@@ -20,24 +20,24 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
     groupType: 'essenciais',
     subcategorias: [
       {
-        nome: 'Habitação',
+        nome: 'Habitacao',
         id: 'habitacao',
         itens: [
           'Aluguel',
-          'Prestação da Casa/Hipoteca',
-          'Condomínio',
+          'Prestacao da Casa/Hipoteca',
+          'Condominio',
           'IPTU/Impostos Prediais',
           'Seguro Residencial',
-          'Energia Elétrica',
-          'Água e Esgoto',
-          'Gás',
+          'Energia Eletrica',
+          'Agua e Esgoto',
+          'Gas',
           'Internet/Telefone',
           'Obra/Reforma',
-          'Outros Custos de Habitação',
+          'Outros Custos de Habitacao',
         ],
       },
       {
-        nome: 'Alimentação Essencial',
+        nome: 'Alimentacao Essencial',
         id: 'alimentacao_essencial',
         itens: [
           'Supermercado',
@@ -46,58 +46,58 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
           'Mercearia',
           'Padaria',
           'Hortfrut',
-          'Açougue',
+          'Acougue',
           'Feira',
-          'Outros Custos de Alimentação Essencial',
+          'Outros Custos de Alimentacao Essencial',
         ],
       },
       {
-        nome: 'Educação',
+        nome: 'Educacao',
         id: 'educacao',
         itens: [
           'Creche',
           'Escola',
           'Universidade',
-          'Matrículas',
-          'Material Didático',
+          'Matriculas',
+          'Material Didatico',
           'Transporte Escolar',
-          'Uniforme escolar',
-          'Alimentação Escolar',
-          'Outros Custos de Educação Essencial',
+          'Uniforme Escolar',
+          'Alimentacao Escolar',
+          'Outros Custos de Educacao Essencial',
         ],
       },
       {
-        nome: 'Saúde',
+        nome: 'Saude',
         id: 'saude',
         itens: [
-          'Planos de Saúde',
-          'Consultas médicas',
-          'Exames médicos',
-          'Tratamentos médicos',
-          'Atendimento Médicos',
+          'Planos de Saude',
+          'Consultas Medicas',
+          'Exames Medicos',
+          'Tratamentos Medicos',
+          'Atendimento Medico',
           'Medicamentos',
-          'Itens de uso necessário',
+          'Itens de Uso Necessario',
           'Vacinas',
-          'Outros Custos de Saúde Essencial',
+          'Outros Custos de Saude Essencial',
         ],
       },
       {
         nome: 'Transporte',
         id: 'transporte',
         itens: [
-          'Transporte Público',
-          'Combustível',
+          'Transporte Publico',
+          'Combustivel',
           'Financiamento Veicular',
-          'Manutenção Veicular',
-          'Doc e impostos veiculares',
-          'Seguro veicular',
+          'Manutencao Veicular',
+          'Doc e Impostos Veiculares',
+          'Seguro Veicular',
           'Estacionamentos',
-          'Pedágios',
-          'Outros Custos de Transporte essencial',
+          'Pedagios',
+          'Outros Custos de Transporte Essencial',
         ],
       },
       {
-        nome: 'Outras Necessidades Básicas',
+        nome: 'Outras Necessidades Basicas',
         id: 'outros_essenciais',
         itens: [],
       },
@@ -115,8 +115,8 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
           'Cinema',
           'Teatro',
           'Shows',
-          'Exposições',
-          'Atrações turísticas',
+          'Exposicoes',
+          'Atracoes Turisticas',
           'Praia',
           'Passeios',
           'Viagens',
@@ -125,7 +125,7 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
         ],
       },
       {
-        nome: 'Alimentação Não Essencial',
+        nome: 'Alimentacao Nao Essencial',
         id: 'alimentacao_nao_essencial',
         itens: [
           'Restaurantes/Bares',
@@ -133,15 +133,15 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
           'Cafeterias',
           'Lanchonetes',
           'Bebidas',
-          'Outros Custos de Alimentação NÃO essencial',
+          'Outros Custos de Alimentacao Nao Essencial',
         ],
       },
       {
         nome: 'Assinaturas',
         id: 'assinaturas',
         itens: [
-          'Streaming TV/vídeo',
-          'Streaming Música/áudio',
+          'Streaming TV/Video',
+          'Streaming Musica/Audio',
           'Streaming Leitura',
           'Ferramentas Digitais',
           'Clubes',
@@ -151,12 +151,12 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
       {
         nome: 'Hobbies',
         id: 'hobbies',
-        itens: ['Esportes', 'Artesanatos', 'Jogos', 'Outros hobbies'],
+        itens: ['Esportes', 'Artesanatos', 'Jogos', 'Outros Hobbies'],
       },
       {
-        nome: 'Compras Não Essenciais',
+        nome: 'Compras Nao Essenciais',
         id: 'compras_nao_essenciais',
-        itens: ['Supérfluos', 'Guloseimas', 'Outras Compras NÃO essenciais'],
+        itens: ['Superfluos', 'Guloseimas', 'Outras Compras Nao Essenciais'],
       },
       {
         nome: 'Outros Desejos Pessoais',
@@ -171,14 +171,14 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
     groupType: 'prioridades',
     subcategorias: [
       {
-        nome: 'Construção de Reservas',
+        nome: 'Construcao de Reservas',
         id: 'reservas',
-        itens: ['Poupanças', 'Previdências', 'Consórcios', 'Fundos'],
+        itens: ['Poupancas', 'Previdencias', 'Consorcios', 'Fundos'],
       },
       {
-        nome: 'Quitação de Dívidas',
+        nome: 'Quitacao de Dividas',
         id: 'dividas',
-        itens: ['Empréstimos', 'Cartões de Crédito', 'Dívidas de Financiamentos'],
+        itens: ['Emprestimos', 'Cartoes de Credito', 'Dividas de Financiamentos'],
       },
       {
         nome: 'Investimentos',
@@ -188,7 +188,7 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
       {
         nome: 'Outras Prioridades Financeiras',
         id: 'outros_financeiro',
-        itens: ['Dízimo', 'Caridade', 'Outras Prioridades Financeiras'],
+        itens: ['Dizimo', 'Caridade', 'Outras Prioridades Financeiras'],
       },
     ],
   },
@@ -214,11 +214,32 @@ export function getCustomCategoriesByGroup(categories: Category[], groupType: Gr
   const taxonomyNames = new Set(
     CATEGORY_TAXONOMY
       .filter((group) => group.groupType === groupType)
-      .flatMap((group) => group.subcategorias.flatMap((subcategory) => subcategory.itens))
+      .flatMap((group) => group.subcategorias.flatMap((subcategory) => [subcategory.nome, ...subcategory.itens]))
       .map(normalize),
   );
 
   return categories.filter(
     (category) => category.group_type === groupType && !taxonomyNames.has(normalize(category.name)),
   );
+}
+
+export function getProjectionCategoriesByGroup(groupType: GroupType) {
+  return (
+    CATEGORY_TAXONOMY.find((group) => group.groupType === groupType)?.subcategorias.map((subcategory) => ({
+      id: subcategory.id,
+      nome: subcategory.nome,
+    })) ?? []
+  );
+}
+
+export function getProjectionAccountsByCategory(groupType: GroupType, categoryName: string) {
+  const group = CATEGORY_TAXONOMY.find((item) => item.groupType === groupType);
+  const category = group?.subcategorias.find((subcategory) => normalize(subcategory.nome) === normalize(categoryName));
+
+  if (!category) return [];
+  if (category.itens.length === 0) {
+    return [category.nome];
+  }
+
+  return category.itens.map((item) => item.trim()).filter(Boolean);
 }
