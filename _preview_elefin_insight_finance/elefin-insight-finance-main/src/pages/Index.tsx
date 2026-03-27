@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Accordion } from '@/components/ui/accordion';
 import DashboardHeader from '@/components/DashboardHeader';
 import MonthPicker from '@/components/MonthPicker';
@@ -13,6 +13,7 @@ import PreviousMonthForecastCard from '@/components/PreviousMonthForecastCard';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
+import { useMonthBalance, useEnsureMonthBalance } from '@/hooks/useMonthBalance';
 import AuthPage from '@/pages/Auth';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DadosMesAnterior, Transaction } from '@/types/finance';
@@ -77,7 +78,11 @@ const Index = () => {
   const canGoNext =
     selectedMonth !== now.getMonth() || selectedYear !== now.getFullYear();
 
-  const isLoading = txLoading || catLoading;
+  // ─── Caixa Inicial persistido ────────────────────────────────────────────
+  const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(selectedMonth, selectedYear);
+  const ensureMonthBalance = useEnsureMonthBalance();
+
+  const isLoading = txLoading || catLoading || balanceLoading;
   const normalizedTransactions = useMemo(
     () =>
       transactions.map((transaction) => ({
@@ -97,6 +102,49 @@ const Index = () => {
   );
 
   const monthTransactions = filterTransactionsByMonth(normalizedTransactions, selectedMonth, selectedYear);
+
+  // Caixa inicial calculado a partir de todas as transações anteriores ao mês
+  // Usado como fallback enquanto o registro do banco ainda não foi carregado,
+  // e como valor para persistir na primeira vez que o mês é acessado.
+  const computedCaixaInicial = useMemo(() => {
+    return normalizedTransactions.reduce((sum, t) => {
+      const date = new Date(`${t.date}T00:00:00`);
+      if (Number.isNaN(date.getTime())) return sum;
+      const isBefore =
+        date.getFullYear() < selectedYear ||
+        (date.getFullYear() === selectedYear && date.getMonth() < selectedMonth);
+      if (!isBefore) return sum;
+      return sum + Number(t.amount) * (t.type === 'income' ? 1 : -1);
+    }, 0);
+  }, [normalizedTransactions, selectedMonth, selectedYear]);
+
+  // Persiste o caixa_inicial do mês na primeira vez que ele é acessado.
+  // Se já existir registro no banco (monthBalance !== null), não faz nada.
+  useEffect(() => {
+    if (!session || txLoading || balanceLoading) return;
+    if (monthBalance !== null && monthBalance !== undefined) return;
+    if (ensureMonthBalance.isPending) return;
+
+    ensureMonthBalance.mutate({
+      user_id: session.user.id,
+      mes: selectedMonth,
+      ano: selectedYear,
+      caixa_inicial: computedCaixaInicial,
+    });
+  }, [
+    session,
+    txLoading,
+    balanceLoading,
+    monthBalance,
+    selectedMonth,
+    selectedYear,
+    computedCaixaInicial,
+    // ensureMonthBalance omitido intencionalmente para evitar loop
+  ]);
+
+  // Fonte de verdade: valor do banco se existir, senão o valor calculado (antes de persistir)
+  const caixaInicial = monthBalance?.caixa_inicial ?? computedCaixaInicial;
+
   const previousMonthTransactions = filterTransactionsByMonth(
     normalizedTransactions,
     previousMonthDate.getMonth(),
@@ -205,9 +253,8 @@ const Index = () => {
       ) : (
         <div key={monthViewKey}>
           <FinanceMonthCard
-            transactions={normalizedTransactions}
-            month={selectedMonth}
-            year={selectedYear}
+            transactions={monthTransactions}
+            caixaInicial={caixaInicial}
             onOpenIncome={() => openTransactionModal('income', true)}
             onOpenExpense={() => openTransactionModal('expense', true)}
             onOpenGeneric={() => openTransactionModal('expense', false)}

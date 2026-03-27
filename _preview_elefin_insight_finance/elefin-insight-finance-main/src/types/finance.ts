@@ -30,6 +30,15 @@ export const GROUP_LIMITS: Record<GroupType, number> = {
   prioridades: 0.2,
 };
 
+export interface MonthBalance {
+  id: string;
+  user_id: string;
+  mes: number;
+  ano: number;
+  caixa_inicial: number;
+  created_at: string;
+}
+
 export interface DadosMesAnteriorCategoria {
   nome: string;
   valorReal: number;

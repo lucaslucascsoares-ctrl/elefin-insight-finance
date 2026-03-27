@@ -2,9 +2,10 @@ import { Check } from 'lucide-react';
 import { Transaction } from '@/types/finance';
 
 interface FinanceMonthCardProps {
+  /** Transações do mês atual (já filtradas) */
   transactions: Transaction[];
-  month: number;
-  year: number;
+  /** Caixa inicial somente leitura — vem do banco (saldoFinal do mês anterior) */
+  caixaInicial: number;
   onOpenIncome: () => void;
   onOpenExpense: () => void;
   onOpenGeneric: () => void;
@@ -13,33 +14,23 @@ interface FinanceMonthCardProps {
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
-const isBeforeMonth = (date: Date, month: number, year: number) =>
-  date.getFullYear() < year || (date.getFullYear() === year && date.getMonth() < month);
-
 const FinanceMonthCard = ({
   transactions,
-  month,
-  year,
+  caixaInicial,
   onOpenIncome,
   onOpenExpense,
   onOpenGeneric,
 }: FinanceMonthCardProps) => {
-  const previousBalance = transactions.reduce((sum, transaction) => {
-    const date = new Date(`${transaction.date}T00:00:00`);
-    if (Number.isNaN(date.getTime())) return sum;
-    if (!isBeforeMonth(date, month, year)) return sum;
-    return sum + Number(transaction.amount) * (transaction.type === 'income' ? 1 : -1);
-  }, 0);
-
   const monthIncome = transactions
-    .filter((transaction) => transaction.type === 'income')
-    .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+    .filter((t) => t.type === 'income')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const monthExpense = transactions
-    .filter((transaction) => transaction.type === 'expense')
-    .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+    .filter((t) => t.type === 'expense')
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 
-  const balance = previousBalance + monthIncome - monthExpense;
+  // saldoFinal = caixaInicial + entradas - saidas
+  const saldoFinal = caixaInicial + monthIncome - monthExpense;
 
   return (
     <section className="px-4 pt-2">
@@ -52,7 +43,8 @@ const FinanceMonthCard = ({
         </div>
 
         <div className="space-y-5">
-          <SummaryRow label="Caixa inicial" value={formatCurrency(previousBalance)} />
+          {/* Caixa inicial — somente leitura, não editável */}
+          <SummaryRow label="Caixa inicial" value={formatCurrency(caixaInicial)} />
           <SummaryRow
             label="Entradas"
             value={formatCurrency(monthIncome)}
@@ -70,8 +62,10 @@ const FinanceMonthCard = ({
         <div className="mt-5 border-t border-border pt-4">
           <div className="flex items-center justify-between">
             <span className="text-[16px] font-semibold text-foreground">Saldo atual</span>
-            <span className={`text-[16px] font-bold ${balance >= 0 ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}>
-              {formatCurrency(balance)}
+            <span
+              className={`text-[16px] font-bold ${saldoFinal >= 0 ? 'text-[hsl(var(--success))]' : 'text-destructive'}`}
+            >
+              {formatCurrency(saldoFinal)}
             </span>
           </div>
         </div>
