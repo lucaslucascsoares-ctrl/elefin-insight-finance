@@ -54,7 +54,7 @@ const NewTransactionModal = ({
   const [description, setDescription] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
-  const [expandedGroup, setExpandedGroup] = useState<GroupType>('essenciais');
+  const [expandedGroup, setExpandedGroup] = useState<GroupType | null>('essenciais');
   const [expandedSubcategoryId, setExpandedSubcategoryId] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
 
@@ -66,7 +66,7 @@ const NewTransactionModal = ({
     setDescription('');
     setSelectedCategoryId(null);
     setCategoryPickerOpen(false);
-    setExpandedGroup('essenciais');
+    setExpandedGroup(null);
     setExpandedSubcategoryId(null);
     setFormError('');
   }, [initialType, open]);
@@ -166,7 +166,7 @@ const NewTransactionModal = ({
               <button
                 type="button"
                 onClick={() => {
-                  setExpandedGroup(groupType);
+                  setExpandedGroup((current) => current === groupType ? null : groupType);
                   setExpandedSubcategoryId(null);
                 }}
                 className="flex w-full items-center justify-between px-4 py-3 text-left"
@@ -290,15 +290,15 @@ const NewTransactionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-32px)] max-w-[610px] gap-0 overflow-hidden rounded-[28px] border border-[#ece7de] bg-white p-0 opacity-100 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] [&>button:last-child]:hidden sm:rounded-[28px]">
+      <DialogContent className="flex w-[calc(100vw-40px)] max-w-[540px] max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] [&>button:last-child]:hidden sm:rounded-[26px]">
         <DialogClose className="absolute right-6 top-6 z-10 rounded-full p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800">
           <X className="h-7 w-7" />
           <span className="sr-only">Fechar</span>
         </DialogClose>
 
-        <div className="bg-white px-9 pb-9 pt-8 [background:#ffffff]">
+        <div className="overflow-y-auto bg-white px-7 pb-7 pt-7 [background:#ffffff] sm:px-8 sm:pb-8">
           <DialogHeader className="space-y-2 text-center">
-            <DialogTitle className="text-[26px] font-semibold tracking-[-0.02em] text-slate-800">
+            <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 sm:text-[24px]">
               Nova Movimentação
             </DialogTitle>
             <DialogDescription className="sr-only">
@@ -306,7 +306,7 @@ const NewTransactionModal = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-8 grid grid-cols-2 rounded-[20px] bg-[#f7f5f1] p-1.5">
+          <div className="mt-6 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
             {([
               { value: 'income', label: 'Entrada' },
               { value: 'expense', label: 'Saída' },
@@ -319,7 +319,7 @@ const NewTransactionModal = ({
                   type="button"
                   onClick={() => handleTypeChange(option.value)}
                   className={cn(
-                    'rounded-[18px] px-4 py-4 text-[18px] font-medium transition',
+                    'rounded-[16px] px-4 py-3 text-[17px] font-medium transition',
                     active ? 'bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.08)]' : 'text-slate-500',
                     lockedType && !active && 'cursor-default opacity-70',
                   )}
@@ -330,26 +330,26 @@ const NewTransactionModal = ({
             })}
           </div>
 
-          <div className="mt-8 space-y-7">
-            <div className="space-y-3">
-              <label className="text-[16px] text-slate-500">Valor</label>
+          <div className="mt-6 space-y-5">
+            <div className="space-y-2.5">
+              <label className="text-[15px] text-slate-500">Valor</label>
               <Input
                 type="text"
                 inputMode="decimal"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
                 placeholder="0,00"
-                className="h-[88px] rounded-[20px] border-[#e5e1d8] px-6 text-center text-[22px] font-semibold text-slate-500 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
+                className="h-[74px] rounded-[18px] border-[#e5e1d8] px-6 text-center text-[20px] font-semibold text-slate-500 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
               />
             </div>
 
             {showExpenseCategory && (
-              <div className="space-y-3">
-                <label className="text-[16px] text-slate-500">Categoria</label>
+              <div className="space-y-2.5">
+                <label className="text-[15px] text-slate-500">Categoria</label>
                 <button
                   type="button"
                   onClick={() => setCategoryPickerOpen((current) => !current)}
-                  className="flex h-[72px] w-full items-center justify-between rounded-[20px] border border-[#e5e1d8] bg-white px-5 text-left text-[17px] text-slate-800"
+                  className="flex h-[64px] w-full items-center justify-between rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800"
                 >
                   <span>{selectedCategory?.name ?? 'Selecione a categoria'}</span>
                   {categoryPickerOpen ? (
@@ -363,19 +363,19 @@ const NewTransactionModal = ({
               </div>
             )}
 
-            <div className="space-y-3">
-              <label className="text-[16px] text-slate-500">Descrição (opcional)</label>
+            <div className="space-y-2.5">
+              <label className="text-[15px] text-slate-500">Descrição (opcional)</label>
               <Input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 placeholder="Ex: Almoço no restaurante"
-                className="h-[72px] rounded-[20px] border-[#e5e1d8] px-5 text-[17px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
+                className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
               />
             </div>
           </div>
 
           {formError && (
-            <p className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">
+            <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">
               {formError}
             </p>
           )}
@@ -384,7 +384,7 @@ const NewTransactionModal = ({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={isSaving}
-            className="mt-8 h-[72px] w-full rounded-[20px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c]"
+            className="mt-6 h-[64px] w-full rounded-[18px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c]"
           >
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
