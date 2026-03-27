@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      month_balances: {
+        Row: {
+          id: string
+          user_id: string
+          mes: number
+          ano: number
+          caixa_inicial: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          mes: number
+          ano: number
+          caixa_inicial: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          mes?: number
+          ano?: number
+          caixa_inicial?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           group_type: string

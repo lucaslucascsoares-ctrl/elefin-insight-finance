@@ -19,9 +19,9 @@ export interface Category {
 export type GroupType = 'essenciais' | 'desejos' | 'prioridades';
 
 export const GROUP_LABELS: Record<GroupType, string> = {
-  essenciais: 'Essenciais',
-  desejos: 'Desejos',
-  prioridades: 'Prioridades',
+  essenciais: 'Necessidades Essenciais',
+  desejos: 'Estilo de Vida',
+  prioridades: 'Prioridades Financeiras',
 };
 
 export const GROUP_LIMITS: Record<GroupType, number> = {
@@ -29,3 +29,25 @@ export const GROUP_LIMITS: Record<GroupType, number> = {
   desejos: 0.3,
   prioridades: 0.2,
 };
+
+export interface MonthBalance {
+  id: string;
+  user_id: string;
+  mes: number;
+  ano: number;
+  caixa_inicial: number;
+  created_at: string;
+}
+
+export interface DadosMesAnteriorCategoria {
+  nome: string;
+  valorReal: number;
+  previsaoMesAtual: number;
+}
+
+export interface DadosMesAnterior {
+  mes: string;
+  ano: number;
+  categorias: DadosMesAnteriorCategoria[];
+  totalGasto: number;
+}
