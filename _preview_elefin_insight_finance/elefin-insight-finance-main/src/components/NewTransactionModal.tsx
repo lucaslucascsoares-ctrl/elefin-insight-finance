@@ -296,7 +296,8 @@ const NewTransactionModal = ({
           <span className="sr-only">Fechar</span>
         </DialogClose>
 
-        <div className="overflow-y-auto bg-white px-7 pb-7 pt-7 [background:#ffffff] sm:px-8 sm:pb-8">
+        {/* Header fixo — título + toggle */}
+        <div className="flex-shrink-0 px-7 pt-7 pb-4 sm:px-8">
           <DialogHeader className="space-y-2 text-center">
             <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 sm:text-[24px]">
               Nova Movimentação
@@ -306,13 +307,12 @@ const NewTransactionModal = ({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-6 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
+          <div className="mt-5 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
             {([
               { value: 'income', label: 'Entrada' },
               { value: 'expense', label: 'Saída' },
             ] as const).map((option) => {
               const active = type === option.value;
-
               return (
                 <button
                   key={option.value}
@@ -329,8 +329,11 @@ const NewTransactionModal = ({
               );
             })}
           </div>
+        </div>
 
-          <div className="mt-6 space-y-5">
+        {/* Área scrollável — campos */}
+        <div className="flex-1 overflow-y-auto px-7 sm:px-8">
+          <div className="space-y-5 pb-2">
             <div className="space-y-2.5">
               <label className="text-[15px] text-slate-500">Valor</label>
               <Input
@@ -372,19 +375,22 @@ const NewTransactionModal = ({
                 className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
               />
             </div>
+
+            {formError && (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                {formError}
+              </p>
+            )}
           </div>
+        </div>
 
-          {formError && (
-            <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">
-              {formError}
-            </p>
-          )}
-
+        {/* Footer fixo — botão Salvar sempre visível */}
+        <div className="flex-shrink-0 px-7 pb-7 pt-3 sm:px-8 sm:pb-8">
           <Button
             type="button"
             onClick={() => void handleSubmit()}
             disabled={isSaving}
-            className="mt-6 h-[64px] w-full rounded-[18px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c]"
+            className="h-[64px] w-full rounded-[18px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c]"
           >
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
