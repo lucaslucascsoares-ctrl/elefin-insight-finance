@@ -1,9 +1,5 @@
 import { Transaction, Category } from '@/types/finance';
-import {
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from '@/components/ui/accordion';
+import { AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lightbulb, MessageCircle } from 'lucide-react';
@@ -20,7 +16,7 @@ const InsightsAccordion = ({ transactions, categories }: InsightsAccordionProps)
   return (
     <AccordionItem value="insights" className="border-border/50">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
-        Qual o próximo passo?
+        Qual o proximo passo?
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
         <Card className="border-border/50 shadow-sm">
@@ -29,19 +25,14 @@ const InsightsAccordion = ({ transactions, categories }: InsightsAccordionProps)
               <div className="mt-0.5">
                 <Lightbulb className={`h-5 w-5 ${insight.type === 'warning' ? 'text-warning' : 'text-success'}`} />
               </div>
-              <p className="text-sm text-foreground leading-relaxed">{insight.message}</p>
+              <p className="text-sm leading-relaxed text-foreground">{insight.message}</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Help CTA Section */}
         <div id="help-section" className="mt-6 space-y-2">
-          <h3 className="text-sm font-semibold text-foreground text-center">Precisa de ajuda?</h3>
-          <Button
-            variant="outline"
-            className="w-full h-12 text-sm"
-            onClick={() => {}}
-          >
+          <h3 className="text-center text-sm font-semibold text-foreground">Precisa de ajuda?</h3>
+          <Button variant="outline" className="h-12 w-full text-sm" onClick={() => {}}>
             <MessageCircle className="mr-2 h-4 w-4" />
             Falar com um Especialista
           </Button>

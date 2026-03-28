@@ -2,13 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Transaction } from '@/types/finance';
 
-export function useTransactions() {
+export function useTransactions(userId?: string) {
   return useQuery({
-    queryKey: ['transactions'],
+    queryKey: ['transactions', userId],
+    enabled: Boolean(userId),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('transactions')
         .select('*')
+        .eq('user_id', userId)
         .order('date', { ascending: false });
       if (error) throw error;
       return data as Transaction[];

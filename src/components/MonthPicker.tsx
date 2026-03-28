@@ -1,59 +1,40 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface MonthPickerProps {
-  month: number; // 0-11
-  year: number;
-  onChange: (month: number, year: number) => void;
+  label: string;
+  canGoNext: boolean;
+  onPrevious: () => void;
+  onNext: () => void;
 }
 
-const MonthPicker = ({ month, year, onChange }: MonthPickerProps) => {
-  const now = new Date();
-  const isCurrentMonth = month === now.getMonth() && year === now.getFullYear();
+const navButtonClass =
+  'inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40';
 
-  const handlePrev = () => {
-    if (month === 0) {
-      onChange(11, year - 1);
-    } else {
-      onChange(month - 1, year);
-    }
-  };
-
-  const handleNext = () => {
-    if (isCurrentMonth) return;
-    if (month === 11) {
-      onChange(0, year + 1);
-    } else {
-      onChange(month + 1, year);
-    }
-  };
-
-  const label = format(new Date(year, month), "MMMM 'de' yyyy", { locale: ptBR });
-
+const MonthPicker = ({ label, canGoNext, onPrevious, onNext }: MonthPickerProps) => {
   return (
-    <div className="flex items-center justify-center gap-2 px-4 py-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-muted-foreground"
-        onClick={handlePrev}
+    <div className="flex items-center justify-center gap-3 px-4 py-2">
+      <button
+        type="button"
+        className={navButtonClass}
+        onClick={onPrevious}
+        aria-label="Voltar um mes"
       >
         <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <span className="text-sm font-medium text-foreground capitalize min-w-[160px] text-center">
+      </button>
+
+      <span className="min-w-[180px] text-center text-sm font-semibold capitalize text-foreground">
         {label}
       </span>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-muted-foreground"
-        onClick={handleNext}
-        disabled={isCurrentMonth}
+
+      <button
+        type="button"
+        className={navButtonClass}
+        onClick={onNext}
+        disabled={!canGoNext}
+        aria-label="Avancar um mes"
       >
         <ChevronRight className="h-4 w-4" />
-      </Button>
+      </button>
     </div>
   );
 };

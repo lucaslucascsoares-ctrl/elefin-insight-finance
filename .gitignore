@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local workspace folders
+_preview_*/
+gestao-eventos-projeto.zip
+server/
+.npm-cache/
+.env
+vite.config.ts.timestamp-*.mjs
+supabase/.temp/
