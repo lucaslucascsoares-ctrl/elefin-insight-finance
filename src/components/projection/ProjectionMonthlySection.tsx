@@ -60,10 +60,7 @@ const ProjectionMonthlySection = ({
     .filter((item) => item.status !== 'ignored')
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const templateMap = useMemo(
-    () => new Map(templates.map((template) => [template.id, template])),
-    [templates],
-  );
+  const templateMap = useMemo(() => new Map(templates.map((template) => [template.id, template])), [templates]);
 
   return (
     <>
@@ -80,16 +77,16 @@ const ProjectionMonthlySection = ({
               aria-controls="projection-monthly-content"
               className="flex w-full items-start justify-between gap-3 text-left"
             >
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">Contas projetadas do mes</h2>
-                <p className="mt-1 text-sm text-muted-foreground">Toque para ver suas contas fixas previstas.</p>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-semibold text-foreground">Contas projetadas do mês</h2>
+                <p className="mt-1 break-words text-sm text-muted-foreground">Toque para ver suas contas fixas previstas.</p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
                   {items.length} contas
                 </span>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-background">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background">
                   <ChevronDown
                     className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
                       expanded ? 'rotate-180' : 'rotate-0'
@@ -106,13 +103,13 @@ const ProjectionMonthlySection = ({
           >
             <div className="mt-4 space-y-4 border-t border-border/70 pt-4">
               <div className="rounded-2xl bg-muted/30 px-4 py-4 text-sm leading-6 text-muted-foreground">
-                Essas sao as contas fixas vindas da sua Projecao de Gastos. Elas aparecem automaticamente no mes,
-                mas so entram como gasto real quando voce marcar como paga.
+                Essas são as contas fixas vindas da sua Projeção de Gastos. Elas aparecem automaticamente no mês, mas
+                só entram como gasto real quando você as marcar como pagas.
               </div>
 
               {items.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-border/80 px-4 py-8 text-center text-sm text-muted-foreground">
-                  Nenhuma conta fixa cadastrada ainda. Use a aba Projecao de Gastos para criar sua base mensal.
+                  Nenhuma conta fixa cadastrada ainda. Use a aba Projeção de Gastos para criar sua base mensal.
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -122,13 +119,15 @@ const ProjectionMonthlySection = ({
 
                     return (
                       <div key={groupType} className="rounded-2xl border border-border/70">
-                        <div className="flex items-center justify-between border-b border-border/70 px-4 py-3">
-                          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
+                          <span className="min-w-0 break-words text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                             {GROUP_LABELS[groupType]}
                           </span>
-                          <span className="text-sm font-medium text-foreground">
+                          <span className="shrink-0 text-sm font-medium text-foreground">
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                              groupItems.filter((item) => item.status !== 'ignored').reduce((sum, item) => sum + item.amount, 0),
+                              groupItems
+                                .filter((item) => item.status !== 'ignored')
+                                .reduce((sum, item) => sum + item.amount, 0),
                             )}
                           </span>
                         </div>
@@ -145,19 +144,19 @@ const ProjectionMonthlySection = ({
                                 key={item.id}
                                 type="button"
                                 onClick={() => setSelectedItem(item)}
-                                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
+                                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
                               >
-                                <div className="min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <span className="truncate text-sm font-semibold text-foreground">{item.title}</span>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <span className="break-words text-sm font-semibold text-foreground">{item.title}</span>
                                     <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusClasses[item.status]}`}>
                                       {statusLabels[item.status]}
                                     </span>
                                   </div>
-                                  <p className="mt-1 text-xs text-muted-foreground">{categoryName}</p>
+                                  <p className="mt-1 break-words text-xs text-muted-foreground">{categoryName}</p>
                                 </div>
 
-                                <div className="flex items-center gap-2">
+                                <div className="flex shrink-0 items-center gap-2">
                                   <span className="text-sm font-semibold text-foreground">
                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.amount)}
                                   </span>
@@ -171,9 +170,9 @@ const ProjectionMonthlySection = ({
                     );
                   })}
 
-                  <div className="flex items-center justify-between rounded-2xl bg-slate-900 px-4 py-4 text-white">
+                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white">
                     <span className="text-sm font-medium text-white/80">Total previsto ativo</span>
-                    <span className="text-xl font-semibold">
+                    <span className="shrink-0 text-xl font-semibold">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProjected)}
                     </span>
                   </div>

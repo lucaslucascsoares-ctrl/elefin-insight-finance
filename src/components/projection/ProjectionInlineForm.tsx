@@ -104,22 +104,22 @@ const ProjectionInlineForm = ({
     }
 
     if (!linkedAccount) {
-      setFormError('Selecione a conta vinculada a categoria.');
+      setFormError('Selecione a conta vinculada à categoria.');
       return;
     }
 
     if (accountName.trim() !== linkedAccount) {
-      setFormError('A conta precisa corresponder a opcao vinculada a categoria.');
+      setFormError('A conta precisa corresponder à opção vinculada à categoria.');
       return;
     }
 
     if (!availableAccounts.includes(linkedAccount)) {
-      setFormError('A conta selecionada nao pertence a categoria escolhida.');
+      setFormError('A conta selecionada não pertence à categoria escolhida.');
       return;
     }
 
     if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-      setFormError('Informe um valor padrao valido.');
+      setFormError('Informe um valor padrão válido.');
       return;
     }
 
@@ -138,7 +138,7 @@ const ProjectionInlineForm = ({
       resetForm();
       onOpenChange(false);
     } catch {
-      setFormError('Nao foi possivel salvar a projecao. Tente novamente.');
+      setFormError('Não foi possível salvar a projeção. Tente novamente.');
     } finally {
       setSaving(false);
     }
@@ -161,19 +161,19 @@ const ProjectionInlineForm = ({
           type="button"
           aria-expanded={open}
           aria-controls="projection-inline-form"
-          className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left"
+          className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left"
         >
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="text-lg font-semibold text-foreground">
-              {template ? 'Editar projecao' : 'Projeção de Gastos'}
+              {template ? 'Editar projeção' : 'Projeção de Gastos'}
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 break-words text-sm text-muted-foreground">
               {template
                 ? 'Atualize a conta fixa usando grupo, categoria e conta vinculada.'
-                : 'Cadastre suas contas fixas para que elas aparecam automaticamente em todos os meses.'}
+                : 'Cadastre suas contas fixas para que elas apareçam automaticamente em todos os meses.'}
             </p>
           </div>
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border/70 bg-background">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background">
             {open ? (
               <ChevronUp className="h-5 w-5 text-muted-foreground" />
             ) : (
@@ -224,7 +224,7 @@ const ProjectionInlineForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="projection-linked-account-inline">Conta vinculada a categoria</Label>
+            <Label htmlFor="projection-linked-account-inline">Conta vinculada à categoria</Label>
             <select
               id="projection-linked-account-inline"
               value={linkedAccount}
@@ -247,13 +247,13 @@ const ProjectionInlineForm = ({
               id="projection-account-inline"
               value={accountName}
               readOnly
-              placeholder="A conta sera preenchida pela opcao acima"
+              placeholder="A conta será preenchida pela opção acima"
               className="h-12 rounded-2xl"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="projection-amount-inline">Valor padrao</Label>
+            <Label htmlFor="projection-amount-inline">Valor padrão</Label>
             <Input
               id="projection-amount-inline"
               inputMode="decimal"
@@ -265,7 +265,7 @@ const ProjectionInlineForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="projection-description-inline">Observacao</Label>
+            <Label htmlFor="projection-description-inline">Observação</Label>
             <Textarea
               id="projection-description-inline"
               value={description}
@@ -286,7 +286,7 @@ const ProjectionInlineForm = ({
               disabled={saving}
               className="h-12 flex-1 rounded-2xl text-base font-semibold"
             >
-              {saving ? 'Salvando...' : template ? 'Salvar alteracoes' : 'Salvar projeção'}
+              {saving ? 'Salvando...' : template ? 'Salvar alterações' : 'Salvar projeção'}
             </Button>
             <Button
               type="button"

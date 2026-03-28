@@ -17,7 +17,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
 
   const headerTitle =
     title ??
-    (location.pathname === '/projection' ? 'Projeção de Gastos' : 'Painel do Mes');
+    (location.pathname === '/projection' ? 'Projeção de Gastos' : 'Painel do Mês');
 
   const scrollToElement = (id: string) => {
     setSheetOpen(false);
@@ -54,7 +54,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
   const menuItems = [
     {
       icon: LayoutDashboard,
-      label: 'Painel do Mes',
+      label: 'Painel do Mês',
       onClick: () => {
         setSheetOpen(false);
         if (location.pathname === '/') {
@@ -65,7 +65,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
         navigate('/');
       },
     },
-    { icon: PlusCircle, label: 'Nova Movimentacao', onClick: handleNewTransaction },
+    { icon: PlusCircle, label: 'Nova Movimentação', onClick: handleNewTransaction },
     {
       icon: WalletCards,
       label: 'Projeção de Gastos',
@@ -74,7 +74,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
         navigate('/projection');
       },
     },
-    { icon: Ruler, label: 'Regua de Gastos', onClick: () => scrollToElement('ideal-section') },
+    { icon: Ruler, label: 'Régua de Gastos', onClick: () => scrollToElement('ideal-section') },
     { icon: HelpCircle, label: 'Precisa de Ajuda?', onClick: scrollToHelp },
   ];
 

@@ -17,12 +17,12 @@ const MonthPicker = ({ label, canGoNext, onPrevious, onNext }: MonthPickerProps)
         type="button"
         className={navButtonClass}
         onClick={onPrevious}
-        aria-label="Voltar um mes"
+        aria-label="Voltar um mês"
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      <span className="min-w-[180px] text-center text-sm font-semibold capitalize text-foreground">
+      <span className="min-w-0 flex-1 break-words text-center text-sm font-semibold capitalize text-foreground sm:flex-none sm:min-w-[180px]">
         {label}
       </span>
 
@@ -31,7 +31,7 @@ const MonthPicker = ({ label, canGoNext, onPrevious, onNext }: MonthPickerProps)
         className={navButtonClass}
         onClick={onNext}
         disabled={!canGoNext}
-        aria-label="Avancar um mes"
+        aria-label="Avançar um mês"
       >
         <ChevronRight className="h-4 w-4" />
       </button>

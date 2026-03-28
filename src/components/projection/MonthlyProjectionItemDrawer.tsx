@@ -68,7 +68,7 @@ const MonthlyProjectionItemDrawer = ({
     if (!item) return;
     const numericAmount = Number(amount.replace(',', '.'));
     if (!title.trim() || !Number.isFinite(numericAmount) || numericAmount <= 0) {
-      toast.error('Informe um valor valido para o mês');
+      toast.error('Informe um valor válido para o mês');
       return;
     }
 
@@ -80,7 +80,7 @@ const MonthlyProjectionItemDrawer = ({
   const handleMarkPaid = () => {
     if (!item) return;
     if (item.status === 'paid' && item.paid_transaction_id) {
-      toast.message('Essa conta ja foi marcada como paga');
+      toast.message('Essa conta já foi marcada como paga');
       return;
     }
 
@@ -99,7 +99,7 @@ const MonthlyProjectionItemDrawer = ({
           toast.success('Conta marcada como paga');
           onOpenChange(false);
         },
-        onError: () => toast.error('Nao foi possivel marcar essa conta como paga'),
+        onError: () => toast.error('Não foi possível marcar essa conta como paga'),
       },
     );
   };
@@ -114,8 +114,8 @@ const MonthlyProjectionItemDrawer = ({
           {item && (
             <>
               <DrawerHeader className="px-5 pt-5 text-left">
-                <DrawerTitle className="text-xl font-semibold text-foreground">{item.title}</DrawerTitle>
-                <DrawerDescription className="text-sm text-muted-foreground">
+                <DrawerTitle className="break-words text-xl font-semibold text-foreground">{item.title}</DrawerTitle>
+                <DrawerDescription className="break-words text-sm text-muted-foreground">
                   {categoryLabel} • {statusLabels[item.status]}
                 </DrawerDescription>
               </DrawerHeader>
@@ -126,11 +126,11 @@ const MonthlyProjectionItemDrawer = ({
                     <span>Valor previsto</span>
                     <span>Base global</span>
                   </div>
-                  <div className="mt-2 flex items-end justify-between">
-                    <span className="text-2xl font-semibold text-foreground">
+                  <div className="mt-2 flex items-end justify-between gap-3">
+                    <span className="break-words text-2xl font-semibold text-foreground">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.amount)}
                     </span>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="shrink-0 text-sm text-muted-foreground">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(originalAmount)}
                     </span>
                   </div>
@@ -146,7 +146,7 @@ const MonthlyProjectionItemDrawer = ({
                     className="h-12 rounded-2xl text-base font-semibold"
                     onClick={() => setEditOpen(true)}
                   >
-                    Editar so este mês
+                    Editar só este mês
                   </Button>
                   {item.status !== 'ignored' ? (
                     <Button

@@ -12,6 +12,12 @@ const BAR_COLORS: Record<GroupType, string> = {
   prioridades: 'hsl(var(--chart-prioridades))',
 };
 
+const SHORT_GROUP_LABELS: Record<GroupType, string> = {
+  essenciais: 'Essenciais',
+  desejos: 'Desejos',
+  prioridades: 'Prioridades',
+};
+
 const IdealComparisonCard = ({ transactions, categories }: IdealComparisonCardProps) => {
   const monthExpenses = transactions.filter((transaction) => transaction.type === 'expense');
   const categoryMap = new Map(categories.map((category) => [category.id, category]));
@@ -26,6 +32,7 @@ const IdealComparisonCard = ({ transactions, categories }: IdealComparisonCardPr
 
   const data = (Object.keys(groups) as GroupType[]).map((group) => ({
     name: GROUP_LABELS[group],
+    shortName: SHORT_GROUP_LABELS[group],
     value: totalExpenses > 0 ? Math.round((groups[group] / totalExpenses) * 100) : 0,
     amount: groups[group],
     group,
@@ -37,25 +44,22 @@ const IdealComparisonCard = ({ transactions, categories }: IdealComparisonCardPr
   return (
     <section id="ideal-section" className="px-4 pt-4">
       <div className="rounded-[26px] border border-border bg-card px-4 py-5 shadow-sm">
-        <h3 className="mb-5 text-center text-[15px] font-semibold text-foreground">
-          Seu mes comparado ao ideal
-        </h3>
+        <h3 className="mb-5 text-center text-[15px] font-semibold text-foreground">Seu mês comparado ao ideal</h3>
 
         {totalExpenses === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Nenhuma despesa registrada neste mes.
-          </p>
+          <p className="py-8 text-center text-sm text-muted-foreground">Nenhuma despesa registrada neste mês.</p>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={data} margin={{ top: 10, right: 10, left: -12, bottom: 8 }}>
+            <ResponsiveContainer width="100%" height={240}>
+              <BarChart data={data} margin={{ top: 24, right: 8, left: -12, bottom: 18 }}>
                 <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis
-                  dataKey="name"
+                  dataKey="shortName"
                   axisLine={false}
                   tickLine={false}
                   interval={0}
-                  tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                  tickMargin={8}
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <YAxis
                   domain={[0, 100]}
@@ -71,6 +75,7 @@ const IdealComparisonCard = ({ transactions, categories }: IdealComparisonCardPr
                   <LabelList
                     dataKey="value"
                     position="top"
+                    offset={8}
                     formatter={(value: number) => `${value}%`}
                     style={{ fontSize: 12, fontWeight: 700, fill: 'hsl(var(--foreground))' }}
                   />
@@ -80,9 +85,11 @@ const IdealComparisonCard = ({ transactions, categories }: IdealComparisonCardPr
 
             <div className="mt-3 grid grid-cols-3 gap-2 border-t border-border pt-4">
               {data.map((item) => (
-                <div key={item.group} className="rounded-xl bg-muted/40 px-2 py-2 text-center">
-                  <p className="text-[11px] font-medium text-muted-foreground">{item.name}</p>
-                  <p className="mt-1 text-[13px] font-semibold text-foreground">{formatCurrency(item.amount)}</p>
+                <div key={item.group} className="min-w-0 rounded-xl bg-muted/40 px-2 py-3 text-center">
+                  <p className="break-words text-[11px] font-medium leading-5 text-muted-foreground">{item.name}</p>
+                  <p className="mt-1 break-words text-[13px] font-semibold text-foreground">
+                    {formatCurrency(item.amount)}
+                  </p>
                 </div>
               ))}
             </div>

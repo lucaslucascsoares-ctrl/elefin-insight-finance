@@ -172,6 +172,6 @@ export function buildMonthlyForecastData({
 
 export const FORECAST_SOURCE_LABELS: Record<ForecastItem['source'], string> = {
   recurring: 'Recorrente',
-  history: 'Historico',
+  history: 'Histórico',
   manual: 'Manual',
 };

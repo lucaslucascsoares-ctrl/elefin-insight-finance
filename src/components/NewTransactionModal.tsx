@@ -122,7 +122,7 @@ const NewTransactionModal = ({
     }
 
     if (!session?.user?.id) {
-      throw new Error('Usuario nao autenticado.');
+      throw new Error('Usuário não autenticado.');
     }
 
     return addCategory.mutateAsync({
@@ -139,7 +139,7 @@ const NewTransactionModal = ({
       setSelectedCategoryId(category.id);
       setCategoryPickerOpen(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Nao foi possivel carregar a categoria.');
+      setFormError(error instanceof Error ? error.message : 'Não foi possível carregar a categoria.');
     }
   };
 
@@ -148,17 +148,17 @@ const NewTransactionModal = ({
     const transactionDate = getTransactionDateForMonth(selectedDate);
 
     if (!session?.user?.id) {
-      setFormError('Sua sessao expirou. Entre novamente.');
+      setFormError('Sua sessão expirou. Entre novamente.');
       return;
     }
 
     if (!numericAmount || numericAmount <= 0) {
-      setFormError('Informe um valor valido.');
+      setFormError('Informe um valor válido.');
       return;
     }
 
     if (type === 'expense' && !selectedCategoryId) {
-      setFormError('Selecione uma categoria para a saida.');
+      setFormError('Selecione uma categoria para a saída.');
       return;
     }
 
@@ -185,7 +185,7 @@ const NewTransactionModal = ({
 
       onOpenChange(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Nao foi possivel salvar a movimentacao.');
+      setFormError(error instanceof Error ? error.message : 'Não foi possível salvar a movimentação.');
     }
   };
 
@@ -247,12 +247,12 @@ const NewTransactionModal = ({
                             isDirectSelected ? 'bg-orange-100 text-orange-700' : 'hover:bg-orange-50',
                           )}
                         >
-                          <span>{subcategory.nome}</span>
+                          <span className="min-w-0 flex-1 break-words">{subcategory.nome}</span>
                           {hasItems ? (
                             isSubExpanded ? (
-                              <ChevronDown className="h-4 w-4 text-slate-400" />
+                              <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-slate-400" />
+                              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
                             )
                           ) : null}
                         </button>
@@ -277,7 +277,7 @@ const NewTransactionModal = ({
                                       : 'hover:bg-orange-50',
                                   )}
                                 >
-                                  {getCanonicalCategoryName(item, groupType)}
+                                  <span className="break-words">{getCanonicalCategoryName(item, groupType)}</span>
                                 </button>
                               );
                             })}
@@ -301,7 +301,7 @@ const NewTransactionModal = ({
                             isSelected ? 'bg-[#e5e5e5] font-medium text-slate-900' : 'hover:bg-[#f6f4ef]',
                           )}
                         >
-                          {getCanonicalCategoryName(customCategory.name, groupType)}
+                          <span className="break-words">{getCanonicalCategoryName(customCategory.name, groupType)}</span>
                         </button>
                       </div>
                     );
@@ -324,26 +324,26 @@ const NewTransactionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex w-[calc(100vw-40px)] max-w-[540px] max-h-[90dvh] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] [&>button:last-child]:hidden sm:rounded-[26px]">
+      <DialogContent className="flex max-h-[90dvh] w-[calc(100vw-32px)] max-w-[540px] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] [&>button:last-child]:hidden sm:w-[calc(100vw-40px)] sm:rounded-[26px]">
         <DialogClose className="absolute right-6 top-6 z-10 rounded-full p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800">
           <X className="h-7 w-7" />
           <span className="sr-only">Fechar</span>
         </DialogClose>
 
-        <div className="flex-shrink-0 px-7 pb-4 pt-7 sm:px-8">
+        <div className="flex-shrink-0 px-5 pb-4 pt-7 sm:px-8">
           <DialogHeader className="space-y-2 text-center">
             <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 sm:text-[24px]">
-              Nova Movimentacao
+              Nova Movimentação
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Registre uma entrada ou saida do mes atual.
+              Registre uma entrada ou saída do mês atual.
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-5 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
             {([
               { value: 'income', label: 'Entrada' },
-              { value: 'expense', label: 'Saida' },
+              { value: 'expense', label: 'Saída' },
             ] as const).map((option) => {
               const active = type === option.value;
 
@@ -366,7 +366,7 @@ const NewTransactionModal = ({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-7 sm:px-8">
+        <div className="flex-1 overflow-y-auto px-5 sm:px-8">
           <div className="space-y-5 pb-2">
             <div className="space-y-2.5">
               <label className="text-[15px] text-slate-500">Valor</label>
@@ -386,13 +386,13 @@ const NewTransactionModal = ({
                 <button
                   type="button"
                   onClick={() => setCategoryPickerOpen((current) => !current)}
-                  className="flex h-[64px] w-full items-center justify-between rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800"
+                  className="flex h-[64px] w-full items-center justify-between gap-3 rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800"
                 >
-                  <span>{selectedCategoryLabel ?? 'Selecione a categoria'}</span>
+                  <span className="min-w-0 flex-1 truncate">{selectedCategoryLabel ?? 'Selecione a categoria'}</span>
                   {categoryPickerOpen ? (
-                    <ChevronUp className="h-5 w-5 text-slate-500" />
+                    <ChevronUp className="h-5 w-5 shrink-0 text-slate-500" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-slate-500" />
+                    <ChevronDown className="h-5 w-5 shrink-0 text-slate-500" />
                   )}
                 </button>
 
@@ -409,9 +409,9 @@ const NewTransactionModal = ({
                     className="mt-0.5"
                   />
                   <span className="flex-1">
-                    <span className="block text-[15px] font-medium text-slate-800">Repetir todo mes</span>
+                    <span className="block text-[15px] font-medium text-slate-800">Repetir todo mês</span>
                     <span className="mt-1 block text-sm text-slate-500">
-                      Se ativado, esta conta entra automaticamente nas proximas previsoes mensais.
+                      Se ativado, esta conta entra automaticamente nas próximas previsões mensais.
                     </span>
                   </span>
                 </label>
@@ -419,24 +419,20 @@ const NewTransactionModal = ({
             )}
 
             <div className="space-y-2.5">
-              <label className="text-[15px] text-slate-500">Descricao (opcional)</label>
+              <label className="text-[15px] text-slate-500">Descrição (opcional)</label>
               <Input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Ex: Almoco no restaurante"
+                placeholder="Ex: Almoço no restaurante"
                 className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
               />
             </div>
 
-            {formError && (
-              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                {formError}
-              </p>
-            )}
+            {formError && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{formError}</p>}
           </div>
         </div>
 
-        <div className="flex-shrink-0 px-7 pb-7 pt-3 sm:px-8 sm:pb-8">
+        <div className="flex-shrink-0 px-5 pb-7 pt-3 sm:px-8 sm:pb-8">
           <Button
             type="button"
             onClick={() => void handleSubmit()}

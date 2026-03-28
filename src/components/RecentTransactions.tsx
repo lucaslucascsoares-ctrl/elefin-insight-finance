@@ -39,8 +39,8 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
     if (!deleteId) return;
 
     deleteTransaction.mutate(deleteId, {
-      onSuccess: () => toast.success('Transacao excluida'),
-      onError: () => toast.error('Erro ao excluir transacao'),
+      onSuccess: () => toast.success('Transação excluída'),
+      onError: () => toast.error('Erro ao excluir transação'),
     });
 
     setDeleteId(null);
@@ -55,12 +55,12 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
     <>
       <AccordionItem value="transactions" className="border-border/50">
         <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
-          Transacoes do mes
+          Transações do mês
         </AccordionTrigger>
         <AccordionContent className="px-4 pb-4">
           {sortedTransactions.length === 0 ? (
             <p className="py-4 text-center text-sm text-muted-foreground">
-              Nenhuma transacao neste mes.
+              Nenhuma transação neste mês.
             </p>
           ) : (
             <ul className="space-y-1">
@@ -76,7 +76,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="truncate text-sm font-medium text-foreground">
-                          {transaction.description || category?.name || 'Sem descricao'}
+                          {transaction.description || category?.name || 'Sem descrição'}
                         </span>
                         {category && (
                           <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
@@ -100,7 +100,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                         type="button"
                         onClick={() => setDeleteId(transaction.id)}
                         className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-                        aria-label="Excluir transacao"
+                        aria-label="Excluir transação"
                       >
                         <Trash2 size={14} />
                       </button>
@@ -116,8 +116,8 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir transacao?</AlertDialogTitle>
-            <AlertDialogDescription>Esta acao nao pode ser desfeita.</AlertDialogDescription>
+            <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
+            <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>

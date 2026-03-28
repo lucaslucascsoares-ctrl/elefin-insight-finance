@@ -225,9 +225,9 @@ const Index = () => {
   if (hasCriticalError) {
     return (
       <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6 text-center">
-        <h1 className="text-2xl font-semibold text-foreground">Nao foi possivel carregar sua pagina</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Não foi possível carregar sua página</h1>
         <p className="text-sm text-muted-foreground">
-          Houve uma falha ao buscar seus dados. Tente recarregar e verificar sua conexao.
+          Houve uma falha ao buscar seus dados. Tente recarregar e verificar sua conexão.
         </p>
         <Button
           type="button"

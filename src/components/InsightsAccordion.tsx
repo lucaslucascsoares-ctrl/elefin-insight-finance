@@ -16,7 +16,7 @@ const InsightsAccordion = ({ transactions, categories }: InsightsAccordionProps)
   return (
     <AccordionItem value="insights" className="border-border/50">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
-        Qual o proximo passo?
+        Qual é o próximo passo?
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
         <Card className="border-border/50 shadow-sm">

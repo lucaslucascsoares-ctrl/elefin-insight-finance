@@ -53,7 +53,7 @@ const Projection = () => {
 
   return (
     <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
-      <DashboardHeader onSignOut={signOut} title="Projecao de Gastos" />
+      <DashboardHeader onSignOut={signOut} title="Projeção de Gastos" />
 
       <div className="px-4 pb-6 pt-2">
         <ProjectionInlineForm
@@ -65,20 +65,20 @@ const Projection = () => {
           onSave={async (input) => {
             if (editingTemplate) {
               await updateTemplate(editingTemplate.id, input);
-              toast.success('Projecao atualizada');
+              toast.success('Projeção atualizada');
               setEditingTemplate(null);
             } else {
               await addTemplate(input);
-              toast.success('Conta fixa adicionada a projecao');
+              toast.success('Conta fixa adicionada à projeção');
             }
           }}
         />
 
         <section className="mt-4 rounded-[28px] border border-border/70 bg-white px-4 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
-          <div>
-            <h1 className="text-xl font-semibold text-foreground">Projecao dos Proximos meses</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              As contas pre programadas aparecerao aqui nessa aba.
+          <div className="min-w-0">
+            <h1 className="break-words text-xl font-semibold text-foreground">Projeção dos Próximos Meses</h1>
+            <p className="mt-1 break-words text-sm text-muted-foreground">
+              As contas pré-programadas aparecerão aqui nesta aba.
             </p>
           </div>
 
@@ -89,7 +89,7 @@ const Projection = () => {
             </div>
           ) : templates.length === 0 ? (
             <div className="mt-5 rounded-2xl border border-dashed border-border/80 px-4 py-10 text-center text-sm text-muted-foreground">
-              Voce ainda nao tem contas fixas cadastradas.
+              Você ainda não tem contas fixas cadastradas.
             </div>
           ) : (
             <div className="mt-5 space-y-4">
@@ -100,17 +100,20 @@ const Projection = () => {
                 return (
                   <div key={groupType} className="rounded-2xl border border-border/70">
                     <div className="border-b border-border/70 px-4 py-3">
-                      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                      <p className="break-words text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         {GROUP_LABELS[groupType]}
                       </p>
                     </div>
 
                     <div className="divide-y divide-border/70">
                       {templatesByGroup.map((template) => (
-                        <div key={template.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="truncate text-sm font-semibold text-foreground">
+                        <div
+                          key={template.id}
+                          className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="break-words text-sm font-semibold text-foreground">
                                 {template.account_name}
                               </span>
                               <span
@@ -121,16 +124,16 @@ const Projection = () => {
                                 {template.is_active ? 'Ativa' : 'Pausada'}
                               </span>
                             </div>
-                            <p className="mt-1 text-xs text-muted-foreground">{template.category_name}</p>
+                            <p className="mt-1 break-words text-xs text-muted-foreground">{template.category_name}</p>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-foreground">
+                          <div className="flex items-center justify-between gap-3 sm:justify-end">
+                            <span className="shrink-0 text-sm font-semibold text-foreground">
                               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                                 template.default_amount,
                               )}
                             </span>
-                            <div className="flex items-center gap-1">
+                            <div className="flex shrink-0 items-center gap-1">
                               <button
                                 type="button"
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -138,7 +141,7 @@ const Projection = () => {
                                   setEditingTemplate(template);
                                   setFormOpen(true);
                                 }}
-                                aria-label="Editar projecao"
+                                aria-label="Editar projeção"
                               >
                                 <Pencil className="h-4 w-4" />
                               </button>
@@ -149,7 +152,7 @@ const Projection = () => {
                                   await toggleTemplateActive(template.id, !template.is_active);
                                   toast.success(template.is_active ? 'Conta pausada' : 'Conta reativada');
                                 }}
-                                aria-label="Pausar ou reativar projecao"
+                                aria-label="Pausar ou reativar projeção"
                               >
                                 <Power className="h-4 w-4" />
                               </button>
@@ -158,13 +161,13 @@ const Projection = () => {
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                                 onClick={async () => {
                                   await deleteTemplate(template.id);
-                                  toast.success('Conta removida da projecao');
+                                  toast.success('Conta removida da projeção');
                                   if (editingTemplate?.id === template.id) {
                                     setEditingTemplate(null);
                                     setFormOpen(false);
                                   }
                                 }}
-                                aria-label="Excluir projecao"
+                                aria-label="Excluir projeção"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>

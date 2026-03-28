@@ -140,10 +140,10 @@ describe('Index month navigation', () => {
 
     expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('marco');
 
-    fireEvent.click(screen.getByRole('button', { name: /voltar um mes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /voltar um mês/i }));
     expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('fevereiro');
 
-    const nextButton = screen.getByRole('button', { name: /avancar um mes/i });
+    const nextButton = screen.getByRole('button', { name: /avançar um mês/i });
     fireEvent.click(nextButton);
 
     expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('marco');
