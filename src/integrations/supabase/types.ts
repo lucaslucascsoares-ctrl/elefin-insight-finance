@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      recurring_rules: {
+        Row: {
+          active: boolean
+          amount: number
+          category_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          starts_at: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          starts_at: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          starts_at?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_rules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_projection_overrides: {
+        Row: {
+          amount_override: number | null
+          created_at: string
+          id: string
+          month: number
+          paid_transaction_id: string | null
+          status: string
+          template_id: string
+          title_override: string | null
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          amount_override?: number | null
+          created_at?: string
+          id?: string
+          month: number
+          paid_transaction_id?: string | null
+          status?: string
+          template_id: string
+          title_override?: string | null
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          amount_override?: number | null
+          created_at?: string
+          id?: string
+          month?: number
+          paid_transaction_id?: string | null
+          status?: string
+          template_id?: string
+          title_override?: string | null
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_projection_overrides_paid_transaction_id_fkey"
+            columns: ["paid_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "monthly_projection_overrides_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "projection_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       month_balances: {
         Row: {
           id: string
@@ -61,6 +165,65 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      projection_templates: {
+        Row: {
+          account_name: string
+          category_id: string | null
+          category_name: string
+          created_at: string
+          default_amount: number
+          description: string | null
+          group_type: string
+          id: string
+          is_active: boolean
+          legacy_local_id: string | null
+          source: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          category_id?: string | null
+          category_name: string
+          created_at?: string
+          default_amount: number
+          description?: string | null
+          group_type: string
+          id?: string
+          is_active?: boolean
+          legacy_local_id?: string | null
+          source?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          category_id?: string | null
+          category_name?: string
+          created_at?: string
+          default_amount?: number
+          description?: string | null
+          group_type?: string
+          id?: string
+          is_active?: boolean
+          legacy_local_id?: string | null
+          source?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projection_templates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {

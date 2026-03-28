@@ -67,8 +67,8 @@ const Index = () => {
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
   const [modalLockedType, setModalLockedType] = useState(false);
   const attemptedMonthBalanceRef = useRef<Set<string>>(new Set());
-  const { activeRules, saveRule } = useRecurringRules(userId);
-  const { templates } = useProjectionTemplates(userId);
+  const { activeRules, saveRule, isLoading: recurringLoading } = useRecurringRules(userId);
+  const { templates, isLoading: templatesLoading } = useProjectionTemplates(userId);
 
   const now = new Date();
   const [selectedDate, setSelectedDate] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
@@ -95,14 +95,13 @@ const Index = () => {
     [selectedMonth, selectedYear],
   );
   const monthViewKey = `${selectedYear}-${selectedMonth}`;
-  const canGoNext =
-    selectedMonth !== now.getMonth() || selectedYear !== now.getFullYear();
+  const maxFutureDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + 12, 1), [now]);
+  const canGoNext = selectedDate < maxFutureDate;
 
   // ─── Caixa Inicial persistido ────────────────────────────────────────────
   const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(userId, selectedMonth, selectedYear);
   const ensureMonthBalance = useEnsureMonthBalance();
 
-  const isLoading = authLoading || (Boolean(session) && (txLoading || catLoading));
   const hasCriticalError = txError || catError;
   const normalizedTransactions = useMemo(
     () =>
@@ -175,12 +174,26 @@ const Index = () => {
     previousMonthDate.getMonth(),
     previousMonthDate.getFullYear(),
   );
-  const { items: monthlyProjectionItems, saveOverride, clearOverride } = useMonthlyProjectionItems(
+  const {
+    items: monthlyProjectionItems,
+    saveOverride,
+    clearOverride,
+    isLoading: monthlyProjectionLoading,
+  } = useMonthlyProjectionItems(
     userId,
     templates,
     selectedMonth,
     selectedYear,
   );
+  const isLoading =
+    authLoading ||
+    (Boolean(session) &&
+      (txLoading ||
+        catLoading ||
+        recurringLoading ||
+        templatesLoading ||
+        monthlyProjectionLoading ||
+        balanceLoading));
 
   const forecastData = useMemo(
     () =>
@@ -236,8 +249,8 @@ const Index = () => {
     setModalOpen(true);
   };
 
-  const handleSaveRecurringRule = (input: RecurringRuleInput) => {
-    saveRule(input);
+  const handleSaveRecurringRule = async (input: RecurringRuleInput) => {
+    await saveRule(input);
   };
 
   const handlePreviousMonth = () => {
@@ -247,9 +260,7 @@ const Index = () => {
   const handleNextMonth = () => {
     setSelectedDate((current) => {
       const next = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-      const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      return next > currentMonthDate ? current : next;
+      return next > maxFutureDate ? current : next;
     });
   };
 

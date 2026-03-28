@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import ProjectionInlineForm from '@/components/projection/ProjectionInlineForm';
 import type { Category, ProjectionTemplateInput } from '@/types/finance';
@@ -23,7 +23,7 @@ const renderForm = (onSave = vi.fn()) =>
   );
 
 describe('ProjectionInlineForm', () => {
-  it('desabilita a conta até escolher uma categoria e reseta ao trocar categoria', () => {
+  it('desabilita a conta ate escolher uma categoria e reseta ao trocar categoria', () => {
     renderForm();
 
     const accountSelect = screen.getByLabelText(/conta vinculada a categoria/i) as HTMLSelectElement;
@@ -41,22 +41,24 @@ describe('ProjectionInlineForm', () => {
     expect(accountInput.value).toBe('');
   });
 
-  it('salva somente quando a conta pertence a categoria selecionada', () => {
+  it('salva somente quando a conta pertence a categoria selecionada', async () => {
     const onSave = vi.fn<(input: ProjectionTemplateInput) => void>();
     renderForm(onSave);
 
     fireEvent.change(screen.getByLabelText(/^categoria$/i), { target: { value: 'Habitacao' } });
     fireEvent.change(screen.getByLabelText(/conta vinculada a categoria/i), { target: { value: 'Aluguel' } });
     fireEvent.change(screen.getByLabelText(/valor padrao/i), { target: { value: '800' } });
-    fireEvent.click(screen.getByRole('button', { name: /salvar projeção/i }));
+    fireEvent.click(screen.getByRole('button', { name: /salvar proje/i }));
 
-    expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Aluguel',
-        account_name: 'Aluguel',
-        category_name: 'Habitacao',
-        default_amount: 800,
-      }),
-    );
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Aluguel',
+          account_name: 'Aluguel',
+          category_name: 'Habitacao',
+          default_amount: 800,
+        }),
+      );
+    });
   });
 });

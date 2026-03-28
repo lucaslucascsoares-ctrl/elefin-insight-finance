@@ -3,7 +3,6 @@ import { Pencil, Power, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardHeader from '@/components/DashboardHeader';
 import ProjectionInlineForm from '@/components/projection/ProjectionInlineForm';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
@@ -15,7 +14,14 @@ const Projection = () => {
   const { session, loading: authLoading, signOut } = useAuth();
   const userId = session?.user.id;
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(userId);
-  const { templates, addTemplate, updateTemplate, deleteTemplate, toggleTemplateActive } = useProjectionTemplates(userId);
+  const {
+    templates,
+    addTemplate,
+    updateTemplate,
+    deleteTemplate,
+    toggleTemplateActive,
+    isLoading: templatesLoading,
+  } = useProjectionTemplates(userId);
   const [formOpen, setFormOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ProjectionTemplate | null>(null);
 
@@ -56,13 +62,13 @@ const Projection = () => {
           open={formOpen}
           onOpenChange={setFormOpen}
           onCancelEdit={() => setEditingTemplate(null)}
-          onSave={(input) => {
+          onSave={async (input) => {
             if (editingTemplate) {
-              updateTemplate(editingTemplate.id, input);
+              await updateTemplate(editingTemplate.id, input);
               toast.success('Projecao atualizada');
               setEditingTemplate(null);
             } else {
-              addTemplate(input);
+              await addTemplate(input);
               toast.success('Conta fixa adicionada a projecao');
             }
           }}
@@ -76,7 +82,7 @@ const Projection = () => {
             </p>
           </div>
 
-          {categoriesLoading ? (
+          {categoriesLoading || templatesLoading ? (
             <div className="mt-5 space-y-3">
               <Skeleton className="h-28 w-full rounded-2xl" />
               <Skeleton className="h-28 w-full rounded-2xl" />
@@ -104,7 +110,9 @@ const Projection = () => {
                         <div key={template.id} className="flex items-center justify-between gap-3 px-4 py-3">
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="truncate text-sm font-semibold text-foreground">{template.account_name}</span>
+                              <span className="truncate text-sm font-semibold text-foreground">
+                                {template.account_name}
+                              </span>
                               <span
                                 className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                                   template.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
@@ -137,8 +145,8 @@ const Projection = () => {
                               <button
                                 type="button"
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                                onClick={() => {
-                                  toggleTemplateActive(template.id, !template.is_active);
+                                onClick={async () => {
+                                  await toggleTemplateActive(template.id, !template.is_active);
                                   toast.success(template.is_active ? 'Conta pausada' : 'Conta reativada');
                                 }}
                                 aria-label="Pausar ou reativar projecao"
@@ -148,8 +156,8 @@ const Projection = () => {
                               <button
                                 type="button"
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => {
-                                  deleteTemplate(template.id);
+                                onClick={async () => {
+                                  await deleteTemplate(template.id);
                                   toast.success('Conta removida da projecao');
                                   if (editingTemplate?.id === template.id) {
                                     setEditingTemplate(null);

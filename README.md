@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
+# Elefin
 
-## Project info
+Aplicacao de financas pessoais com:
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+- frontend em React + Vite
+- autenticacao com Supabase Auth
+- banco PostgreSQL no Supabase
+- persistencia de transacoes, saldo mensal, recorrencia e projecoes
 
-## How can I edit this code?
+## Rodando localmente
 
-There are several ways of editing your application.
+Requisitos:
 
-**Use Lovable**
+- Node.js
+- npm
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Instalacao:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Desenvolvimento:
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Build de producao:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+npm run build
+```
 
-**Use GitHub Codespaces**
+Testes:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```sh
+npm test
+```
 
-## What technologies are used for this project?
+## Variaveis de ambiente
 
-This project is built with:
+Crie um arquivo `.env` na raiz com:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```env
+VITE_SUPABASE_PROJECT_ID="seu_project_id"
+VITE_SUPABASE_PUBLISHABLE_KEY="sua_publishable_key"
+VITE_SUPABASE_URL="https://seu-projeto.supabase.co"
+```
 
-## How can I deploy this project?
+## Banco de dados
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+O projeto usa Supabase.
 
-## Can I connect a custom domain to my Lovable project?
+As migrations SQL ficam em:
 
-Yes, you can!
+- [supabase/migrations](C:/Users/lucas/OneDrive/Documentos/New%20project/supabase/migrations)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Tabelas principais:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- `categories`
+- `transactions`
+- `month_balances`
+- `projection_templates`
+- `monthly_projection_overrides`
+- `recurring_rules`
+
+## Publicacao
+
+O frontend pode ser publicado em plataformas como:
+
+- Vercel
+- Netlify
+
+Ao publicar:
+
+1. configure as variaveis `VITE_SUPABASE_*`
+2. confirme que o projeto Supabase correto esta ativo
+3. valide login, transacoes e projecoes no ambiente publicado
+
+## Repositorio
+
+GitHub:
+
+- [elefin-insight-finance](https://github.com/lucaslucascsoares-ctrl/elefin-insight-finance)

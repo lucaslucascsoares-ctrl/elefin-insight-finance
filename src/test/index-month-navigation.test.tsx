@@ -102,6 +102,7 @@ vi.mock('@/hooks/useMonthBalance', () => ({
 vi.mock('@/hooks/useRecurringRules', () => ({
   useRecurringRules: () => ({
     activeRules: [],
+    isLoading: false,
     saveRule: vi.fn(),
     removeRule: vi.fn(),
     toggleRule: vi.fn(),
@@ -111,12 +112,14 @@ vi.mock('@/hooks/useRecurringRules', () => ({
 vi.mock('@/hooks/useProjectionTemplates', () => ({
   useProjectionTemplates: () => ({
     templates: [],
+    isLoading: false,
   }),
 }));
 
 vi.mock('@/hooks/useMonthlyProjectionItems', () => ({
   useMonthlyProjectionItems: () => ({
     items: [],
+    isLoading: false,
     saveOverride: vi.fn(),
     clearOverride: vi.fn(),
   }),
@@ -132,7 +135,7 @@ describe('Index month navigation', () => {
     vi.useRealTimers();
   });
 
-  it('moves back to previous month and forward to current month without breaking state', () => {
+  it('moves back to previous month and forward up to 12 months ahead without breaking state', () => {
     render(<Index />);
 
     expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('marco');
@@ -144,6 +147,15 @@ describe('Index month navigation', () => {
     fireEvent.click(nextButton);
 
     expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('marco');
+    fireEvent.click(nextButton);
+
+    expect(normalize(screen.getByText(/2026/i).textContent || '')).toContain('abril');
+
+    for (let index = 0; index < 11; index += 1) {
+      fireEvent.click(nextButton);
+    }
+
+    expect(normalize(screen.getByText(/2027/i).textContent || '')).toContain('marco');
     expect(nextButton).toBeDisabled();
   });
 });

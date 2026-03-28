@@ -14,7 +14,7 @@ interface ProjectionInlineFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCancelEdit: () => void;
-  onSave: (input: ProjectionTemplateInput) => void;
+  onSave: (input: ProjectionTemplateInput) => void | Promise<void>;
 }
 
 const defaultGroupType: GroupType = 'essenciais';
@@ -34,6 +34,7 @@ const ProjectionInlineForm = ({
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -45,12 +46,10 @@ const ProjectionInlineForm = ({
     setAmount(template ? `${template.default_amount}` : '');
     setDescription(template?.description ?? '');
     setFormError('');
+    setSaving(false);
   }, [open, template]);
 
-  const availableCategories = useMemo(
-    () => getProjectionCategoriesByGroup(groupType),
-    [groupType],
-  );
+  const availableCategories = useMemo(() => getProjectionCategoriesByGroup(groupType), [groupType]);
 
   const availableAccounts = useMemo(
     () => (categoryName ? getProjectionAccountsByCategory(groupType, categoryName) : []),
@@ -93,9 +92,10 @@ const ProjectionInlineForm = ({
     setAmount('');
     setDescription('');
     setFormError('');
+    setSaving(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const numericAmount = Number(amount.replace(',', '.'));
 
     if (!categoryName) {
@@ -123,18 +123,25 @@ const ProjectionInlineForm = ({
       return;
     }
 
-    onSave({
-      title: linkedAccount,
-      account_name: linkedAccount,
-      category_name: categoryName,
-      description: description.trim() || null,
-      default_amount: numericAmount,
-      category_id: matchingCategory?.id ?? null,
-      group_type: groupType,
-    });
+    try {
+      setSaving(true);
+      await onSave({
+        title: linkedAccount,
+        account_name: linkedAccount,
+        category_name: categoryName,
+        description: description.trim() || null,
+        default_amount: numericAmount,
+        category_id: matchingCategory?.id ?? null,
+        group_type: groupType,
+      });
 
-    resetForm();
-    onOpenChange(false);
+      resetForm();
+      onOpenChange(false);
+    } catch {
+      setFormError('Nao foi possivel salvar a projecao. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -158,7 +165,7 @@ const ProjectionInlineForm = ({
         >
           <div>
             <h2 className="text-lg font-semibold text-foreground">
-              {template ? 'Editar projeção' : 'Projeção de Gastos'}
+              {template ? 'Editar projecao' : 'Projeção de Gastos'}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
               {template
@@ -273,12 +280,18 @@ const ProjectionInlineForm = ({
           ) : null}
 
           <div className="flex items-center gap-3">
-            <Button type="button" onClick={handleSave} className="h-12 flex-1 rounded-2xl text-base font-semibold">
-              {template ? 'Salvar alteracoes' : 'Salvar projeção'}
+            <Button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={saving}
+              className="h-12 flex-1 rounded-2xl text-base font-semibold"
+            >
+              {saving ? 'Salvando...' : template ? 'Salvar alteracoes' : 'Salvar projeção'}
             </Button>
             <Button
               type="button"
               variant="outline"
+              disabled={saving}
               onClick={() => {
                 resetForm();
                 onCancelEdit();

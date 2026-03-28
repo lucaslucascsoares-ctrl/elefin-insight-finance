@@ -1,8 +1,5 @@
 import { MonthlyProjectionItem, MonthlyProjectionOverride, ProjectionTemplate } from '@/types/finance';
 
-export const getProjectionTemplatesStorageKey = (userId: string) => `elefin:projection-templates:${userId}`;
-export const getProjectionOverridesStorageKey = (userId: string) => `elefin:projection-overrides:${userId}`;
-
 export const createMonthlyProjectionOverrideId = (templateId: string, month: number, year: number) =>
   `${templateId}:${year}-${month}`;
 
@@ -60,21 +57,4 @@ export const buildMonthlyProjectionItems = ({
 
       return first.title.localeCompare(second.title, 'pt-BR');
     });
-};
-
-export const readLocalStorageJson = <T>(key: string, fallback: T): T => {
-  if (typeof window === 'undefined') return fallback;
-
-  try {
-    const rawValue = window.localStorage.getItem(key);
-    if (!rawValue) return fallback;
-    return JSON.parse(rawValue) as T;
-  } catch {
-    return fallback;
-  }
-};
-
-export const writeLocalStorageJson = (key: string, value: unknown) => {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(key, JSON.stringify(value));
 };

@@ -26,7 +26,7 @@ interface NewTransactionModalProps {
   initialType?: 'income' | 'expense';
   lockedType?: boolean;
   selectedDate: Date;
-  onSaveRecurringRule?: (input: RecurringRuleInput) => void;
+  onSaveRecurringRule?: (input: RecurringRuleInput) => void | Promise<unknown>;
 }
 
 const GROUP_TITLES: Record<GroupType, string> = {
@@ -174,7 +174,7 @@ const NewTransactionModal = ({
       });
 
       if (type === 'expense' && repeatMonthly && selectedCategoryId && onSaveRecurringRule) {
-        onSaveRecurringRule({
+        await onSaveRecurringRule({
           type,
           amount: numericAmount,
           category_id: selectedCategoryId,

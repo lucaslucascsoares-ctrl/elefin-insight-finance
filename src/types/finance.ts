@@ -112,6 +112,7 @@ export interface MonthlyForecastData {
 export interface ProjectionTemplate {
   id: string;
   user_id: string;
+  legacy_local_id?: string | null;
   title: string;
   account_name: string;
   category_name: string;
@@ -145,6 +146,7 @@ export interface MonthlyProjectionOverride {
   title_override: string | null;
   status: MonthlyProjectionStatus;
   paid_transaction_id: string | null;
+  created_at?: string;
   updated_at: string;
 }
 

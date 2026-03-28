@@ -1,12 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { MonthlyProjectionOverride, MonthlyProjectionStatus, ProjectionTemplate } from '@/types/finance';
-import {
-  buildMonthlyProjectionItems,
-  createMonthlyProjectionOverrideId,
-  getProjectionOverridesStorageKey,
-  readLocalStorageJson,
-  writeLocalStorageJson,
-} from '@/lib/projections';
+import { buildMonthlyProjectionItems } from '@/lib/projections';
 
 interface SaveProjectionOverrideInput {
   templateId: string;
@@ -24,71 +20,96 @@ export function useMonthlyProjectionItems(
   month: number,
   year: number,
 ) {
-  const [overrides, setOverrides] = useState<MonthlyProjectionOverride[]>([]);
+  const queryClient = useQueryClient();
+  const queryKey = ['monthly_projection_overrides', userId, month, year];
 
-  useEffect(() => {
-    if (!userId) {
-      setOverrides([]);
-      return;
-    }
+  const { data: overrides = [], isLoading } = useQuery({
+    queryKey,
+    enabled: Boolean(userId && isSupabaseConfigured),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('monthly_projection_overrides')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('month', month)
+        .eq('year', year);
 
-    const storageKey = getProjectionOverridesStorageKey(userId);
-    const storedOverrides = readLocalStorageJson<MonthlyProjectionOverride[]>(storageKey, []);
-    setOverrides(storedOverrides);
-  }, [userId]);
+      if (error) throw error;
+      return data as MonthlyProjectionOverride[];
+    },
+  });
 
-  const persistOverrides = (nextOverrides: MonthlyProjectionOverride[]) => {
-    if (!userId) return;
-    writeLocalStorageJson(getProjectionOverridesStorageKey(userId), nextOverrides);
-    setOverrides(nextOverrides);
-  };
-
-  const saveOverride = ({
-    templateId,
-    month: overrideMonth,
-    year: overrideYear,
-    amountOverride,
-    titleOverride,
-    status,
-    paidTransactionId,
-  }: SaveProjectionOverrideInput) => {
-    if (!userId) return;
-
-    const overrideId = createMonthlyProjectionOverrideId(templateId, overrideMonth, overrideYear);
-    const existingOverride = overrides.find((override) => override.id === overrideId);
-    const nextOverride: MonthlyProjectionOverride = {
-      id: overrideId,
-      user_id: userId,
-      template_id: templateId,
+  const saveOverrideMutation = useMutation({
+    mutationFn: async ({
+      templateId,
       month: overrideMonth,
       year: overrideYear,
-      amount_override:
-        amountOverride === undefined
-          ? existingOverride?.amount_override ?? null
-          : amountOverride,
-      title_override:
-        titleOverride === undefined
-          ? existingOverride?.title_override ?? null
-          : titleOverride,
-      status: status ?? existingOverride?.status ?? 'predicted',
-      paid_transaction_id:
-        paidTransactionId === undefined
-          ? existingOverride?.paid_transaction_id ?? null
-          : paidTransactionId,
-      updated_at: new Date().toISOString(),
-    };
+      amountOverride,
+      titleOverride,
+      status,
+      paidTransactionId,
+    }: SaveProjectionOverrideInput) => {
+      if (!userId) return null;
 
-    const nextOverrides = existingOverride
-      ? overrides.map((override) => (override.id === overrideId ? nextOverride : override))
-      : [...overrides, nextOverride];
+      const existingOverride =
+        overrideMonth === month && overrideYear === year
+          ? overrides.find((override) => override.template_id === templateId)
+          : null;
 
-    persistOverrides(nextOverrides);
-  };
+      const payload = {
+        user_id: userId,
+        template_id: templateId,
+        month: overrideMonth,
+        year: overrideYear,
+        amount_override:
+          amountOverride === undefined ? existingOverride?.amount_override ?? null : amountOverride,
+        title_override:
+          titleOverride === undefined ? existingOverride?.title_override ?? null : titleOverride,
+        status: status ?? existingOverride?.status ?? 'predicted',
+        paid_transaction_id:
+          paidTransactionId === undefined ? existingOverride?.paid_transaction_id ?? null : paidTransactionId,
+      };
 
-  const clearOverride = (templateId: string, overrideMonth: number, overrideYear: number) => {
-    const overrideId = createMonthlyProjectionOverrideId(templateId, overrideMonth, overrideYear);
-    persistOverrides(overrides.filter((override) => override.id !== overrideId));
-  };
+      const { data, error } = await supabase
+        .from('monthly_projection_overrides')
+        .upsert(payload, { onConflict: 'user_id,template_id,month,year' })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as MonthlyProjectionOverride;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const clearOverrideMutation = useMutation({
+    mutationFn: async ({
+      templateId,
+      overrideMonth,
+      overrideYear,
+    }: {
+      templateId: string;
+      overrideMonth: number;
+      overrideYear: number;
+    }) => {
+      if (!userId) return;
+
+      const { error } = await supabase
+        .from('monthly_projection_overrides')
+        .delete()
+        .eq('user_id', userId)
+        .eq('template_id', templateId)
+        .eq('month', overrideMonth)
+        .eq('year', overrideYear);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
 
   const items = useMemo(
     () => buildMonthlyProjectionItems({ templates, overrides, month, year }),
@@ -98,7 +119,9 @@ export function useMonthlyProjectionItems(
   return {
     items,
     overrides,
-    saveOverride,
-    clearOverride,
+    isLoading,
+    saveOverride: (input: SaveProjectionOverrideInput) => saveOverrideMutation.mutate(input),
+    clearOverride: (templateId: string, overrideMonth: number, overrideYear: number) =>
+      clearOverrideMutation.mutate({ templateId, overrideMonth, overrideYear }),
   };
 }

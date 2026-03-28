@@ -1,13 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { RecurringRule, RecurringRuleInput } from '@/types/finance';
-
-const STORAGE_PREFIX = 'elefin:recurring-rules';
-const UPDATE_EVENT = 'elefin:recurring-rules-updated';
-
-const createId = () =>
-  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-    ? crypto.randomUUID()
-    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const normalize = (value: string | null | undefined) =>
   (value || '')
@@ -16,127 +10,106 @@ const normalize = (value: string | null | undefined) =>
     .toLowerCase()
     .trim();
 
-const getStorageKey = (userId?: string) => `${STORAGE_PREFIX}:${userId || 'anonymous'}`;
-
-const readRules = (userId?: string): RecurringRule[] => {
-  if (!userId || typeof window === 'undefined') {
-    return [];
-  }
-
-  try {
-    const raw = window.localStorage.getItem(getStorageKey(userId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as RecurringRule[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeRules = (userId: string, rules: RecurringRule[]) => {
-  window.localStorage.setItem(getStorageKey(userId), JSON.stringify(rules));
-  window.dispatchEvent(new Event(UPDATE_EVENT));
-};
-
 export function useRecurringRules(userId?: string) {
-  const [rules, setRules] = useState<RecurringRule[]>(() => readRules(userId));
+  const queryClient = useQueryClient();
+  const queryKey = ['recurring_rules', userId];
 
-  useEffect(() => {
-    setRules(readRules(userId));
-  }, [userId]);
+  const { data: rules = [], isLoading } = useQuery({
+    queryKey,
+    enabled: Boolean(userId && isSupabaseConfigured),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('recurring_rules')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const syncRules = () => setRules(readRules(userId));
-
-    window.addEventListener('storage', syncRules);
-    window.addEventListener(UPDATE_EVENT, syncRules);
-
-    return () => {
-      window.removeEventListener('storage', syncRules);
-      window.removeEventListener(UPDATE_EVENT, syncRules);
-    };
-  }, [userId]);
+      if (error) throw error;
+      return data as RecurringRule[];
+    },
+  });
 
   const activeRules = useMemo(() => rules.filter((rule) => rule.active), [rules]);
 
-  const saveRule = useCallback(
-    (input: RecurringRuleInput) => {
-      if (!userId || typeof window === 'undefined') return null;
+  const saveRuleMutation = useMutation({
+    mutationFn: async (input: RecurringRuleInput) => {
+      if (!userId) return null;
 
-      const currentRules = readRules(userId);
       const normalizedDescription = normalize(input.description);
       const startsAt = input.starts_at.slice(0, 10);
 
-      const existing = currentRules.find(
+      const existing = rules.find(
         (rule) =>
           rule.type === input.type &&
           rule.category_id === input.category_id &&
           normalize(rule.description) === normalizedDescription,
       );
 
-      const nextRule: RecurringRule = existing
-        ? {
-            ...existing,
+      if (existing) {
+        const { data, error } = await supabase
+          .from('recurring_rules')
+          .update({
             amount: input.amount,
             starts_at: startsAt,
             description: input.description,
             active: true,
-          }
-        : {
-            id: createId(),
-            user_id: userId,
-            type: input.type,
-            amount: input.amount,
-            category_id: input.category_id,
-            description: input.description,
-            starts_at: startsAt,
-            active: true,
-            created_at: new Date().toISOString(),
-          };
+          })
+          .eq('id', existing.id)
+          .select()
+          .single();
 
-      const nextRules = existing
-        ? currentRules.map((rule) => (rule.id === existing.id ? nextRule : rule))
-        : [...currentRules, nextRule];
+        if (error) throw error;
+        return data as RecurringRule;
+      }
 
-      writeRules(userId, nextRules);
-      setRules(nextRules);
-      return nextRule;
+      const { data, error } = await supabase
+        .from('recurring_rules')
+        .insert({
+          user_id: userId,
+          type: input.type,
+          amount: input.amount,
+          category_id: input.category_id,
+          description: input.description,
+          starts_at: startsAt,
+          active: true,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as RecurringRule;
     },
-    [userId],
-  );
-
-  const removeRule = useCallback(
-    (ruleId: string) => {
-      if (!userId || typeof window === 'undefined') return;
-
-      const nextRules = readRules(userId).filter((rule) => rule.id !== ruleId);
-      writeRules(userId, nextRules);
-      setRules(nextRules);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
     },
-    [userId],
-  );
+  });
 
-  const toggleRule = useCallback(
-    (ruleId: string, active: boolean) => {
-      if (!userId || typeof window === 'undefined') return;
-
-      const nextRules = readRules(userId).map((rule) =>
-        rule.id === ruleId ? { ...rule, active } : rule,
-      );
-
-      writeRules(userId, nextRules);
-      setRules(nextRules);
+  const removeRuleMutation = useMutation({
+    mutationFn: async (ruleId: string) => {
+      const { error } = await supabase.from('recurring_rules').delete().eq('id', ruleId);
+      if (error) throw error;
     },
-    [userId],
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
+
+  const toggleRuleMutation = useMutation({
+    mutationFn: async ({ ruleId, active }: { ruleId: string; active: boolean }) => {
+      const { error } = await supabase.from('recurring_rules').update({ active }).eq('id', ruleId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
 
   return {
     rules,
     activeRules,
-    saveRule,
-    removeRule,
-    toggleRule,
+    isLoading,
+    saveRule: (input: RecurringRuleInput) => saveRuleMutation.mutateAsync(input),
+    removeRule: (ruleId: string) => removeRuleMutation.mutateAsync(ruleId),
+    toggleRule: (ruleId: string, active: boolean) => toggleRuleMutation.mutateAsync({ ruleId, active }),
   };
 }
