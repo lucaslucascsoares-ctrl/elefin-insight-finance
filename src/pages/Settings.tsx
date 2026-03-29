@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, LockKeyhole, ShieldCheck, Smartphone, UserRound } from 'lucide-react';
+import { Bell, LockKeyhole, MoonStar, ShieldCheck, Smartphone, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardHeader from '@/components/DashboardHeader';
 import AuthPage from '@/pages/Auth';
@@ -10,11 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+import { useTheme } from '@/hooks/useTheme';
 import { NotificationPreferences } from '@/types/finance';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const Settings = () => {
   const { session, loading, signOut, updatePassword } = useAuth();
   const { preferences, requestPushPermission, savePreferences } = useNotificationPreferences(session);
+  const { isDark } = useTheme();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
@@ -99,6 +102,22 @@ const Settings = () => {
       <DashboardHeader onSignOut={signOut} title="Configurações" />
 
       <div className="space-y-4 px-4 pb-6 pt-2">
+        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(15,23,42,0.82))] dark:shadow-[0_18px_38px_rgba(2,6,23,0.34)]">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between gap-3 text-lg">
+              <span className="flex items-center gap-2">
+                <MoonStar className="h-5 w-5" />
+                Aparência
+              </span>
+              <ThemeToggle />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">{isDark ? 'Modo escuro ativado' : 'Modo claro ativado'}</p>
+            <p>Use o botão para alternar entre uma visualização clara e uma versão dark mais suave para o app.</p>
+          </CardContent>
+        </Card>
+
         <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">

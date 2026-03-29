@@ -31,12 +31,14 @@ const FinanceMonthCard = ({
 
   return (
     <section className="px-4 pt-1">
-      <div className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] px-5 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)]">
+      <div className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] px-5 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
         <div className="mb-5 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400">Resumo financeiro</p>
+            <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]">
+              Resumo financeiro
+            </p>
             <h2 className="mt-1 min-w-0 break-words text-center text-[1.05rem] font-semibold tracking-[-0.02em] text-foreground">
-              Caixa do mês
+              Caixa do mes
             </h2>
           </div>
         </div>
@@ -51,18 +53,20 @@ const FinanceMonthCard = ({
             tone="income"
           />
           <SummaryRow
-            label="Saída"
+            label="Saida"
             value={`- ${formatCurrency(monthExpense)}`}
-            actionLabel="Adicionar saída"
+            actionLabel="Adicionar saida"
             onAction={onOpenExpense}
             tone="expense"
           />
         </div>
 
-        <div className="mt-5 rounded-3xl border border-slate-200/80 bg-white/75 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+        <div className="mt-5 rounded-3xl border border-slate-200/80 bg-white/75 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-[#263731] dark:bg-[#1B2823] dark:shadow-none">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-slate-400">Saldo</p>
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-slate-400 dark:text-[#8EA39B]">
+                Saldo
+              </p>
               <span className="mt-1 block text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground">
                 Saldo atual
               </span>
@@ -82,9 +86,9 @@ const FinanceMonthCard = ({
         type="button"
         data-testid="new-transaction-button"
         onClick={onOpenGeneric}
-        className="mt-4 flex h-16 w-full items-center justify-center rounded-[22px] bg-[linear-gradient(180deg,#23324a,#172033)] px-6 text-center text-[1rem] font-semibold tracking-[-0.02em] text-white shadow-[0_16px_34px_rgba(15,23,42,0.18)] transition-all hover:-translate-y-[1px]"
+        className="mt-4 flex h-16 w-full items-center justify-center rounded-[22px] border border-transparent bg-[linear-gradient(180deg,#23324a,#172033)] px-6 text-center text-[1rem] font-semibold tracking-[-0.02em] text-white shadow-[0_16px_34px_rgba(15,23,42,0.18)] transition-all hover:-translate-y-[1px] dark:border-[#3B544C] dark:bg-[linear-gradient(180deg,#E6EFEA,#D4E1DA)] dark:text-[#17221D] dark:shadow-[0_16px_30px_rgba(3,10,8,0.28)] dark:hover:bg-[linear-gradient(180deg,#EDF4F0,#DEE8E2)]"
       >
-        + Nova Movimentação
+        + Nova Movimentacao
       </button>
     </section>
   );
@@ -105,27 +109,27 @@ const toneIcon = {
 } as const;
 
 const toneBadge = {
-  neutral: 'bg-slate-100 text-slate-500',
-  income: 'bg-emerald-50 text-emerald-600',
-  expense: 'bg-rose-50 text-rose-600',
+  neutral: 'bg-slate-100 text-slate-500 dark:bg-[#263731] dark:text-[#B8CBC3]',
+  income: 'bg-emerald-50 text-emerald-600 dark:bg-[#DDF6EC] dark:text-[#3F8C74]',
+  expense: 'bg-rose-50 text-rose-600 dark:bg-[#FAE7E8] dark:text-[#CC6C7A]',
 } as const;
 
 const SummaryRow = ({ label, value, actionLabel, onAction, tone }: SummaryRowProps) => {
   const ToneIcon = toneIcon[tone];
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/70 px-4 py-4 text-[0.96rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]">
+    <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/70 px-4 py-4 text-[0.96rem] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:border-[#263731] dark:bg-[#1B2823] dark:shadow-none">
       <div className="flex min-w-0 items-center gap-3">
         {ToneIcon ? (
           <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${toneBadge[tone]}`}>
             <ToneIcon className="h-4 w-4" />
           </span>
         ) : (
-          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-slate-400">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:bg-[#263731] dark:text-[#B8CBC3]">
             CX
           </span>
         )}
-        <span translate="no" className="min-w-0 flex-1 break-words font-medium text-slate-600">
+        <span translate="no" className="min-w-0 flex-1 break-words font-medium text-slate-600 dark:text-[#E6F2EE]">
           {label}
         </span>
       </div>
@@ -136,7 +140,7 @@ const SummaryRow = ({ label, value, actionLabel, onAction, tone }: SummaryRowPro
             type="button"
             onClick={onAction}
             aria-label={actionLabel}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-[0_10px_18px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-[1px] hover:text-slate-700"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-[0_10px_18px_rgba(15,23,42,0.04)] transition-all hover:-translate-y-[1px] hover:text-slate-700 dark:border-[#314740] dark:bg-[#263731] dark:text-[#D9E9E3] dark:shadow-none dark:hover:bg-[#314740] dark:hover:text-[#F3FBF7]"
           >
             <Check className="h-4 w-4" />
           </button>

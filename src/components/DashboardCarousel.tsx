@@ -21,12 +21,12 @@ const dashboardTabs: { key: DashboardView; label: string; description: string }[
   {
     key: 'projection',
     label: 'Planejamento',
-    description: 'Contas projetadas e valores previstos do m\u00EAs',
+    description: 'Contas projetadas e valores previstos do mes',
   },
   {
     key: 'real',
     label: 'Real',
-    description: 'Lan\u00E7amentos reais e saldo efetivo do m\u00EAs',
+    description: 'Lancamentos reais e saldo efetivo do mes',
   },
 ];
 
@@ -122,7 +122,7 @@ const DashboardCarousel = ({
   return (
     <section className="pt-1" data-testid="dashboard-carousel">
       <div className="px-4">
-        <div className="rounded-[24px] border border-slate-200/70 bg-white/80 p-2 shadow-[0_14px_28px_rgba(15,23,42,0.05)]">
+        <div className="rounded-[24px] border border-slate-200/70 bg-white/80 p-2 shadow-[0_14px_28px_rgba(15,23,42,0.05)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-[0_16px_32px_rgba(3,10,8,0.34)]">
           <div className="grid grid-cols-2 gap-2">
             {dashboardTabs.map((tab) => {
               const active = currentDashboard === tab.key;
@@ -135,18 +135,20 @@ const DashboardCarousel = ({
                   translate="no"
                   onClick={() => scrollToDashboard(tab.key, 'auto')}
                   className={`notranslate min-h-[88px] rounded-[18px] px-4 py-3 text-left transition-all ${
-                    active ? 'bg-slate-900 text-white shadow-[0_14px_26px_rgba(15,23,42,0.18)]' : 'bg-transparent text-slate-600'
+                    active
+                      ? 'bg-slate-900 text-white shadow-[0_14px_26px_rgba(15,23,42,0.18)] dark:bg-[linear-gradient(180deg,#3F8C74,#2F6F5E)] dark:text-[#F1F8F4] dark:shadow-[0_14px_30px_rgba(4,17,13,0.32)]'
+                      : 'bg-transparent text-slate-600 dark:text-[#B8CBC3]'
                   }`}
                 >
                   <span
                     translate="no"
-                    className={`notranslate block text-sm font-semibold leading-5 ${active ? 'text-white' : 'text-foreground'}`}
+                    className={`notranslate block text-sm font-semibold leading-5 ${active ? 'text-white dark:text-[#F1F8F4]' : 'text-foreground dark:text-[#E6F2EE]'}`}
                   >
                     {tab.label}
                   </span>
                   <span
                     translate="no"
-                    className={`notranslate mt-1 block text-xs leading-5 ${active ? 'text-white/70' : 'text-slate-500'}`}
+                    className={`notranslate mt-1 block text-xs leading-5 ${active ? 'text-white/70 dark:text-[#D7E8E1]' : 'text-slate-500 dark:text-[#8EA39B]'}`}
                   >
                     {tab.description}
                   </span>
@@ -165,9 +167,9 @@ const DashboardCarousel = ({
         <div className="w-full shrink-0 snap-center" data-testid="dashboard-slide-projection">
           <ProjectedMonthCard items={projectedData.activeItems} />
           <IdealComparisonCard
-            title={'Planejamento do m\u00EAs'}
+            title={'Planejamento do mes'}
             groups={projectedData.groups}
-            emptyMessage={'Nenhuma conta projetada ativa neste m\u00EAs.'}
+            emptyMessage={'Nenhuma conta projetada ativa neste mes.'}
           />
         </div>
 
@@ -180,9 +182,9 @@ const DashboardCarousel = ({
             onOpenGeneric={onOpenGeneric}
           />
           <IdealComparisonCard
-            title={'Seu m\u00EAs comparado ao ideal'}
+            title={'Seu mes comparado ao ideal'}
             groups={realData.groups}
-            emptyMessage={'Nenhuma despesa real registrada neste m\u00EAs.'}
+            emptyMessage={'Nenhuma despesa real registrada neste mes.'}
           />
         </div>
       </div>
@@ -195,7 +197,7 @@ const DashboardCarousel = ({
             aria-label={`Ir para dashboard ${tab.label}`}
             onClick={() => scrollToDashboard(tab.key, 'auto')}
             className={`h-2.5 rounded-full transition-all ${
-              currentDashboard === tab.key ? 'w-8 bg-slate-900' : 'w-2.5 bg-slate-300'
+              currentDashboard === tab.key ? 'w-8 bg-slate-900 dark:bg-[#6FB7A1]' : 'w-2.5 bg-slate-300 dark:bg-[#263731]'
             }`}
           />
         ))}

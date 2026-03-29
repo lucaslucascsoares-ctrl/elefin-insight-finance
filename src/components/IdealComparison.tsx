@@ -38,7 +38,7 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
   };
 
   return (
-    <AccordionItem value="ideal" className="border-border/50" id="accordion-ideal">
+    <AccordionItem value="ideal" className="border-border/50 dark:border-[#263731]" id="accordion-ideal">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
         Comparado ao ideal?
       </AccordionTrigger>
@@ -66,13 +66,13 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
                     {formatCurrency(spent)} / {formatCurrency(idealAmount)} ({(limit * 100).toFixed(0)}%)
                   </span>
                 </div>
-                <Progress value={percent} className="h-2" />
+                <Progress value={percent} className="h-2 dark:bg-[#1B2823]" />
               </div>
             );
           })}
         </div>
         {totalIncome === 0 && (
-          <p className="text-xs text-muted-foreground mt-3">
+          <p className="mt-3 text-xs text-muted-foreground">
             Adicione receitas para ver a comparação com o ideal.
           </p>
         )}

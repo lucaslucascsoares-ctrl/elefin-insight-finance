@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate" />
+    <script>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem('elefin-theme');
+          const isDark = storedTheme === 'dark';
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        } catch (error) {}
+      })();
+    </script>
     <!-- TODO: Set the document title to the name of your application -->
     <title>Elefin</title>
     <meta name="description" content="Lovable Generated Project">

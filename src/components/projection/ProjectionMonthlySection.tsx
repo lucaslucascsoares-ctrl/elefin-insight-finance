@@ -16,10 +16,10 @@ interface ProjectionMonthlySectionProps {
 }
 
 const statusClasses: Record<MonthlyProjectionItem['status'], string> = {
-  predicted: 'bg-slate-100 text-slate-700',
-  edited: 'bg-blue-100 text-blue-700',
-  ignored: 'bg-amber-100 text-amber-700',
-  paid: 'bg-emerald-100 text-emerald-700',
+  predicted: 'bg-slate-100 text-slate-700 dark:bg-[#1B2823] dark:text-[#B8CBC3]',
+  edited: 'bg-blue-100 text-blue-700 dark:bg-[#21453C] dark:text-[#E6F2EE]',
+  ignored: 'bg-amber-100 text-amber-700 dark:bg-[#3A2E1B] dark:text-[#D7C4A1]',
+  paid: 'bg-emerald-100 text-emerald-700 dark:bg-[#21453C] dark:text-[#9FD5C2]',
 };
 
 const statusLabels: Record<MonthlyProjectionItem['status'], string> = {
@@ -68,7 +68,7 @@ const ProjectionMonthlySection = ({
         <Collapsible
           open={expanded}
           onOpenChange={setExpanded}
-          className="rounded-[28px] border border-border/70 bg-white px-4 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+          className="rounded-[28px] border border-border/70 bg-white px-4 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_36px_rgba(3,10,8,0.34)]"
         >
           <CollapsibleTrigger asChild>
             <button
@@ -85,10 +85,10 @@ const ProjectionMonthlySection = ({
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-[#1B2823] dark:text-[#B8CBC3]">
                   {items.length} contas
                 </span>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background dark:border-[#263731] dark:bg-[#1B2823]">
                   <ChevronDown
                     className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
                       expanded ? 'rotate-180' : 'rotate-0'
@@ -104,13 +104,13 @@ const ProjectionMonthlySection = ({
             className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
           >
             <div className="mt-4 space-y-4 border-t border-border/70 pt-4">
-              <div className="rounded-2xl bg-muted/30 px-4 py-4 text-sm leading-6 text-muted-foreground">
+              <div className="rounded-2xl bg-muted/30 px-4 py-4 text-sm leading-6 text-muted-foreground dark:bg-[#1B2823] dark:text-[#B8CBC3]">
                 Essas são as contas fixas vindas da sua Projeção de Gastos. Elas aparecem automaticamente no mês, mas
                 só entram como gasto real quando você as marcar como pagas.
               </div>
 
               {items.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-border/80 px-4 py-8 text-center text-sm text-muted-foreground">
+                <div className="rounded-2xl border border-dashed border-border/80 px-4 py-8 text-center text-sm text-muted-foreground dark:border-[#2F6F5E]/45 dark:bg-[#111A17] dark:text-[#8EA39B]">
                   Nenhuma conta fixa cadastrada ainda. Use a aba Projeção de Gastos para criar sua base mensal.
                 </div>
               ) : (
@@ -120,8 +120,8 @@ const ProjectionMonthlySection = ({
                     if (groupItems.length === 0) return null;
 
                     return (
-                      <div key={groupType} className="rounded-2xl border border-border/70">
-                        <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
+                      <div key={groupType} className="rounded-2xl border border-border/70 dark:border-[#263731] dark:bg-[#16211D]">
+                        <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3 dark:border-[#263731]">
                           <span className="min-w-0 break-words text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                             {GROUP_LABELS[groupType]}
                           </span>
@@ -134,7 +134,7 @@ const ProjectionMonthlySection = ({
                           </span>
                         </div>
 
-                        <div className="divide-y divide-border/70">
+                        <div className="divide-y divide-border/70 dark:divide-[#263731]">
                           {groupItems.map((item) => {
                             const categoryName =
                               item.category_name ??
@@ -148,7 +148,7 @@ const ProjectionMonthlySection = ({
                                 data-testid={`projected-item-${item.template_id}`}
                                 aria-label={`Abrir conta projetada ${item.title}`}
                                 onClick={() => setSelectedItem(item)}
-                                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
+                                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30 dark:hover:bg-[#1B2823]"
                               >
                                 <div className="min-w-0 flex-1">
                                   <div className="flex flex-wrap items-center gap-2">
@@ -162,13 +162,13 @@ const ProjectionMonthlySection = ({
                                   <p className="mt-1 break-words text-xs text-muted-foreground">{categoryName}</p>
                                   <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                                     {item.due_day ? (
-                                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 dark:bg-[#1B2823] dark:text-[#B8CBC3]">
                                         <CalendarDays className="h-3 w-3" />
                                         Dia {item.due_day}
                                       </span>
                                     ) : null}
                                     {item.reminder_enabled ? (
-                                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-amber-700">
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-amber-700 dark:bg-[#21453C] dark:text-[#9FD5C2]">
                                         <BellRing className="h-3 w-3" />
                                         Lembrete ativo
                                       </span>
@@ -190,8 +190,8 @@ const ProjectionMonthlySection = ({
                     );
                   })}
 
-                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white">
-                    <span className="text-sm font-medium text-white/80">Total previsto ativo</span>
+                  <div className="flex items-center justify-between gap-3 rounded-2xl bg-slate-900 px-4 py-4 text-white dark:border dark:border-[#2F6F5E]/30 dark:bg-[linear-gradient(180deg,#21453C,#16211D)]">
+                    <span className="text-sm font-medium text-white/80 dark:text-[#B8CBC3]">Total previsto ativo</span>
                     <span className="shrink-0 text-xl font-semibold">
                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProjected)}
                     </span>

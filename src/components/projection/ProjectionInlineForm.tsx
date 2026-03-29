@@ -204,7 +204,7 @@ const ProjectionInlineForm = ({
 
         onOpenChange(nextOpen);
       }}
-      className="rounded-[28px] border border-border/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+      className="rounded-[28px] border border-border/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#314740] dark:bg-[linear-gradient(180deg,#E8F0EB,#DCE7E1)] dark:shadow-[0_12px_28px_rgba(3,10,8,0.18)]"
     >
       <CollapsibleTrigger asChild>
         <button
@@ -215,20 +215,20 @@ const ProjectionInlineForm = ({
           className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left"
         >
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg font-semibold text-foreground dark:text-[#203128]">
               {template ? 'Editar projeção' : 'Projeção de Gastos'}
             </h2>
-            <p className="mt-1 break-words text-sm text-muted-foreground">
+            <p className="mt-1 break-words text-sm text-muted-foreground dark:text-[#4E675F]">
               {template
                 ? 'Atualize a conta fixa usando grupo, categoria, conta e lembrete.'
                 : 'Cadastre suas contas fixas para que elas apareçam automaticamente em todos os meses.'}
             </p>
           </div>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background dark:border-[#3B544C] dark:bg-[#22342D]">
             {open ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              <ChevronUp className="h-5 w-5 text-muted-foreground dark:text-[#D8E9E2]" />
             ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              <ChevronDown className="h-5 w-5 text-muted-foreground dark:text-[#D8E9E2]" />
             )}
           </span>
         </button>
@@ -236,7 +236,7 @@ const ProjectionInlineForm = ({
 
       <CollapsibleContent
         id="projection-inline-form"
-        className="overflow-hidden border-t border-border/70 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+        className="overflow-hidden border-t border-border/70 dark:border-[#C7D7D0]/70 data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
       >
         <div className="space-y-4 px-4 py-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

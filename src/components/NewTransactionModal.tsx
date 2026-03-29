@@ -122,7 +122,7 @@ const NewTransactionModal = ({
     }
 
     if (!session?.user?.id) {
-      throw new Error('Usuário não autenticado.');
+      throw new Error('Usuario nao autenticado.');
     }
 
     return addCategory.mutateAsync({
@@ -139,7 +139,7 @@ const NewTransactionModal = ({
       setSelectedCategoryId(category.id);
       setCategoryPickerOpen(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Não foi possível carregar a categoria.');
+      setFormError(error instanceof Error ? error.message : 'Nao foi possivel carregar a categoria.');
     }
   };
 
@@ -148,17 +148,17 @@ const NewTransactionModal = ({
     const transactionDate = getTransactionDateForMonth(selectedDate);
 
     if (!session?.user?.id) {
-      setFormError('Sua sessão expirou. Entre novamente.');
+      setFormError('Sua sessao expirou. Entre novamente.');
       return;
     }
 
     if (!numericAmount || numericAmount <= 0) {
-      setFormError('Informe um valor válido.');
+      setFormError('Informe um valor valido.');
       return;
     }
 
     if (type === 'expense' && !selectedCategoryId) {
-      setFormError('Selecione uma categoria para a saída.');
+      setFormError('Selecione uma categoria para a saida.');
       return;
     }
 
@@ -185,12 +185,12 @@ const NewTransactionModal = ({
 
       onOpenChange(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'Não foi possível salvar a movimentação.');
+      setFormError(error instanceof Error ? error.message : 'Nao foi possivel salvar a movimentacao.');
     }
   };
 
   const renderCategoryPanel = () => (
-    <div className="mt-3 rounded-[20px] border border-[#e8e3d8] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+    <div className="mt-3 rounded-[20px] border border-[#e8e3d8] bg-white shadow-[0_12px_30px_rgba(15,23,42,0.08)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-[0_12px_30px_rgba(3,10,8,0.28)]">
       <div className="max-h-48 overflow-y-auto px-2 py-2">
         {CATEGORY_TAXONOMY.map((taxonomyGroup) => {
           const groupType = taxonomyGroup.groupType;
@@ -207,13 +207,13 @@ const NewTransactionModal = ({
                 }}
                 className="flex w-full items-center justify-between px-4 py-3 text-left"
               >
-                <span className="text-sm font-semibold tracking-[0.08em] text-slate-500">
+                <span className="text-sm font-semibold tracking-[0.08em] text-slate-500 dark:text-[#8EA39B]">
                   {GROUP_TITLES[groupType]}
                 </span>
                 {isGroupExpanded ? (
-                  <Minus className="h-4 w-4 text-slate-500" />
+                  <Minus className="h-4 w-4 text-slate-500 dark:text-[#8EA39B]" />
                 ) : (
-                  <Plus className="h-4 w-4 text-slate-500" />
+                  <Plus className="h-4 w-4 text-slate-500 dark:text-[#8EA39B]" />
                 )}
               </button>
 
@@ -243,22 +243,24 @@ const NewTransactionModal = ({
                             );
                           }}
                           className={cn(
-                            'flex w-full items-center justify-between rounded-[14px] px-4 py-2.5 text-left text-[14px] font-medium text-orange-600 transition',
-                            isDirectSelected ? 'bg-orange-100 text-orange-700' : 'hover:bg-orange-50',
+                            'flex w-full items-center justify-between rounded-[14px] px-4 py-2.5 text-left text-[14px] font-medium text-orange-600 transition dark:text-[#CDE4DB]',
+                            isDirectSelected
+                              ? 'bg-orange-100 text-orange-700 dark:bg-[#21453C] dark:text-[#E6F2EE]'
+                              : 'hover:bg-orange-50 dark:hover:bg-[#1B2823]',
                           )}
                         >
                           <span className="min-w-0 flex-1 break-words">{subcategory.nome}</span>
                           {hasItems ? (
                             isSubExpanded ? (
-                              <ChevronDown className="h-4 w-4 shrink-0 text-slate-400" />
+                              <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 dark:text-[#8EA39B]" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                              <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-[#8EA39B]" />
                             )
                           ) : null}
                         </button>
 
                         {isSubExpanded && hasItems && (
-                          <div className="ml-3 mt-1 space-y-1 border-l-2 border-[#f0ece2] pl-2">
+                          <div className="ml-3 mt-1 space-y-1 border-l-2 border-[#f0ece2] pl-2 dark:border-[#263731]">
                             {subcategory.itens.map((item) => {
                               const isSelected =
                                 selectedCategory?.group_type === groupType &&
@@ -271,10 +273,10 @@ const NewTransactionModal = ({
                                   translate="no"
                                   onClick={() => void handleCategorySelect(item, groupType)}
                                   className={cn(
-                                    'flex w-full items-center rounded-[12px] px-4 py-2.5 text-left text-[14px] text-orange-600 transition',
+                                    'flex w-full items-center rounded-[12px] px-4 py-2.5 text-left text-[14px] text-orange-600 transition dark:text-[#CDE4DB]',
                                     isSelected
-                                      ? 'bg-orange-100 font-medium text-orange-700'
-                                      : 'hover:bg-orange-50',
+                                      ? 'bg-orange-100 font-medium text-orange-700 dark:bg-[#21453C] dark:text-[#E6F2EE]'
+                                      : 'hover:bg-orange-50 dark:hover:bg-[#1B2823]',
                                   )}
                                 >
                                   <span className="break-words">{getCanonicalCategoryName(item, groupType)}</span>
@@ -297,8 +299,10 @@ const NewTransactionModal = ({
                           translate="no"
                           onClick={() => void handleCategorySelect(customCategory.name, groupType)}
                           className={cn(
-                            'flex w-full items-center rounded-[14px] px-4 py-2.5 text-left text-[14px] text-slate-700 transition',
-                            isSelected ? 'bg-[#e5e5e5] font-medium text-slate-900' : 'hover:bg-[#f6f4ef]',
+                            'flex w-full items-center rounded-[14px] px-4 py-2.5 text-left text-[14px] text-slate-700 transition dark:text-[#D7E8E1]',
+                            isSelected
+                              ? 'bg-[#e5e5e5] font-medium text-slate-900 dark:bg-[#21453C] dark:text-[#F3FBF7]'
+                              : 'hover:bg-[#f6f4ef] dark:hover:bg-[#1B2823]',
                           )}
                         >
                           <span className="break-words">{getCanonicalCategoryName(customCategory.name, groupType)}</span>
@@ -313,8 +317,8 @@ const NewTransactionModal = ({
         })}
       </div>
 
-      <div className="flex justify-center border-t border-[#f0ece2] py-2">
-        <ChevronDown className="h-5 w-5 text-slate-600" />
+      <div className="flex justify-center border-t border-[#f0ece2] py-2 dark:border-[#263731]">
+        <ChevronDown className="h-5 w-5 text-slate-600 dark:text-[#8EA39B]" />
       </div>
     </div>
   );
@@ -324,26 +328,26 @@ const NewTransactionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90dvh] w-[calc(100vw-32px)] max-w-[540px] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] [&>button:last-child]:hidden sm:w-[calc(100vw-40px)] sm:rounded-[26px]">
-        <DialogClose className="absolute right-6 top-6 z-10 rounded-full p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800">
+      <DialogContent className="flex max-h-[90dvh] w-[calc(100vw-32px)] max-w-[540px] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] dark:border-[#263731] dark:bg-[#111A17] dark:shadow-[0_28px_90px_rgba(3,10,8,0.55)] [&>button:last-child]:hidden sm:w-[calc(100vw-40px)] sm:rounded-[26px]">
+        <DialogClose className="absolute right-6 top-6 z-10 rounded-full border border-transparent p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800 dark:border-[#314740] dark:text-[#D7E8E1] dark:hover:bg-[#1B2823] dark:hover:text-[#F3FBF7]">
           <X className="h-7 w-7" />
           <span className="sr-only">Fechar</span>
         </DialogClose>
 
         <div className="flex-shrink-0 px-5 pb-4 pt-7 sm:px-8">
           <DialogHeader className="space-y-2 text-center">
-            <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 sm:text-[24px]">
-              Nova Movimentação
+            <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 dark:text-[#E6F2EE] sm:text-[24px]">
+              Nova Movimentacao
             </DialogTitle>
             <DialogDescription className="sr-only">
-              Registre uma entrada ou saída do mês atual.
+              Registre uma entrada ou saida do mes atual.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-5 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5">
+          <div className="mt-5 grid grid-cols-2 rounded-[18px] bg-[#f7f5f1] p-1.5 dark:bg-[#16211D]">
             {([
               { value: 'income', label: 'Entrada' },
-              { value: 'expense', label: 'Saída' },
+              { value: 'expense', label: 'Saida' },
             ] as const).map((option) => {
               const active = type === option.value;
 
@@ -355,7 +359,9 @@ const NewTransactionModal = ({
                   onClick={() => handleTypeChange(option.value)}
                   className={cn(
                     'rounded-[16px] px-4 py-3 text-[17px] font-medium transition',
-                    active ? 'bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.08)]' : 'text-slate-500',
+                    active
+                      ? 'bg-white text-slate-900 shadow-[0_8px_24px_rgba(15,23,42,0.08)] dark:bg-[#2F6F5E] dark:text-[#E6F2EE] dark:shadow-[0_10px_24px_rgba(3,10,8,0.3)]'
+                      : 'text-slate-500 dark:text-[#C1D5CD]',
                     lockedType && !active && 'cursor-default opacity-70',
                   )}
                 >
@@ -369,30 +375,30 @@ const NewTransactionModal = ({
         <div className="flex-1 overflow-y-auto px-5 sm:px-8">
           <div className="space-y-5 pb-2">
             <div className="space-y-2.5">
-              <label className="text-[15px] text-slate-500">Valor</label>
+              <label className="text-[15px] text-slate-500 dark:text-[#B8CBC3]">Valor</label>
               <Input
                 type="text"
                 inputMode="decimal"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value)}
                 placeholder="0,00"
-                className="h-[74px] rounded-[18px] border-[#e5e1d8] px-6 text-center text-[20px] font-semibold text-slate-500 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
+                className="h-[74px] rounded-[18px] border-[#e5e1d8] px-6 text-center text-[20px] font-semibold text-slate-500 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0 dark:border-[#263731] dark:bg-[#16211D] dark:text-[#E6F2EE] dark:placeholder:text-[#8EA39B] dark:focus-visible:border-[#3F8C74]"
               />
             </div>
 
             {showExpenseCategory && (
               <div className="space-y-2.5">
-                <label className="text-[15px] text-slate-500">Categoria</label>
+                <label className="text-[15px] text-slate-500 dark:text-[#B8CBC3]">Categoria</label>
                 <button
                   type="button"
                   onClick={() => setCategoryPickerOpen((current) => !current)}
-                  className="flex h-[64px] w-full items-center justify-between gap-3 rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800"
+                  className="flex h-[64px] w-full items-center justify-between gap-3 rounded-[18px] border border-[#e5e1d8] bg-white px-5 text-left text-[16px] text-slate-800 dark:border-[#263731] dark:bg-[#16211D] dark:text-[#E6F2EE]"
                 >
                   <span className="min-w-0 flex-1 truncate">{selectedCategoryLabel ?? 'Selecione a categoria'}</span>
                   {categoryPickerOpen ? (
-                    <ChevronUp className="h-5 w-5 shrink-0 text-slate-500" />
+                    <ChevronUp className="h-5 w-5 shrink-0 text-slate-500 dark:text-[#8EA39B]" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 shrink-0 text-slate-500" />
+                    <ChevronDown className="h-5 w-5 shrink-0 text-slate-500 dark:text-[#8EA39B]" />
                   )}
                 </button>
 
@@ -401,7 +407,7 @@ const NewTransactionModal = ({
             )}
 
             {showExpenseCategory && (
-              <div className="rounded-[18px] border border-[#e5e1d8] bg-[#faf8f4] px-4 py-3">
+              <div className="rounded-[18px] border border-[#e5e1d8] bg-[#faf8f4] px-4 py-3 dark:border-[#263731] dark:bg-[#16211D]">
                 <label className="flex items-start gap-3">
                   <Checkbox
                     checked={repeatMonthly}
@@ -409,9 +415,9 @@ const NewTransactionModal = ({
                     className="mt-0.5"
                   />
                   <span className="flex-1">
-                    <span className="block text-[15px] font-medium text-slate-800">Repetir todo mês</span>
-                    <span className="mt-1 block text-sm text-slate-500">
-                      Se ativado, esta conta entra automaticamente nas próximas previsões mensais.
+                    <span className="block text-[15px] font-medium text-slate-800 dark:text-[#E6F2EE]">Repetir todo mes</span>
+                    <span className="mt-1 block text-sm text-slate-500 dark:text-[#B8CBC3]">
+                      Se ativado, esta conta entra automaticamente nas proximas previsoes mensais.
                     </span>
                   </span>
                 </label>
@@ -419,16 +425,20 @@ const NewTransactionModal = ({
             )}
 
             <div className="space-y-2.5">
-              <label className="text-[15px] text-slate-500">Descrição (opcional)</label>
+              <label className="text-[15px] text-slate-500 dark:text-[#B8CBC3]">Descricao (opcional)</label>
               <Input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Ex: Almoço no restaurante"
-                className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0"
+                placeholder="Ex: Almoco no restaurante"
+                className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0 dark:border-[#263731] dark:bg-[#16211D] dark:text-[#E6F2EE] dark:placeholder:text-[#8EA39B] dark:focus-visible:border-[#3F8C74]"
               />
             </div>
 
-            {formError && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{formError}</p>}
+            {formError && (
+              <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600 dark:bg-[#3A2A24] dark:text-[#DAB0A2]">
+                {formError}
+              </p>
+            )}
           </div>
         </div>
 
@@ -437,7 +447,7 @@ const NewTransactionModal = ({
             type="button"
             onClick={() => void handleSubmit()}
             disabled={isSaving}
-            className="h-[64px] w-full rounded-[18px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c]"
+            className="h-[64px] w-full rounded-[18px] bg-[#262626] text-[18px] font-semibold text-white hover:bg-[#1c1c1c] dark:bg-[linear-gradient(180deg,#2F6F5E,#21453C)] dark:text-[#E6F2EE] dark:hover:bg-[linear-gradient(180deg,#3F8C74,#2F6F5E)]"
           >
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>

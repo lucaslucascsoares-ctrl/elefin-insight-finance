@@ -53,7 +53,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
 
   return (
     <>
-      <AccordionItem value="transactions" className="border-border/50">
+      <AccordionItem value="transactions" className="border-border/50 dark:border-[#263731]">
         <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
           Transações do mês
         </AccordionTrigger>
@@ -71,7 +71,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                 return (
                   <li
                     key={transaction.id}
-                    className="group flex items-center justify-between rounded-md px-2 py-2 transition-colors hover:bg-muted/50"
+                  className="group flex items-center justify-between rounded-md px-2 py-2 transition-colors hover:bg-muted/50 dark:hover:bg-[#1B2823]"
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                           {transaction.description || category?.name || 'Sem descrição'}
                         </span>
                         {category && (
-                          <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                          <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:bg-[#1B2823] dark:text-[#B8CBC3]">
                             {category.name}
                           </span>
                         )}
@@ -99,7 +99,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                       <button
                         type="button"
                         onClick={() => setDeleteId(transaction.id)}
-                        className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                        className="rounded p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100 dark:hover:bg-[#3A2A24]"
                         aria-label="Excluir transação"
                       >
                         <Trash2 size={14} />

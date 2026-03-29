@@ -57,25 +57,40 @@
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 93%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 93%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 93%;
-    --primary: 0 0% 93%;
-    --primary-foreground: 0 0% 7%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 93%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 18%;
-    --accent-foreground: 0 0% 93%;
-    --destructive: 0 62% 31%;
-    --destructive-foreground: 0 0% 93%;
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 0 0% 83%;
+    --background: 150 18% 6%;
+    --foreground: 150 28% 93%;
+    --card: 154 18% 10%;
+    --card-foreground: 150 28% 93%;
+    --popover: 154 18% 10%;
+    --popover-foreground: 150 28% 93%;
+    --primary: 150 28% 93%;
+    --primary-foreground: 150 18% 6%;
+    --secondary: 154 17% 15%;
+    --secondary-foreground: 150 28% 93%;
+    --muted: 154 16% 13%;
+    --muted-foreground: 155 11% 68%;
+    --accent: 154 17% 18%;
+    --accent-foreground: 150 28% 93%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 142 70% 44%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 94% 54%;
+    --warning-foreground: 0 0% 10%;
+    --border: 154 17% 17%;
+    --input: 154 17% 17%;
+    --ring: 158 28% 82%;
+    --sidebar-background: 150 18% 7%;
+    --sidebar-foreground: 151 17% 86%;
+    --sidebar-primary: 150 28% 93%;
+    --sidebar-primary-foreground: 150 18% 6%;
+    --sidebar-accent: 154 16% 13%;
+    --sidebar-accent-foreground: 150 22% 92%;
+    --sidebar-border: 154 17% 17%;
+    --sidebar-ring: 159 33% 67%;
+    --chart-essenciais: 152 16% 73%;
+    --chart-desejos: 159 21% 56%;
+    --chart-prioridades: 160 20% 38%;
   }
 }
 
@@ -86,10 +101,35 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    transition:
+      background-color 280ms ease,
+      color 280ms ease;
   }
 
   html {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer base {
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.4), transparent 42%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 30%);
+    opacity: 0.85;
+    transition: opacity 280ms ease, background 280ms ease;
+    z-index: -1;
+  }
+
+  .dark body::before {
+    background:
+      radial-gradient(circle at top, rgba(63, 140, 116, 0.18), transparent 42%),
+      linear-gradient(180deg, rgba(11, 18, 16, 0.08), transparent 34%);
+    opacity: 1;
   }
 }
 

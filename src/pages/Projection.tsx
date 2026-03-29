@@ -78,7 +78,7 @@ const Projection = () => {
         />
 
         <section
-          className="mt-4 rounded-[28px] border border-border/70 bg-white px-4 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+          className="mt-4 rounded-[28px] border border-border/70 bg-white px-4 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_36px_rgba(3,10,8,0.34)]"
           data-testid="projection-list-section"
         >
           <div className="min-w-0">
@@ -104,14 +104,14 @@ const Projection = () => {
                 if (templatesByGroup.length === 0) return null;
 
                 return (
-                  <div key={groupType} className="rounded-2xl border border-border/70">
-                    <div className="border-b border-border/70 px-4 py-3">
+                  <div key={groupType} className="rounded-2xl border border-border/70 dark:border-[#263731] dark:bg-[#16211D]">
+                    <div className="border-b border-border/70 px-4 py-3 dark:border-[#263731]">
                       <p className="break-words text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                         {GROUP_LABELS[groupType]}
                       </p>
                     </div>
 
-                    <div className="divide-y divide-border/70">
+                    <div className="divide-y divide-border/70 dark:divide-[#263731]">
                       {templatesByGroup.map((template) => (
                         <div
                           key={template.id}
@@ -124,7 +124,9 @@ const Projection = () => {
                               </span>
                               <span
                                 className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                                  template.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
+                                  template.is_active
+                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-[#21453C] dark:text-[#9FD5C2]'
+                                    : 'bg-slate-100 text-slate-600 dark:bg-[#1B2823] dark:text-[#B8CBC3]'
                                 }`}
                               >
                                 {template.is_active ? 'Ativa' : 'Pausada'}
@@ -133,13 +135,13 @@ const Projection = () => {
                             <p className="mt-1 break-words text-xs text-muted-foreground">{template.category_name}</p>
                             <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted-foreground">
                               {template.due_day ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 dark:bg-[#1B2823] dark:text-[#B8CBC3]">
                                   <CalendarDays className="h-3 w-3" />
                                   Vence no dia {template.due_day}
                                 </span>
                               ) : null}
                               {template.reminder_enabled ? (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700 dark:bg-[#21453C] dark:text-[#9FD5C2]">
                                   <BellRing className="h-3 w-3" />
                                   Lembrete ativo
                                 </span>
@@ -156,7 +158,7 @@ const Projection = () => {
                             <div className="flex shrink-0 items-center gap-1">
                               <button
                                 type="button"
-                                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:hover:bg-[#1B2823]"
                                 onClick={() => {
                                   setEditingTemplate(template);
                                   setFormOpen(true);
@@ -167,7 +169,7 @@ const Projection = () => {
                               </button>
                               <button
                                 type="button"
-                                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                                className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground dark:hover:bg-[#1B2823]"
                                 onClick={async () => {
                                   await toggleTemplateActive(template.id, !template.is_active);
                                   toast.success(template.is_active ? 'Conta pausada.' : 'Conta reativada.');
