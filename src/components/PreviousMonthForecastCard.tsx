@@ -96,11 +96,11 @@ const PreviousMonthForecastCard = ({
             <div className="mt-4">
               {data ? (
                 <>
-                  <div className="flex items-start gap-3 rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(241,245,249,0.8))] px-4 py-4 dark:border-[#263731] dark:bg-[#1B2823]">
-                    <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:bg-[#21453C] dark:text-[#9FD5C2] dark:shadow-none">
+                  <div className="flex items-start gap-3 rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(244,248,245,0.96),rgba(232,239,234,0.88))] px-4 py-4 dark:!border-[#314740] dark:bg-none dark:!bg-[#16211D]">
+                    <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:!bg-[#21453C] dark:!text-[#CDE4DB] dark:shadow-none">
                       <Lock className="h-4 w-4" />
                     </span>
-                    <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">
+                    <p className="text-sm leading-7 text-muted-foreground dark:!text-[#C5D8D0]">
                       Esses dados refletem seus gastos do mês anterior e servem como referência para o mês atual.
                       Contas fixas entram primeiro, e o histórico recente complementa a previsão.
                     </p>
@@ -163,8 +163,8 @@ const PreviousMonthForecastCard = ({
                   </div>
                 </>
               ) : (
-                <div className="flex items-start gap-3 rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(241,245,249,0.8))] px-4 py-4 dark:border-[#263731] dark:bg-[#1B2823]">
-                  <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:bg-[#21453C] dark:text-[#9FD5C2] dark:shadow-none">
+                <div className="flex items-start gap-3 rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(244,248,245,0.96),rgba(232,239,234,0.88))] px-4 py-4 dark:!border-[#314740] dark:bg-none dark:!bg-[#16211D]">
+                  <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:!bg-[#21453C] dark:!text-[#CDE4DB] dark:shadow-none">
                     <Lock className="h-4 w-4" />
                   </span>
                   <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">Sem dados do mês anterior para comparar.</p>
