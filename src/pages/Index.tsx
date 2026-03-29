@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion } from '@/components/ui/accordion';
 import DashboardHeader from '@/components/DashboardHeader';
+import DashboardCarousel from '@/components/DashboardCarousel';
 import MonthPicker from '@/components/MonthPicker';
-import IdealComparisonCard from '@/components/IdealComparisonCard';
 import IdealComparison from '@/components/IdealComparison';
 import InsightsAccordion from '@/components/InsightsAccordion';
 import RecentTransactions from '@/components/RecentTransactions';
 import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
-import FinanceMonthCard from '@/components/FinanceMonthCard';
 import PreviousMonthForecastCard from '@/components/PreviousMonthForecastCard';
 import ProjectionMonthlySection from '@/components/projection/ProjectionMonthlySection';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -18,7 +17,10 @@ import { useMonthBalance, useEnsureMonthBalance } from '@/hooks/useMonthBalance'
 import { useRecurringRules } from '@/hooks/useRecurringRules';
 import { useProjectionTemplates } from '@/hooks/useProjectionTemplates';
 import { useMonthlyProjectionItems } from '@/hooks/useMonthlyProjectionItems';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
+import { usePaymentReminderNotifications } from '@/hooks/usePaymentReminderNotifications';
 import { buildMonthlyForecastData } from '@/lib/forecast';
+import { filterTransactionsByMonth, isDateBeforeMonth } from '@/lib/monthFilters';
 import AuthPage from '@/pages/Auth';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -35,22 +37,10 @@ const getMonthShortLabel = (year: number, month: number) =>
 const getMonthPickerLabel = (year: number, month: number) =>
   new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
-const filterTransactionsByMonth = (transactions: Transaction[], month: number, year: number) =>
-  transactions.filter((transaction) => {
-    const safeDateValue =
-      typeof transaction.date === 'string' ? transaction.date.slice(0, 10) : '';
-    const date = new Date(`${safeDateValue}T00:00:00`);
-
-    if (Number.isNaN(date.getTime())) {
-      return false;
-    }
-
-    return date.getMonth() === month && date.getFullYear() === year;
-  });
-
 const Index = () => {
   const { session, loading: authLoading, signOut } = useAuth();
   const userId = session?.user.id;
+  const { preferences: notificationPreferences } = useNotificationPreferences(session);
   const {
     data: transactions = [],
     isLoading: txLoading,
@@ -72,6 +62,8 @@ const Index = () => {
 
   const now = new Date();
   const [selectedDate, setSelectedDate] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
@@ -128,11 +120,7 @@ const Index = () => {
   // e como valor para persistir na primeira vez que o mês é acessado.
   const computedCaixaInicial = useMemo(() => {
     return normalizedTransactions.reduce((sum, t) => {
-      const date = new Date(`${t.date}T00:00:00`);
-      if (Number.isNaN(date.getTime())) return sum;
-      const isBefore =
-        date.getFullYear() < selectedYear ||
-        (date.getFullYear() === selectedYear && date.getMonth() < selectedMonth);
+      const isBefore = isDateBeforeMonth(t.date, selectedMonth, selectedYear);
       if (!isBefore) return sum;
       return sum + Number(t.amount) * (t.type === 'income' ? 1 : -1);
     }, 0);
@@ -185,6 +173,10 @@ const Index = () => {
     selectedMonth,
     selectedYear,
   );
+  const isViewingCurrentMonth = selectedMonth === currentMonth && selectedYear === currentYear;
+  const { items: currentMonthProjectionItems = [] } = useMonthlyProjectionItems(userId, templates, currentMonth, currentYear, {
+    enabled: !isViewingCurrentMonth,
+  });
   const isLoading =
     authLoading ||
     (Boolean(session) &&
@@ -194,6 +186,12 @@ const Index = () => {
         templatesLoading ||
         monthlyProjectionLoading ||
         balanceLoading));
+
+  usePaymentReminderNotifications({
+    session,
+    items: isViewingCurrentMonth ? monthlyProjectionItems : currentMonthProjectionItems,
+    preferences: notificationPreferences,
+  });
 
   const forecastData = useMemo(
     () =>
@@ -264,10 +262,10 @@ const Index = () => {
     });
   };
 
-  const handleSaveMonthEdit = (item: MonthlyProjectionItem, title: string, amount: number) => {
+  const handleSaveMonthEdit = async (item: MonthlyProjectionItem, title: string, amount: number) => {
     const baseTemplate = templates.find((template) => template.id === item.template_id);
 
-    saveOverride({
+    await saveOverride({
       templateId: item.template_id,
       month: selectedMonth,
       year: selectedYear,
@@ -277,8 +275,8 @@ const Index = () => {
     });
   };
 
-  const handleIgnoreMonth = (item: MonthlyProjectionItem) => {
-    saveOverride({
+  const handleIgnoreMonth = async (item: MonthlyProjectionItem) => {
+    await saveOverride({
       templateId: item.template_id,
       month: selectedMonth,
       year: selectedYear,
@@ -286,12 +284,12 @@ const Index = () => {
     });
   };
 
-  const handleRestoreMonth = (item: MonthlyProjectionItem) => {
-    clearOverride(item.template_id, selectedMonth, selectedYear);
+  const handleRestoreMonth = async (item: MonthlyProjectionItem) => {
+    await clearOverride(item.template_id, selectedMonth, selectedYear);
   };
 
-  const handleMarkProjectionPaid = (item: MonthlyProjectionItem, transactionId: string) => {
-    saveOverride({
+  const handleMarkProjectionPaid = async (item: MonthlyProjectionItem, transactionId: string) => {
+    await saveOverride({
       templateId: item.template_id,
       month: selectedMonth,
       year: selectedYear,
@@ -320,8 +318,10 @@ const Index = () => {
         </div>
       ) : (
         <div key={monthViewKey}>
-          <FinanceMonthCard
+          <DashboardCarousel
             transactions={monthTransactions}
+            categories={categories}
+            projectedItems={monthlyProjectionItems}
             caixaInicial={caixaInicial}
             onOpenIncome={() => openTransactionModal('income', true)}
             onOpenExpense={() => openTransactionModal('expense', true)}
@@ -337,7 +337,6 @@ const Index = () => {
             onRestoreMonth={handleRestoreMonth}
             onMarkPaid={handleMarkProjectionPaid}
           />
-          <IdealComparisonCard transactions={monthTransactions} categories={categories} />
           <PreviousMonthForecastCard
             data={forecastData}
             currentMonthLabel={currentMonthLabel}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { BellRing, CalendarDays } from 'lucide-react';
 import { Category, MonthlyProjectionItem, ProjectionTemplate } from '@/types/finance';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,10 +24,10 @@ interface MonthlyProjectionItemDrawerProps {
   template?: ProjectionTemplate | null;
   categories: Category[];
   selectedDate: Date;
-  onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => void;
-  onIgnoreMonth: (item: MonthlyProjectionItem) => void;
-  onRestoreMonth: (item: MonthlyProjectionItem) => void;
-  onMarkPaid: (item: MonthlyProjectionItem, transactionId: string) => void;
+  onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => Promise<void>;
+  onIgnoreMonth: (item: MonthlyProjectionItem) => Promise<void>;
+  onRestoreMonth: (item: MonthlyProjectionItem) => Promise<void>;
+  onMarkPaid: (item: MonthlyProjectionItem, transactionId: string) => Promise<void>;
 }
 
 const statusLabels = {
@@ -64,23 +65,28 @@ const MonthlyProjectionItemDrawer = ({
     return item.category_name ?? categories.find((category) => category.id === item.category_id)?.name ?? '--';
   }, [categories, item]);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!item) return;
+
     const numericAmount = Number(amount.replace(',', '.'));
     if (!title.trim() || !Number.isFinite(numericAmount) || numericAmount <= 0) {
-      toast.error('Informe um valor válido para o mês');
+      toast.error('Informe um valor válido para o mês.');
       return;
     }
 
-    onSaveMonthEdit(item, title.trim(), numericAmount);
-    setEditOpen(false);
-    toast.success('Projeção ajustada só para este mês');
+    try {
+      await onSaveMonthEdit(item, title.trim(), numericAmount);
+      setEditOpen(false);
+      toast.success('Projeção ajustada só para este mês.');
+    } catch {
+      toast.error('Não foi possível salvar o ajuste deste mês.');
+    }
   };
 
   const handleMarkPaid = () => {
     if (!item) return;
     if (item.status === 'paid' && item.paid_transaction_id) {
-      toast.message('Essa conta já foi marcada como paga');
+      toast.message('Essa conta já foi marcada como paga.');
       return;
     }
 
@@ -94,12 +100,16 @@ const MonthlyProjectionItemDrawer = ({
         date: getTransactionDateForMonth(selectedDate),
       },
       {
-        onSuccess: (transaction) => {
-          onMarkPaid(item, transaction.id);
-          toast.success('Conta marcada como paga');
-          onOpenChange(false);
+        onSuccess: async (transaction) => {
+          try {
+            await onMarkPaid(item, transaction.id);
+            toast.success('Conta marcada como paga.');
+            onOpenChange(false);
+          } catch {
+            toast.error('Não foi possível atualizar o status da conta.');
+          }
         },
-        onError: () => toast.error('Não foi possível marcar essa conta como paga'),
+        onError: () => toast.error('Não foi possível marcar essa conta como paga.'),
       },
     );
   };
@@ -111,7 +121,7 @@ const MonthlyProjectionItemDrawer = ({
     <>
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="rounded-t-[28px] border-border/60 bg-white">
-          {item && (
+          {item ? (
             <>
               <DrawerHeader className="px-5 pt-5 text-left">
                 <DrawerTitle className="break-words text-xl font-semibold text-foreground">{item.title}</DrawerTitle>
@@ -136,13 +146,34 @@ const MonthlyProjectionItemDrawer = ({
                   </div>
                 </div>
 
+                <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-white px-4 py-3 text-xs text-muted-foreground">
+                  {item.due_day ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+                      <CalendarDays className="h-3 w-3" />
+                      Vencimento no dia {item.due_day}
+                    </span>
+                  ) : null}
+                  {item.reminder_enabled ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
+                      <BellRing className="h-3 w-3" />
+                      Lembrete ativo
+                    </span>
+                  ) : null}
+                </div>
+
                 <div className="grid gap-3">
-                  <Button type="button" className="h-12 rounded-2xl text-base font-semibold" onClick={handleMarkPaid}>
+                  <Button
+                    type="button"
+                    data-testid="mark-paid-action"
+                    className="h-12 rounded-2xl text-base font-semibold"
+                    onClick={handleMarkPaid}
+                  >
                     Marcar como pago
                   </Button>
                   <Button
                     type="button"
                     variant="outline"
+                    data-testid="edit-month-action"
                     className="h-12 rounded-2xl text-base font-semibold"
                     onClick={() => setEditOpen(true)}
                   >
@@ -152,11 +183,16 @@ const MonthlyProjectionItemDrawer = ({
                     <Button
                       type="button"
                       variant="outline"
+                      data-testid="ignore-month-action"
                       className="h-12 rounded-2xl border-amber-200 text-amber-700 hover:bg-amber-50"
-                      onClick={() => {
-                        onIgnoreMonth(item);
-                        toast.success('Conta ignorada neste mês');
-                        onOpenChange(false);
+                      onClick={async () => {
+                        try {
+                          await onIgnoreMonth(item);
+                          toast.success('Conta ignorada neste mês.');
+                          onOpenChange(false);
+                        } catch {
+                          toast.error('Não foi possível ignorar essa conta neste mês.');
+                        }
                       }}
                     >
                       Ignorar neste mês
@@ -166,11 +202,16 @@ const MonthlyProjectionItemDrawer = ({
                     <Button
                       type="button"
                       variant="ghost"
+                      data-testid="restore-month-action"
                       className="h-12 rounded-2xl text-base font-semibold text-muted-foreground"
-                      onClick={() => {
-                        onRestoreMonth(item);
-                        toast.success('Conta restaurada para o padrão');
-                        onOpenChange(false);
+                      onClick={async () => {
+                        try {
+                          await onRestoreMonth(item);
+                          toast.success('Conta restaurada para o padrão.');
+                          onOpenChange(false);
+                        } catch {
+                          toast.error('Não foi possível restaurar essa conta.');
+                        }
                       }}
                     >
                       Restaurar padrão
@@ -185,7 +226,7 @@ const MonthlyProjectionItemDrawer = ({
                 </Button>
               </DrawerFooter>
             </>
-          )}
+          ) : null}
         </DrawerContent>
       </Drawer>
 
@@ -219,7 +260,12 @@ const MonthlyProjectionItemDrawer = ({
             </div>
 
             <DialogFooter className="mt-6 flex-col gap-3 sm:flex-col">
-              <Button type="button" className="h-12 rounded-2xl" onClick={handleSaveEdit}>
+              <Button
+                type="button"
+                data-testid="save-month-edit-action"
+                className="h-12 rounded-2xl"
+                onClick={() => void handleSaveEdit()}
+              >
                 Salvar ajuste
               </Button>
             </DialogFooter>

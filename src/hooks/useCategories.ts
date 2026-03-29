@@ -10,11 +10,12 @@ export function useCategories(userId?: string) {
       const { data, error } = await supabase
         .from('categories')
         .select('*')
-        .eq('user_id', userId)
+        .or(`user_id.is.null,user_id.eq.${userId}`)
         .order('name');
       if (error) throw error;
       return data as Category[];
     },
+    staleTime: 1000 * 60 * 5,
   });
 }
 

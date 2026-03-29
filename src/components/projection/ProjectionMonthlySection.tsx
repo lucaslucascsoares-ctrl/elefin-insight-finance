@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { BellRing, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import MonthlyProjectionItemDrawer from '@/components/projection/MonthlyProjectionItemDrawer';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Category, GROUP_LABELS, GroupType, MonthlyProjectionItem, ProjectionTemplate } from '@/types/finance';
@@ -9,10 +9,10 @@ interface ProjectionMonthlySectionProps {
   templates: ProjectionTemplate[];
   categories: Category[];
   selectedDate: Date;
-  onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => void;
-  onIgnoreMonth: (item: MonthlyProjectionItem) => void;
-  onRestoreMonth: (item: MonthlyProjectionItem) => void;
-  onMarkPaid: (item: MonthlyProjectionItem, transactionId: string) => void;
+  onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => Promise<void>;
+  onIgnoreMonth: (item: MonthlyProjectionItem) => Promise<void>;
+  onRestoreMonth: (item: MonthlyProjectionItem) => Promise<void>;
+  onMarkPaid: (item: MonthlyProjectionItem, transactionId: string) => Promise<void>;
 }
 
 const statusClasses: Record<MonthlyProjectionItem['status'], string> = {
@@ -79,7 +79,9 @@ const ProjectionMonthlySection = ({
             >
               <div className="min-w-0 flex-1">
                 <h2 className="text-lg font-semibold text-foreground">Contas projetadas do mês</h2>
-                <p className="mt-1 break-words text-sm text-muted-foreground">Toque para ver suas contas fixas previstas.</p>
+                <p className="mt-1 break-words text-sm text-muted-foreground">
+                  Toque para ver suas contas fixas previstas.
+                </p>
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
@@ -143,17 +145,35 @@ const ProjectionMonthlySection = ({
                               <button
                                 key={item.id}
                                 type="button"
+                                data-testid={`projected-item-${item.template_id}`}
+                                aria-label={`Abrir conta projetada ${item.title}`}
                                 onClick={() => setSelectedItem(item)}
                                 className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/30"
                               >
                                 <div className="min-w-0 flex-1">
                                   <div className="flex flex-wrap items-center gap-2">
                                     <span className="break-words text-sm font-semibold text-foreground">{item.title}</span>
-                                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusClasses[item.status]}`}>
+                                    <span
+                                      className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusClasses[item.status]}`}
+                                    >
                                       {statusLabels[item.status]}
                                     </span>
                                   </div>
                                   <p className="mt-1 break-words text-xs text-muted-foreground">{categoryName}</p>
+                                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                                    {item.due_day ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1">
+                                        <CalendarDays className="h-3 w-3" />
+                                        Dia {item.due_day}
+                                      </span>
+                                    ) : null}
+                                    {item.reminder_enabled ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-amber-700">
+                                        <BellRing className="h-3 w-3" />
+                                        Lembrete ativo
+                                      </span>
+                                    ) : null}
+                                  </div>
                                 </div>
 
                                 <div className="flex shrink-0 items-center gap-2">

@@ -1,11 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Category, GROUP_LABELS, GroupType, ProjectionTemplate, ProjectionTemplateInput } from '@/types/finance';
+import {
+  Category,
+  GROUP_LABELS,
+  GroupType,
+  NotificationPreferences,
+  ProjectionTemplate,
+  ProjectionTemplateInput,
+} from '@/types/finance';
 import { getProjectionAccountsByCategory, getProjectionCategoriesByGroup } from '@/lib/categoryTaxonomy';
 
 interface ProjectionInlineFormProps {
@@ -15,6 +23,7 @@ interface ProjectionInlineFormProps {
   onOpenChange: (open: boolean) => void;
   onCancelEdit: () => void;
   onSave: (input: ProjectionTemplateInput) => void | Promise<void>;
+  notificationPreferences: NotificationPreferences;
 }
 
 const defaultGroupType: GroupType = 'essenciais';
@@ -26,6 +35,7 @@ const ProjectionInlineForm = ({
   onOpenChange,
   onCancelEdit,
   onSave,
+  notificationPreferences,
 }: ProjectionInlineFormProps) => {
   const [groupType, setGroupType] = useState<GroupType>(defaultGroupType);
   const [categoryName, setCategoryName] = useState('');
@@ -33,6 +43,10 @@ const ProjectionInlineForm = ({
   const [linkedAccount, setLinkedAccount] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
+  const [dueDay, setDueDay] = useState('');
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [remindTwoDaysBefore, setRemindTwoDaysBefore] = useState(false);
+  const [remindOnDueDate, setRemindOnDueDate] = useState(true);
   const [formError, setFormError] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -45,9 +59,15 @@ const ProjectionInlineForm = ({
     setLinkedAccount(template?.account_name ?? '');
     setAmount(template ? `${template.default_amount}` : '');
     setDescription(template?.description ?? '');
+    setDueDay(template?.due_day ? `${template.due_day}` : '');
+    setReminderEnabled(template?.reminder_enabled ?? notificationPreferences.paymentRemindersEnabled);
+    setRemindTwoDaysBefore(
+      template?.reminder_days_before?.includes(2) ?? notificationPreferences.defaultDaysBefore.includes(2),
+    );
+    setRemindOnDueDate(template?.reminder_on_due_date ?? notificationPreferences.defaultOnDueDate);
     setFormError('');
     setSaving(false);
-  }, [open, template]);
+  }, [notificationPreferences, open, template]);
 
   const availableCategories = useMemo(() => getProjectionCategoriesByGroup(groupType), [groupType]);
 
@@ -57,11 +77,30 @@ const ProjectionInlineForm = ({
   );
 
   const matchingCategory = useMemo(() => {
-    if (!categoryName) return null;
-    return categories.find(
-      (category) => category.group_type === groupType && category.name.toLowerCase() === accountName.toLowerCase(),
+    if (!accountName) return null;
+
+    return (
+      categories.find(
+        (category) =>
+          category.group_type === groupType && category.name.toLowerCase() === accountName.toLowerCase(),
+      ) ?? null
     );
-  }, [accountName, categories, groupType, categoryName]);
+  }, [accountName, categories, groupType]);
+
+  const resetForm = () => {
+    setGroupType(defaultGroupType);
+    setCategoryName('');
+    setLinkedAccount('');
+    setAccountName('');
+    setAmount('');
+    setDescription('');
+    setDueDay('');
+    setReminderEnabled(notificationPreferences.paymentRemindersEnabled);
+    setRemindTwoDaysBefore(notificationPreferences.defaultDaysBefore.includes(2));
+    setRemindOnDueDate(notificationPreferences.defaultOnDueDate);
+    setFormError('');
+    setSaving(false);
+  };
 
   const handleGroupChange = (nextGroup: GroupType) => {
     setGroupType(nextGroup);
@@ -84,19 +123,9 @@ const ProjectionInlineForm = ({
     setFormError('');
   };
 
-  const resetForm = () => {
-    setGroupType(defaultGroupType);
-    setCategoryName('');
-    setLinkedAccount('');
-    setAccountName('');
-    setAmount('');
-    setDescription('');
-    setFormError('');
-    setSaving(false);
-  };
-
   const handleSave = async () => {
     const numericAmount = Number(amount.replace(',', '.'));
+    const parsedDueDay = dueDay.trim() ? Number(dueDay) : null;
 
     if (!categoryName) {
       setFormError('Selecione uma categoria.');
@@ -123,8 +152,24 @@ const ProjectionInlineForm = ({
       return;
     }
 
+    if (parsedDueDay !== null && (!Number.isFinite(parsedDueDay) || parsedDueDay < 1 || parsedDueDay > 31)) {
+      setFormError('Informe um dia de vencimento entre 1 e 31.');
+      return;
+    }
+
+    if (reminderEnabled && parsedDueDay === null) {
+      setFormError('Defina o dia de vencimento para ativar o lembrete.');
+      return;
+    }
+
+    if (reminderEnabled && !remindTwoDaysBefore && !remindOnDueDate) {
+      setFormError('Selecione pelo menos uma opção de aviso.');
+      return;
+    }
+
     try {
       setSaving(true);
+
       await onSave({
         title: linkedAccount,
         account_name: linkedAccount,
@@ -133,6 +178,10 @@ const ProjectionInlineForm = ({
         default_amount: numericAmount,
         category_id: matchingCategory?.id ?? null,
         group_type: groupType,
+        due_day: parsedDueDay,
+        reminder_enabled: parsedDueDay === null ? null : reminderEnabled,
+        reminder_days_before: reminderEnabled && remindTwoDaysBefore ? [2] : [],
+        reminder_on_due_date: reminderEnabled ? remindOnDueDate : false,
       });
 
       resetForm();
@@ -152,6 +201,7 @@ const ProjectionInlineForm = ({
           resetForm();
           onCancelEdit();
         }
+
         onOpenChange(nextOpen);
       }}
       className="rounded-[28px] border border-border/70 bg-white shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
@@ -161,6 +211,7 @@ const ProjectionInlineForm = ({
           type="button"
           aria-expanded={open}
           aria-controls="projection-inline-form"
+          data-testid="projection-form-toggle"
           className="flex w-full items-start justify-between gap-3 px-4 py-4 text-left"
         >
           <div className="min-w-0 flex-1">
@@ -169,7 +220,7 @@ const ProjectionInlineForm = ({
             </h2>
             <p className="mt-1 break-words text-sm text-muted-foreground">
               {template
-                ? 'Atualize a conta fixa usando grupo, categoria e conta vinculada.'
+                ? 'Atualize a conta fixa usando grupo, categoria, conta e lembrete.'
                 : 'Cadastre suas contas fixas para que elas apareçam automaticamente em todos os meses.'}
             </p>
           </div>
@@ -209,6 +260,7 @@ const ProjectionInlineForm = ({
               <Label htmlFor="projection-category-inline">Categoria</Label>
               <select
                 id="projection-category-inline"
+                data-testid="projection-category-select"
                 value={categoryName}
                 onChange={(event) => handleCategoryChange(event.target.value)}
                 className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm outline-none"
@@ -227,6 +279,7 @@ const ProjectionInlineForm = ({
             <Label htmlFor="projection-linked-account-inline">Conta vinculada à categoria</Label>
             <select
               id="projection-linked-account-inline"
+              data-testid="projection-account-select"
               value={linkedAccount}
               disabled={!categoryName}
               onChange={(event) => handleLinkedAccountChange(event.target.value)}
@@ -245,6 +298,7 @@ const ProjectionInlineForm = ({
             <Label htmlFor="projection-account-inline">Conta</Label>
             <Input
               id="projection-account-inline"
+              data-testid="projection-account-input"
               value={accountName}
               readOnly
               placeholder="A conta será preenchida pela opção acima"
@@ -256,6 +310,7 @@ const ProjectionInlineForm = ({
             <Label htmlFor="projection-amount-inline">Valor padrão</Label>
             <Input
               id="projection-amount-inline"
+              data-testid="projection-amount-input"
               inputMode="decimal"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
@@ -275,13 +330,77 @@ const ProjectionInlineForm = ({
             />
           </div>
 
-          {formError ? (
-            <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{formError}</p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="projection-due-day-inline" className="notranslate" translate="no">
+                Dia de vencimento
+              </Label>
+              <Input
+                id="projection-due-day-inline"
+                data-testid="projection-due-day-input"
+                inputMode="numeric"
+                value={dueDay}
+                onChange={(event) => setDueDay(event.target.value.replace(/\D/g, '').slice(0, 2))}
+                placeholder="Ex: 10"
+                className="h-12 rounded-2xl"
+              />
+            </div>
+
+            <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-3">
+              <label className="flex items-start gap-3">
+                <Checkbox
+                  checked={reminderEnabled}
+                  onCheckedChange={(checked) => setReminderEnabled(Boolean(checked))}
+                  className="mt-0.5"
+                />
+                <span className="flex-1">
+                  <span className="block text-sm font-medium text-foreground notranslate" translate="no">
+                    Ativar lembrete
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    Usa o push do navegador para avisar sobre o pagamento desta conta.
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {reminderEnabled ? (
+            <div className="rounded-2xl border border-border/70 bg-muted/20 px-4 py-4">
+              <p className="text-sm font-medium text-foreground notranslate" translate="no">
+                Configuração do lembrete
+              </p>
+              <div className="mt-3 space-y-3">
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={remindTwoDaysBefore}
+                    onCheckedChange={(checked) => setRemindTwoDaysBefore(Boolean(checked))}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm text-muted-foreground notranslate" translate="no">
+                    Lembrar 2 dias antes
+                  </span>
+                </label>
+                <label className="flex items-start gap-3">
+                  <Checkbox
+                    checked={remindOnDueDate}
+                    onCheckedChange={(checked) => setRemindOnDueDate(Boolean(checked))}
+                    className="mt-0.5"
+                  />
+                  <span className="text-sm text-muted-foreground notranslate" translate="no">
+                    Lembrar no dia
+                  </span>
+                </label>
+              </div>
+            </div>
           ) : null}
+
+          {formError ? <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-600">{formError}</p> : null}
 
           <div className="flex items-center gap-3">
             <Button
               type="button"
+              data-testid="projection-form-save"
               onClick={() => void handleSave()}
               disabled={saving}
               className="h-12 flex-1 rounded-2xl text-base font-semibold"
@@ -291,6 +410,7 @@ const ProjectionInlineForm = ({
             <Button
               type="button"
               variant="outline"
+              data-testid="projection-form-cancel"
               disabled={saving}
               onClick={() => {
                 resetForm();

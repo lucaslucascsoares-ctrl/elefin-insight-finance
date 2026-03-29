@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { Pencil, Power, Trash2 } from 'lucide-react';
+import { BellRing, CalendarDays, Pencil, Power, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardHeader from '@/components/DashboardHeader';
 import ProjectionInlineForm from '@/components/projection/ProjectionInlineForm';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
+import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { useProjectionTemplates } from '@/hooks/useProjectionTemplates';
 import AuthPage from '@/pages/Auth';
 import { GROUP_LABELS, GroupType, ProjectionTemplate } from '@/types/finance';
@@ -13,6 +14,7 @@ import { GROUP_LABELS, GroupType, ProjectionTemplate } from '@/types/finance';
 const Projection = () => {
   const { session, loading: authLoading, signOut } = useAuth();
   const userId = session?.user.id;
+  const { preferences } = useNotificationPreferences(session);
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(userId);
   const {
     templates,
@@ -65,16 +67,20 @@ const Projection = () => {
           onSave={async (input) => {
             if (editingTemplate) {
               await updateTemplate(editingTemplate.id, input);
-              toast.success('Projeção atualizada');
+              toast.success('Projeção atualizada.');
               setEditingTemplate(null);
             } else {
               await addTemplate(input);
-              toast.success('Conta fixa adicionada à projeção');
+              toast.success('Conta fixa adicionada à projeção.');
             }
           }}
+          notificationPreferences={preferences}
         />
 
-        <section className="mt-4 rounded-[28px] border border-border/70 bg-white px-4 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
+        <section
+          className="mt-4 rounded-[28px] border border-border/70 bg-white px-4 py-5 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"
+          data-testid="projection-list-section"
+        >
           <div className="min-w-0">
             <h1 className="break-words text-xl font-semibold text-foreground">Projeção dos Próximos Meses</h1>
             <p className="mt-1 break-words text-sm text-muted-foreground">
@@ -125,6 +131,20 @@ const Projection = () => {
                               </span>
                             </div>
                             <p className="mt-1 break-words text-xs text-muted-foreground">{template.category_name}</p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-medium text-muted-foreground">
+                              {template.due_day ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1">
+                                  <CalendarDays className="h-3 w-3" />
+                                  Vence no dia {template.due_day}
+                                </span>
+                              ) : null}
+                              {template.reminder_enabled ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-amber-700">
+                                  <BellRing className="h-3 w-3" />
+                                  Lembrete ativo
+                                </span>
+                              ) : null}
+                            </div>
                           </div>
 
                           <div className="flex items-center justify-between gap-3 sm:justify-end">
@@ -150,7 +170,7 @@ const Projection = () => {
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                                 onClick={async () => {
                                   await toggleTemplateActive(template.id, !template.is_active);
-                                  toast.success(template.is_active ? 'Conta pausada' : 'Conta reativada');
+                                  toast.success(template.is_active ? 'Conta pausada.' : 'Conta reativada.');
                                 }}
                                 aria-label="Pausar ou reativar projeção"
                               >
@@ -161,7 +181,7 @@ const Projection = () => {
                                 className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                                 onClick={async () => {
                                   await deleteTemplate(template.id);
-                                  toast.success('Conta removida da projeção');
+                                  toast.success('Conta removida da projeção.');
                                   if (editingTemplate?.id === template.id) {
                                     setEditingTemplate(null);
                                     setFormOpen(false);

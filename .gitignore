@@ -31,3 +31,6 @@ server/
 .env
 vite.config.ts.timestamp-*.mjs
 supabase/.temp/
+playwright-report/
+test-results/
+.playwright/

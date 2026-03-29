@@ -45,7 +45,7 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
           'Mercado',
           'Mercearia',
           'Padaria',
-          'Hortfrut',
+          'Hortifruti',
           'Açougue',
           'Feira',
           'Outros Custos de Alimentação Essencial',
@@ -151,7 +151,7 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
       {
         nome: 'Hobbies',
         id: 'hobbies',
-        itens: ['Esportes', 'Artesanatos', 'Jogos', 'Outros Hobbies'],
+        itens: ['Esportes', 'Artesanato', 'Jogos', 'Outros Hobbies'],
       },
       {
         nome: 'Compras Não Essenciais',
@@ -173,7 +173,7 @@ export const CATEGORY_TAXONOMY: TaxonomyCategoryGroup[] = [
       {
         nome: 'Construção de Reservas',
         id: 'reservas',
-        itens: ['Poupanças', 'Previdências', 'Consórcios', 'Fundos'],
+        itens: ['Poupança', 'Previdência', 'Consórcios', 'Fundos'],
       },
       {
         nome: 'Quitação de Dívidas',
@@ -203,10 +203,11 @@ const normalize = (value: string) =>
 
 export function findExistingCategory(categories: Category[], itemName: string, groupType: GroupType) {
   const normalizedItem = normalize(itemName);
+
   return (
     categories.find(
       (category) => category.group_type === groupType && normalize(category.name) === normalizedItem,
-    ) || null
+    ) ?? null
   );
 }
 

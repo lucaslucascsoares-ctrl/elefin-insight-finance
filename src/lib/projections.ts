@@ -48,6 +48,10 @@ export const buildMonthlyProjectionItems = ({
             (override.amount_override !== null ||
               Boolean(override.title_override && override.title_override.trim().length > 0)),
         ),
+        due_day: template.due_day,
+        reminder_enabled: template.reminder_enabled,
+        reminder_days_before: template.reminder_days_before,
+        reminder_on_due_date: template.reminder_on_due_date,
       };
     })
     .sort((first, second) => {

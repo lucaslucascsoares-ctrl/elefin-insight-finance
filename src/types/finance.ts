@@ -109,6 +109,13 @@ export interface MonthlyForecastData {
   totalPrevisto: number;
 }
 
+export interface ProjectionReminderConfig {
+  due_day: number | null;
+  reminder_enabled: boolean | null;
+  reminder_days_before: number[];
+  reminder_on_due_date: boolean | null;
+}
+
 export interface ProjectionTemplate {
   id: string;
   user_id: string;
@@ -122,6 +129,10 @@ export interface ProjectionTemplate {
   group_type: GroupType;
   source: 'projecao';
   is_active: boolean;
+  due_day: number | null;
+  reminder_enabled: boolean | null;
+  reminder_days_before: number[];
+  reminder_on_due_date: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -134,6 +145,10 @@ export interface ProjectionTemplateInput {
   default_amount: number;
   category_id: string | null;
   group_type: GroupType;
+  due_day: number | null;
+  reminder_enabled: boolean | null;
+  reminder_days_before: number[];
+  reminder_on_due_date: boolean | null;
 }
 
 export interface MonthlyProjectionOverride {
@@ -165,4 +180,18 @@ export interface MonthlyProjectionItem {
   status: MonthlyProjectionStatus;
   paid_transaction_id: string | null;
   is_overridden: boolean;
+  due_day: number | null;
+  reminder_enabled: boolean | null;
+  reminder_days_before: number[];
+  reminder_on_due_date: boolean | null;
+}
+
+export interface NotificationPreferences {
+  paymentRemindersEnabled: boolean;
+  defaultDaysBefore: number[];
+  defaultOnDueDate: boolean;
+  channels: {
+    push: boolean;
+    email: boolean;
+  };
 }

@@ -15,7 +15,7 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (totalIncome === 0) {
     return {
-      message: 'Adicione entradas no mês para receber uma leitura das metas 50/30/20.',
+      message: 'Adicione entradas no mês para receber uma leitura das suas metas de gasto.',
       type: 'success',
     };
   }
@@ -54,21 +54,23 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (essentials.delta > 0) {
     return {
-      message: `${essentials.label} estão acima da meta em ${formatCurrency(essentials.delta)}. O próximo passo é reduzir esse grupo para voltar ao limite de 50% e proteger seu caixa.`,
+      message: `${essentials.label} estão acima da meta em ${formatCurrency(essentials.delta)}. O próximo passo é reduzir esse grupo para voltar ao limite ideal e proteger seu caixa.`,
       type: 'warning',
     };
   }
 
   if (desires.delta > 0) {
     return {
-      message: `${desires.label} passaram da meta de 30% em ${formatCurrency(desires.delta)}. Vale cortar gastos variáveis agora para não pressionar as prioridades do mês.`,
+      message: `${desires.label} passaram da meta em ${formatCurrency(desires.delta)}. Vale cortar gastos variáveis agora para não pressionar as prioridades do mês.`,
       type: 'warning',
     };
   }
 
   if (priorities.delta < 0) {
     return {
-      message: `${priorities.label} estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(Math.abs(priorities.delta))} para esse objetivo e equilibrar sua estratégia 50/30/20.`,
+      message: `${priorities.label} estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(
+        Math.abs(priorities.delta),
+      )} para esse objetivo.`,
       type: 'warning',
     };
   }
@@ -76,7 +78,9 @@ export function generateInsight(transactions: Transaction[], categories: Categor
   const reserve = totalIncome - metrics.reduce((sum, item) => sum + item.spent, 0);
 
   return {
-    message: `Seu mês está alinhado com a leitura 50/30/20. Essenciais, Desejos e Prioridades estão dentro da meta, e você ainda preserva ${formatCurrency(Math.max(reserve, 0))} de folga no caixa.`,
+    message: `Seu mês está equilibrado. Essenciais, Desejos e Prioridades estão dentro da meta, e você ainda preserva ${formatCurrency(
+      Math.max(reserve, 0),
+    )} de folga no caixa.`,
     type: 'success',
   };
 }

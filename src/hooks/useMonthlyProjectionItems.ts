@@ -19,13 +19,14 @@ export function useMonthlyProjectionItems(
   templates: ProjectionTemplate[],
   month: number,
   year: number,
+  options?: { enabled?: boolean },
 ) {
   const queryClient = useQueryClient();
   const queryKey = ['monthly_projection_overrides', userId, month, year];
 
   const { data: overrides = [], isLoading } = useQuery({
     queryKey,
-    enabled: Boolean(userId && isSupabaseConfigured),
+    enabled: Boolean(userId && isSupabaseConfigured && (options?.enabled ?? true)),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('monthly_projection_overrides')
@@ -120,8 +121,8 @@ export function useMonthlyProjectionItems(
     items,
     overrides,
     isLoading,
-    saveOverride: (input: SaveProjectionOverrideInput) => saveOverrideMutation.mutate(input),
+    saveOverride: (input: SaveProjectionOverrideInput) => saveOverrideMutation.mutateAsync(input),
     clearOverride: (templateId: string, overrideMonth: number, overrideYear: number) =>
-      clearOverrideMutation.mutate({ templateId, overrideMonth, overrideYear }),
+      clearOverrideMutation.mutateAsync({ templateId, overrideMonth, overrideYear }),
   };
 }
