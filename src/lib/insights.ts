@@ -1,4 +1,4 @@
-﻿import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, Transaction } from '@/types/finance';
+import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, Transaction } from '@/types/finance';
 import { normalizeGroupType } from '@/lib/groupType';
 
 export interface InsightResult {
@@ -11,10 +11,10 @@ const formatCurrency = (value: number) =>
 
 const buildReserveLead = (reserve: number) => {
   if (reserve <= 0) {
-    return 'o espaÃ§o ficou curto';
+    return 'o espaço ficou curto';
   }
 
-  return `com ${formatCurrency(Math.max(reserve, 0))} de folga, o mÃªs ainda respira`;
+  return `com ${formatCurrency(Math.max(reserve, 0))} de folga, o mês ainda respira`;
 };
 
 export function generateInsight(transactions: Transaction[], categories: Category[]): InsightResult {
@@ -25,7 +25,7 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (totalIncome === 0) {
     return {
-      message: 'Ainda faltam entradas neste mÃªs. Quando elas aparecerem, eu consigo te mostrar melhor para onde o dinheiro estÃ¡ indo. âœ¨',
+      message: 'Ainda faltam entradas neste mês. Quando elas aparecerem, eu consigo te mostrar melhor para onde o dinheiro está indo. ✨',
       type: 'success',
     };
   }
@@ -64,7 +64,7 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (essentials.delta > 0) {
     return {
-      message: `Suas essenciais pesaram neste mÃªs. ${buildReserveLead(reserve)} â€” vale aliviar esse bloco antes que ele aperte todo o resto.`,
+      message: `Suas essenciais pesaram neste mês. ${buildReserveLead(reserve)}. Vale aliviar esse bloco antes que ele aperte todo o resto.`,
       type: 'warning',
     };
   }
@@ -73,8 +73,8 @@ export function generateInsight(transactions: Transaction[], categories: Categor
     return {
       message:
         reserve > 0
-          ? `O estilo de vida passou do ideal. ${buildReserveLead(reserve)} â€” entÃ£o cortar um pouco dos extras agora pode te devolver margem.`
-          : 'O estilo de vida passou do ideal e encostou no caixa. Segurar os extras agora pode devolver fÃ´lego ao mÃªs.',
+          ? `O estilo de vida passou do ideal. ${buildReserveLead(reserve)}. Então cortar um pouco dos extras agora pode te devolver margem.`
+          : 'O estilo de vida passou do ideal e encostou no caixa. Segurar os extras agora pode devolver fôlego ao mês.',
       type: 'warning',
     };
   }
@@ -85,8 +85,8 @@ export function generateInsight(transactions: Transaction[], categories: Categor
     return {
       message:
         reserve > 0
-          ? `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco â€” se der, vale puxar um pouco da folga para cÃ¡.`
-          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, entÃ£o vale reorganizar o mÃªs antes de abrir espaÃ§o para outras coisas.`,
+          ? `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco. Se der, vale puxar um pouco da folga para cá.`
+          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, então vale reorganizar o mês antes de abrir espaço para outras coisas.`,
       type: 'warning',
     };
   }
@@ -94,9 +94,8 @@ export function generateInsight(transactions: Transaction[], categories: Categor
   return {
     message:
       reserve > 0
-        ? `Seu mÃªs estÃ¡ bem encaixado. Depois de cobrir tudo, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga â€” Ã³timo sinal. âœ¨`
-        : 'Seu mÃªs estÃ¡ redondo. Agora Ã© mais manter esse ritmo e acompanhar de perto para nÃ£o sair da linha.',
+        ? `Seu mês está bem encaixado. Depois de cobrir tudo, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga. Ótimo sinal. ✨`
+        : 'Seu mês está redondo. Agora é mais manter esse ritmo e acompanhar de perto para não sair da linha.',
     type: 'success',
   };
 }
-

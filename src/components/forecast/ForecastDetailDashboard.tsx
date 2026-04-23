@@ -84,9 +84,9 @@ const TrendCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
 );
 
 const InsightCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
-  <div className="rounded-[28px] border border-border bg-card px-3 py-4 text-sm leading-6 text-muted-foreground min-[380px]:px-5 dark:border-[#263731] dark:bg-[#1B2823]">
+  <div className="rounded-[28px] border border-border bg-card px-1.5 py-4 text-sm leading-6 text-muted-foreground min-[380px]:px-5 dark:border-[#263731] dark:bg-[#1B2823]">
     <p className={detail.insightType === 'warning' ? 'text-warning' : 'text-muted-foreground'}>{detail.insightMessage}</p>
-    <div className="mt-4 grid grid-cols-3 items-stretch gap-1 min-[380px]:gap-2 min-[420px]:gap-3">
+    <div className="mt-5 grid grid-cols-3 items-stretch gap-1.5 min-[380px]:gap-2.5 min-[420px]:gap-3">
       <BalanceSummaryCard eyebrow="Agora" title="Saldo atual" value={detail.currentBalance} compact />
       <BalanceSummaryCard eyebrow="Projeção" title="Saldo projetado" value={detail.projectedBalance} compact />
       <BalanceSummaryCard

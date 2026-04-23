@@ -1,4 +1,4 @@
-﻿import {
+import {
   Category,
   GROUP_LABELS,
   GROUP_LIMITS,
@@ -39,7 +39,7 @@ const formatCurrency = (value: number) =>
 
 const buildReserveLead = (reserve: number) => {
   if (reserve <= 0) {
-    return 'o espaÃ§o ficou curto';
+    return 'o espaço ficou curto';
   }
 
   return `com ${formatCurrency(Math.max(reserve, 0))} de folga, ainda existe uma margem boa`;
@@ -277,7 +277,7 @@ export interface ForecastInsightResult {
 export function generateForecastInsight(data: MonthlyForecastData | null): ForecastInsightResult {
   if (!data) {
     return {
-      message: 'Ainda faltam sinais para eu montar a previsÃ£o com seguranÃ§a. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. âœ¨',
+      message: 'Ainda faltam sinais para eu montar a previsão com segurança. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. ✨',
       type: 'success',
     };
   }
@@ -288,14 +288,14 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
 
   if (baseAmount <= 0 || (totalForecastIncome <= 0 && totalForecastExpenses <= 0)) {
     return {
-      message: 'Ainda faltam sinais para eu montar a previsÃ£o com seguranÃ§a. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. âœ¨',
+      message: 'Ainda faltam sinais para eu montar a previsão com segurança. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. ✨',
       type: 'success',
     };
   }
 
   if (totalForecastExpenses <= 0 && totalForecastIncome > 0) {
     return {
-      message: `Por enquanto a previsÃ£o estÃ¡ leve: entram ${formatCurrency(totalForecastIncome)} e ainda nÃ£o apareceu nenhuma saÃ­da fixa no radar. Bom espaÃ§o para organizar o resto do mÃªs.`,
+      message: `Por enquanto a previsão está leve: entram ${formatCurrency(totalForecastIncome)} e ainda não apareceu nenhuma saída fixa no radar. Bom espaço para organizar o resto do mês.`,
       type: 'success',
     };
   }
@@ -326,7 +326,7 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
 
   if (essentials.delta > 0) {
     return {
-      message: `As essenciais jÃ¡ vÃªm pesadas na previsÃ£o. ${buildReserveLead(reserve)} â€” vale aliviar esse bloco antes que ele aperte todo o mÃªs.`,
+      message: `As essenciais já vêm pesadas na previsão. ${buildReserveLead(reserve)}, vale aliviar esse bloco antes que ele aperte todo o mês.`,
       type: 'warning',
     };
   }
@@ -335,8 +335,8 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
     return {
       message:
         reserve > 0
-          ? `O estilo de vida subiu alÃ©m do ideal na previsÃ£o. ${buildReserveLead(reserve)} â€” entÃ£o ajustar os extras agora pode te devolver margem.`
-          : 'O estilo de vida subiu alÃ©m do ideal e encostou na sua folga prevista. Segurar os extras agora pode evitar aperto mais Ã  frente.',
+          ? `O estilo de vida subiu além do ideal na previsão. ${buildReserveLead(reserve)}, então ajustar os extras agora pode te devolver margem.`
+          : 'O estilo de vida subiu além do ideal e encostou na sua folga prevista. Segurar os extras agora pode evitar aperto mais à frente.',
       type: 'warning',
     };
   }
@@ -347,8 +347,8 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
     return {
       message:
         reserve > 0
-          ? `Suas prioridades ainda estÃ£o tÃ­midas na previsÃ£o. Faltam ${missingAmount} nesse bloco â€” se der, vale puxar um pouco da sobra para cÃ¡.`
-          : `Suas prioridades ainda estÃ£o abaixo do ideal. Faltam ${missingAmount} nesse bloco, entÃ£o talvez valha reorganizar o mÃªs antes de abrir outras frentes.`,
+          ? `Suas prioridades ainda estão tímidas na previsão. Faltam ${missingAmount} nesse bloco. Se der, vale puxar um pouco da sobra para cá.`
+          : `Suas prioridades ainda estão abaixo do ideal. Faltam ${missingAmount} nesse bloco, então talvez valha reorganizar o mês antes de abrir outras frentes.`,
       type: 'warning',
     };
   }
@@ -356,15 +356,14 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
   return {
     message:
       reserve > 0
-        ? `Sua previsÃ£o estÃ¡ bem encaixada. Depois de cobrir o mÃªs, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga â€” Ã³timo sinal. âœ¨`
-        : 'Sua previsÃ£o estÃ¡ redonda. Agora Ã© acompanhar o mÃªs de perto e manter esse ritmo.',
+        ? `Sua previsão está bem encaixada. Depois de cobrir o mês, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga. Ótimo sinal. ✨`
+        : 'Sua previsão está redonda. Agora é acompanhar o mês de perto e manter esse ritmo.',
     type: 'success',
   };
 }
 
 export const FORECAST_SOURCE_LABELS: Record<ForecastItem['source'], string> = {
   recurring: 'Recorrente',
-  history: 'HistÃ³rico',
+  history: 'Histórico',
   manual: 'Manual',
 };
-

@@ -64,11 +64,11 @@ const PreviousMonthForecastCard = ({
 
   return (
     <>
-      <section className="px-4 pt-4">
+      <section className="px-3 pt-4 min-[380px]:px-4">
         <div className="rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.95))] px-4 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.34)]">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]">Previso</p>
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]">Previsão</p>
               <h3 className="mt-1 break-words text-[1.05rem] font-semibold tracking-[-0.02em] text-foreground dark:text-[#E6F2EE]">
                 {data ? `Previsão baseada em ${data.mesReferencia}` : 'Previsão baseada no mês anterior'}
               </h3>
@@ -101,33 +101,48 @@ const PreviousMonthForecastCard = ({
                       <Lock className="h-4 w-4" />
                     </span>
                     <p className="text-sm leading-7 text-muted-foreground dark:!text-[#C5D8D0]">
-                      Esses dados refletem seus gastos do m?s anterior e servem como refer?ncia para o m?s atual.
-                      Contas fixas entram primeiro, e o hist?rico recente complementa a previso.
+                      Esses dados refletem seus gastos do mês anterior e servem como referência para o mês atual.
+                      Contas fixas entram primeiro, e o histórico recente complementa a previsão.
                     </p>
                   </div>
 
-                  <div className="mt-5 overflow-x-auto rounded-3xl border border-slate-200/80 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-none">
-                    <div className="min-w-[580px]">
-                      <div className="grid grid-cols-[minmax(160px,1.35fr)_minmax(120px,1fr)_minmax(150px,1fr)_auto] gap-5 border-b border-slate-200/70 bg-slate-50/70 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:border-[#263731] dark:bg-[#1B2823] dark:text-[#8EA39B]">
-                        <span>Categoria</span>
-                        <span className="text-right">{previousMonthShortLabel}</span>
-                        <span className="text-right">Previsão {currentMonthShortLabel}</span>
-                        <span className="text-right">Variação</span>
-                      </div>
+                  <div className="mt-5 rounded-3xl border border-slate-200/80 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-none">
+                    <div className="hidden min-[480px]:grid min-[480px]:grid-cols-[1fr_auto_auto_auto] min-[480px]:gap-3 border-b border-slate-200/70 bg-slate-50/70 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:border-[#263731] dark:bg-[#1B2823] dark:text-[#8EA39B]">
+                      <span>Categoria</span>
+                      <span className="text-right">{previousMonthShortLabel}</span>
+                      <span className="text-right">Prev. {currentMonthShortLabel}</span>
+                      <span className="text-right">Var.</span>
+                    </div>
 
-                      <div className="divide-y divide-slate-200/70 dark:divide-[#263731]">
-                        {data.categorias.map((categoria) => {
-                          const variation = getVariation(categoria.valorReal, categoria.previsaoMesAtual);
-                          const isClickable = categoria.itens.length > 0;
+                    <div className="divide-y divide-slate-200/70 dark:divide-[#263731]">
+                      {data.categorias.map((categoria) => {
+                        const variation = getVariation(categoria.valorReal, categoria.previsaoMesAtual);
+                        const isClickable = categoria.itens.length > 0;
 
-                          return (
-                            <button
-                              key={categoria.nome}
-                              type="button"
-                              onClick={() => isClickable && setSelectedCategoryName(categoria.nome)}
-                              className="grid w-full grid-cols-[minmax(160px,1.35fr)_minmax(120px,1fr)_minmax(150px,1fr)_auto] gap-5 px-5 py-4 text-left text-sm transition-colors hover:bg-slate-50/70 disabled:cursor-default dark:hover:bg-[#1B2823]"
-                              disabled={!isClickable}
-                            >
+                        return (
+                          <button
+                            key={categoria.nome}
+                            type="button"
+                            onClick={() => isClickable && setSelectedCategoryName(categoria.nome)}
+                            className="w-full px-4 py-3 text-left text-sm transition-colors hover:bg-slate-50/70 disabled:cursor-default dark:hover:bg-[#1B2823]"
+                            disabled={!isClickable}
+                          >
+                            <div className="flex items-center justify-between gap-2 min-[480px]:hidden">
+                              <div className="flex min-w-0 items-center gap-1.5">
+                                <span className="break-words font-medium text-foreground">{categoria.nome}</span>
+                                {isClickable ? <ChevronRight className="h-3.5 w-3.5 shrink-0 text-slate-400" /> : null}
+                              </div>
+                              <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${pillToneClass[variation.tone]}`}>
+                                {variation.label}
+                              </span>
+                            </div>
+
+                            <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground min-[480px]:hidden">
+                              <span>{previousMonthShortLabel}: {formatCurrency(categoria.valorReal)}</span>
+                              <span className="font-semibold text-foreground">Prev: {formatCurrency(categoria.previsaoMesAtual)}</span>
+                            </div>
+
+                            <div className="hidden min-[480px]:grid min-[480px]:grid-cols-[1fr_auto_auto_auto] min-[480px]:items-center min-[480px]:gap-3">
                               <div className="flex min-w-0 items-center gap-2">
                                 <span className="break-words font-medium text-foreground">{categoria.nome}</span>
                                 {isClickable ? <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" /> : null}
@@ -141,22 +156,22 @@ const PreviousMonthForecastCard = ({
                                   {variation.label}
                                 </span>
                               </div>
-                            </button>
-                          );
-                        })}
-                      </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
 
-                      <div className="border-t border-slate-200/70 bg-slate-50/60 px-5 py-5 dark:border-[#263731] dark:bg-[#1B2823]">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                          <span className="text-base font-semibold tracking-[-0.01em] text-foreground">Total previsto</span>
-                          <div className="sm:text-right">
-                            <p className="text-[1.6rem] font-bold tracking-[-0.04em] text-foreground">
-                              {formatCurrency(data.totalPrevisto)}
-                            </p>
-                            <p className="text-sm leading-6 text-muted-foreground">
-                              vs {formatCurrency(data.totalGastoAnterior)} em {data.mesReferencia}
-                            </p>
-                          </div>
+                    <div className="border-t border-slate-200/70 bg-slate-50/60 px-4 py-5 dark:border-[#263731] dark:bg-[#1B2823]">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <span className="text-base font-semibold tracking-[-0.01em] text-foreground">Total previsto</span>
+                        <div className="sm:text-right">
+                          <p className="text-[1.6rem] font-bold tracking-[-0.04em] text-foreground">
+                            {formatCurrency(data.totalPrevisto)}
+                          </p>
+                          <p className="text-sm leading-6 text-muted-foreground">
+                            vs {formatCurrency(data.totalGastoAnterior)} em {data.mesReferencia}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -167,7 +182,7 @@ const PreviousMonthForecastCard = ({
                   <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:!bg-[#21453C] dark:!text-[#CDE4DB] dark:shadow-none">
                     <Lock className="h-4 w-4" />
                   </span>
-                  <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">Sem dados do m?s anterior para comparar.</p>
+                  <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">Sem dados do mês anterior para comparar.</p>
                 </div>
               )}
             </div>
@@ -179,15 +194,15 @@ const PreviousMonthForecastCard = ({
         <DrawerContent className="max-h-[85dvh] border-t border-slate-200/80 bg-[rgba(255,255,255,0.98)] backdrop-blur-xl dark:border-[#263731] dark:bg-[rgba(11,18,16,0.96)]">
           <DrawerHeader>
             <DrawerTitle className="tracking-[-0.02em]">
-              {selectedCategory.nome || 'Detalhes da previso'}
+              {selectedCategory?.nome || 'Detalhes da previsão'}
             </DrawerTitle>
             <DrawerDescription>
-              Itens previstos para {currentMonthLabel}, com origem recorrente ou hist?rica.
+              Itens previstos para {currentMonthLabel}, com origem recorrente ou histórica.
             </DrawerDescription>
           </DrawerHeader>
 
           <div className="space-y-3 overflow-y-auto px-4 pb-6">
-            {selectedCategory.itens.map((item) => (
+            {selectedCategory?.itens.map((item) => (
               <div
                 key={item.id}
                 className="rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] px-4 py-4 shadow-[0_14px_26px_rgba(15,23,42,0.05)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-[0_14px_26px_rgba(3,10,8,0.28)]"

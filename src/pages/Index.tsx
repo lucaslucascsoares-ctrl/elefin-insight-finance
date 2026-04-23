@@ -283,7 +283,7 @@ const Index = () => {
   };
 
   return (
-    <div className="mx-auto flex h-dvh w-full max-w-lg flex-col overflow-hidden bg-background">
+    <div className="mx-auto flex h-dvh w-full max-w-[100vw] flex-col overflow-x-hidden overflow-y-hidden bg-background sm:max-w-lg">
       <DashboardHeader onSignOut={signOut} onNewTransaction={() => openTransactionModal('expense', false)} />
       <MonthPicker
         label={monthPickerLabel}
@@ -292,9 +292,9 @@ const Index = () => {
         onNext={handleNextMonth}
       />
 
-      <div className="flex-1 overflow-y-auto pb-24 min-[380px]:pb-28 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto pb-24 min-[380px]:pb-28 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {isLoading ? (
-          <div className="space-y-4 px-4">
+          <div className="min-w-0 space-y-4 overflow-hidden px-3.5 min-[380px]:px-4">
             <Skeleton className="h-56 w-full rounded-[26px]" />
             <Skeleton className="h-16 w-full rounded-[20px]" />
             <Skeleton className="h-64 w-full rounded-[26px]" />
@@ -302,7 +302,7 @@ const Index = () => {
             <Skeleton className="h-12 w-full rounded-lg" />
           </div>
         ) : (
-          <div key={monthViewKey}>
+          <div key={monthViewKey} className="min-w-0 overflow-hidden">
             <DashboardCarousel
               transactions={monthTransactions}
               categories={categories}
@@ -383,7 +383,7 @@ const Index = () => {
           }
         }}
       >
-        <DialogContent className="max-h-[92vh] overflow-y-auto border border-border bg-card text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.14)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] sm:max-w-3xl">
+        <DialogContent className="max-h-[92vh] w-[calc(100vw-0.75rem)] overflow-y-auto border border-border bg-card p-2 text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.14)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] min-[380px]:p-3 sm:max-w-3xl sm:p-6">
           <DialogHeader className="sr-only">
             <DialogTitle>Previsão detalhada do mês</DialogTitle>
             <DialogDescription>Dashboard detalhado da previsão até o fim do mês.</DialogDescription>

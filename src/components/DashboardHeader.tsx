@@ -96,8 +96,8 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
     : null;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-[rgba(255,255,255,0.9)] px-4 py-3.5 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.95),rgba(17,26,23,0.9))]">
-      <div className="mx-auto grid max-w-lg grid-cols-[1fr_auto_auto] items-center gap-3">
+    <header className="sticky top-0 z-20 overflow-x-hidden border-b border-slate-200/70 bg-[rgba(255,255,255,0.9)] px-3.5 py-3.5 backdrop-blur-xl min-[380px]:px-4 dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.95),rgba(17,26,23,0.9))]">
+      <div className="mx-auto grid min-w-0 max-w-[100vw] grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-2.5 sm:max-w-lg min-[380px]:gap-3">
         <div className="min-w-0">
           <button
             type="button"
@@ -105,7 +105,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
             className="min-w-0 text-left"
             aria-label="Voltar ao painel do mês"
           >
-            <span className="block text-[1.3rem] font-bold tracking-[-0.03em] text-foreground min-[380px]:text-[1.45rem]">elefin</span>
+            <span className="block truncate text-[1.3rem] font-bold tracking-[-0.03em] text-foreground min-[380px]:text-[1.45rem]">elefin</span>
           </button>
         </div>
 

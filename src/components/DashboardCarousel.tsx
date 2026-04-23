@@ -140,13 +140,13 @@ const DashboardCarousel = ({
   }, [currentDashboard]);
 
   return (
-    <section className="pt-0.5" data-testid="dashboard-carousel">
+    <section className="min-w-0 overflow-hidden pt-0.5" data-testid="dashboard-carousel">
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="mt-3 flex items-start snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex min-w-0 items-start snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="min-w-full basis-full shrink-0 snap-center" data-testid="dashboard-slide-real">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-real">
           <FinanceMonthCard
             transactions={transactions}
             categories={categories}
@@ -171,7 +171,7 @@ const DashboardCarousel = ({
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center" data-testid="dashboard-slide-forecast">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-forecast">
           <ForecastMonthCard data={forecastData} />
           <button
             type="button"
@@ -183,7 +183,7 @@ const DashboardCarousel = ({
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center" data-testid="dashboard-slide-projection">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-projection">
           <ProjectedMonthCard
             items={projectedData.activeItems}
             onDeleteTemplate={onDeleteProjectionTemplate}
