@@ -54,13 +54,14 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
           <>
             <div className="w-full min-w-0 overflow-hidden">
               <ResponsiveContainer width="100%" height={200} minWidth={0}>
-              <BarChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
+              <BarChart data={data} margin={{ top: 20, right: 4, left: 4, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                  interval={0}
+                  tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <YAxis hide domain={[0, 100]} />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
@@ -77,9 +78,9 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
               </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground px-2">
+            <div className="mt-2 grid grid-cols-1 gap-2 px-2 text-xs text-muted-foreground min-[420px]:grid-cols-3">
               {(Object.keys(groups) as GroupType[]).map((g) => (
-                <span key={g}>{GROUP_LABELS[g]}: {formatCurrency(groups[g])}</span>
+                <span key={g} className="text-center [overflow-wrap:normal]">{GROUP_LABELS[g]}: {formatCurrency(groups[g])}</span>
               ))}
             </div>
           </>

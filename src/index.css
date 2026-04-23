@@ -172,6 +172,8 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font: var(--font-body1);
+    max-width: 100%;
+    overflow-x: hidden;
     transition:
       background-color 280ms ease,
       color 280ms ease;
@@ -179,6 +181,13 @@
 
   html {
     font-family: var(--font-family), system-ui, -apple-system, sans-serif;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #root {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 

@@ -32,7 +32,7 @@ export const loginThroughUi = async (page: Page) => {
   await page.getByRole('button', { name: /^Entrar$/i }).click();
 
   await expect(page.getByTestId('dashboard-carousel')).toBeVisible();
-  await expect(page.getByText(/Painel do mes/i)).toBeVisible();
+  await expect(page.getByText(/Resumo financeiro/i)).toBeVisible();
 };
 
 export const openMainMenu = async (page: Page) => {

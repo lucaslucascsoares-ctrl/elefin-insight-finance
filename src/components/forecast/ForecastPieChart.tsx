@@ -14,36 +14,36 @@ const ForecastPieChart = ({ slices }: ForecastPieChartProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[160px_320px] lg:justify-start lg:items-start lg:gap-8">
-        <div className="flex flex-col items-start gap-3 lg:w-[160px]">
-          <div className="grid w-full grid-cols-1 justify-items-start gap-3">
+      <div className="grid min-w-0 grid-cols-[minmax(96px,0.42fr)_minmax(0,1fr)] items-center gap-3 min-[380px]:grid-cols-[minmax(116px,0.42fr)_minmax(0,1fr)] min-[380px]:gap-4 lg:grid-cols-[150px_minmax(0,1fr)] lg:gap-6">
+        <div className="min-w-0 lg:w-[150px]">
+          <div className="grid w-full grid-cols-1 gap-2 lg:gap-3">
           {slices.map((slice, index) => (
             <button
               key={slice.key}
               type="button"
               onClick={() => setActiveIndex(index)}
-              className={`w-full max-w-[160px] rounded-2xl border px-3 py-3 text-center transition-colors ${
+              className={`min-w-0 rounded-2xl border px-2 py-2.5 text-center transition-colors min-[380px]:px-3 min-[380px]:py-3 ${
                 activeIndex === index
                   ? 'border-[#8A9A68] bg-[linear-gradient(180deg,#FFFFFF,#FBFDF7)] shadow-[0_14px_28px_rgba(92,134,109,0.12),0_4px_10px_rgba(31,42,35,0.04)] dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#2A3A31,#202D26)] dark:shadow-[0_12px_28px_rgba(0,0,0,0.34),inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'border-[#D6E1CC] bg-[linear-gradient(180deg,#FFFFFF,#FBFDF7)] shadow-[0_12px_24px_rgba(92,134,109,0.08),0_3px_8px_rgba(31,42,35,0.03)] hover:bg-[linear-gradient(180deg,#FFFFFF,#F8FBF3)] dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#27362D,#1E2A23)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)] dark:hover:bg-[linear-gradient(180deg,#2B3B31,#212E26)]'
               }`}
             >
-              <span className="block text-center text-[11px] font-medium text-muted-foreground dark:text-[#ABBC82] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{slice.label}</span>
-              <span className="mt-1 block text-center text-sm font-semibold text-foreground dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{formatCurrency(slice.value)}</span>
+              <span className="block text-center text-[10px] font-medium leading-4 text-muted-foreground [overflow-wrap:normal] min-[380px]:text-[11px] dark:text-[#ABBC82] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{slice.label}</span>
+              <span className="mt-1 block whitespace-nowrap text-center text-[11px] font-semibold text-foreground min-[380px]:text-sm dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{formatCurrency(slice.value)}</span>
             </button>
           ))}
           </div>
         </div>
 
-        <div className="mx-auto flex h-72 w-full max-w-[320px] items-center justify-center lg:justify-self-center">
+        <div className="mx-auto flex h-[min(54vw,15rem)] min-h-[168px] w-full max-w-[320px] items-center justify-center min-[380px]:min-h-[190px] lg:h-72 lg:justify-self-center">
           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <PieChart>
               <Pie
                 data={slices}
                 dataKey="value"
                 nameKey="label"
-                innerRadius={72}
-                outerRadius={112}
+                innerRadius="46%"
+                outerRadius="72%"
                 paddingAngle={4}
                 activeIndex={activeIndex}
                 onMouseEnter={(_, index) => setActiveIndex(index)}

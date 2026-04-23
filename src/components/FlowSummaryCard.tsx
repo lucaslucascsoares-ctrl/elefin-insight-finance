@@ -43,15 +43,15 @@ const sectionIcon = {
 
 const FlowSummaryCard = ({ eyebrow, title, description, footer, sections }: FlowSummaryCardProps) => {
   return (
-    <section className="px-4 pt-1">
-      <div className="overflow-hidden rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] px-5 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
+    <section className="px-3 pt-1 min-[380px]:px-4">
+      <div className="min-w-0 overflow-hidden rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.94))] px-4 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)] min-[380px]:px-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
         <div className="mb-5 flex items-center justify-center">
           <div className="notranslate text-center" translate="no">
             <p className="notranslate text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]" translate="no">
               {eyebrow}
             </p>
             <h2
-              className="notranslate mt-1 min-w-0 break-words text-center text-[1.05rem] font-semibold tracking-[-0.02em] text-foreground"
+              className="notranslate mt-1 min-w-0 text-center text-[1.05rem] font-semibold tracking-[-0.02em] text-foreground [overflow-wrap:normal]"
               translate="no"
             >
               {title}
@@ -98,7 +98,7 @@ const FlowSectionRow = ({ section }: { section: FlowSummarySection }) => {
             <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${sectionToneClass[section.tone]}`}>
               <Icon className="h-4 w-4" />
             </span>
-            <span className="min-w-0 flex-1 break-words font-medium text-slate-600 dark:text-[#E6F2EE]">{section.label}</span>
+            <span className="min-w-0 flex-1 font-medium text-slate-600 [overflow-wrap:normal] dark:text-[#E6F2EE]">{section.label}</span>
           </div>
 
           <div className="flex shrink-0 items-center gap-3">

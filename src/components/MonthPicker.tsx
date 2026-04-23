@@ -23,7 +23,7 @@ const MonthPicker = ({ label, canGoNext, onPrevious, onNext }: MonthPickerProps)
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-[#9B7A4B] dark:text-[#8EA39B]">
               Mês atual
             </p>
-            <span className="mt-1 block break-words text-[1.02rem] font-semibold capitalize tracking-[-0.02em] text-[#314238] dark:text-[#E6F2EE]">
+            <span className="mt-1 block text-[1.02rem] font-semibold capitalize tracking-[-0.02em] text-[#314238] [overflow-wrap:normal] dark:text-[#E6F2EE]">
               {label}
             </span>
           </div>

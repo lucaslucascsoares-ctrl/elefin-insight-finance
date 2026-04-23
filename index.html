@@ -4,35 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google" content="notranslate" />
+    <meta name="theme-color" content="#F4F7EE" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Elefin" />
+    <meta name="description" content="Controle financeiro pessoal com visão real, previsão e planejamento." />
+    <meta name="author" content="Elefin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Elefin" />
+    <meta property="og:description" content="Controle financeiro pessoal com visão real, previsão e planejamento." />
+    <meta property="og:image" content="/pwa-512x512.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Elefin" />
+    <meta name="twitter:description" content="Controle financeiro pessoal com visão real, previsão e planejamento." />
+    <meta name="twitter:image" content="/pwa-512x512.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <script>
       (() => {
         try {
-          const storedTheme = localStorage.getItem('elefin-theme');
-          const isDark = storedTheme === 'dark';
-          document.documentElement.classList.toggle('dark', isDark);
-          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+          const storedTheme = localStorage.getItem("elefin-theme");
+          const isDark = storedTheme === "dark";
+          document.documentElement.classList.toggle("dark", isDark);
+          document.documentElement.style.colorScheme = isDark ? "dark" : "light";
         } catch (error) {}
       })();
     </script>
-    <!-- TODO: Set the document title to the name of your application -->
     <title>Elefin</title>
-    <meta name="description" content="Lovable Generated Project">
-    <meta name="author" content="Lovable" />
-
-    <!-- TODO: Update og:title to match your application name -->
-    
-    
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9ee3c9e-3900-4825-b046-713af9fce6e1/id-preview-b971d154--0dfcc6b6-fe1a-454b-9c29-8f121a78fb43.lovable.app-1771182787606.png">
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9ee3c9e-3900-4825-b046-713af9fce6e1/id-preview-b971d154--0dfcc6b6-fe1a-454b-9c29-8f121a78fb43.lovable.app-1771182787606.png">
-    <meta property="og:title" content="Elefin">
-  <meta name="twitter:title" content="Elefin">
-  <meta property="og:description" content="Lovable Generated Project">
-  <meta name="twitter:description" content="Lovable Generated Project">
-</head>
+  </head>
 
   <body>
     <div id="root"></div>

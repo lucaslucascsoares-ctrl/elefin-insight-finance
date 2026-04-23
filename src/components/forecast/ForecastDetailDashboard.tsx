@@ -63,8 +63,8 @@ const HeaderCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
 );
 
 const PieCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
-  <div className="rounded-[28px] border border-border bg-card px-5 py-5 text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.10)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.28)]">
-    <div className="mb-4 lg:pl-[168px] lg:text-center">
+  <div className="min-w-0 rounded-[28px] border border-border bg-card px-3 py-5 text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.10)] min-[380px]:px-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.28)]">
+    <div className="mb-4 text-center lg:pl-[168px]">
       <h3 className="text-[1.2rem] font-bold tracking-[-0.02em] text-[#314238] dark:text-[#E6F2EE]">
         Composição da previsão
       </h3>
@@ -84,9 +84,9 @@ const TrendCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
 );
 
 const InsightCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
-  <div className="rounded-[28px] border border-border bg-card px-5 py-4 text-sm leading-6 text-muted-foreground dark:border-[#263731] dark:bg-[#1B2823]">
+  <div className="rounded-[28px] border border-border bg-card px-3 py-4 text-sm leading-6 text-muted-foreground min-[380px]:px-5 dark:border-[#263731] dark:bg-[#1B2823]">
     <p className={detail.insightType === 'warning' ? 'text-warning' : 'text-muted-foreground'}>{detail.insightMessage}</p>
-    <div className="mt-4 grid grid-cols-3 items-stretch gap-3">
+    <div className="mt-4 grid grid-cols-3 items-stretch gap-1.5 min-[380px]:gap-2 min-[420px]:gap-3">
       <BalanceSummaryCard eyebrow="Agora" title="Saldo atual" value={detail.currentBalance} compact />
       <BalanceSummaryCard eyebrow="Projeção" title="Saldo projetado" value={detail.projectedBalance} compact />
       <BalanceSummaryCard

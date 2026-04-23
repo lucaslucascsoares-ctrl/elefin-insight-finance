@@ -52,8 +52,8 @@ const ProjectedMonthCard = ({ items, onDeleteTemplate }: ProjectedMonthCardProps
   const expenseItems = useMemo(() => activeItems.filter((item) => item.type === 'expense'), [activeItems]);
 
   return (
-    <section className="px-4 pt-1">
-      <div className="rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-5 py-5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.40)]">
+    <section className="px-3 pt-1 min-[380px]:px-4">
+      <div className="min-w-0 rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-4 py-5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.40)]">
         <div className="mb-5 flex items-center justify-center">
           <div className="notranslate text-center" translate="no">
             <p
@@ -63,7 +63,7 @@ const ProjectedMonthCard = ({ items, onDeleteTemplate }: ProjectedMonthCardProps
               Planejamento
             </p>
             <h2
-              className="notranslate mt-1 min-w-0 break-words text-center text-[1.05rem] font-semibold tracking-[-0.02em] text-[#314238] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]"
+              className="notranslate mt-1 min-w-0 text-center text-[1.05rem] font-semibold tracking-[-0.02em] text-[#314238] [overflow-wrap:normal] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]"
               translate="no"
             >
               Contas projetadas do mês
@@ -127,7 +127,7 @@ const SummaryRow = ({ icon: Icon, label, value, items = [], tone, onDeleteTempla
               <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${toneBadge[tone]}`}>
                 <Icon className="h-4 w-4" />
               </span>
-              <span className="min-w-0 flex-1 break-words font-medium text-[#314238] [text-shadow:0_1px_0_rgba(255,255,255,0.28)] dark:text-[#E6F2EE] dark:[text-shadow:none]">{label}</span>
+              <span className="min-w-0 flex-1 font-medium text-[#314238] [overflow-wrap:normal] [text-shadow:0_1px_0_rgba(255,255,255,0.28)] dark:text-[#E6F2EE] dark:[text-shadow:none]">{label}</span>
             </div>
 
             <div className="flex shrink-0 items-center gap-3">
