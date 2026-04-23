@@ -37,8 +37,8 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   return (
-    <section className="px-3 pt-1 min-[380px]:px-4" aria-label={title}>
-      <div className="flex h-fit min-w-0 flex-col self-start overflow-hidden rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-3 py-3.5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 min-[380px]:py-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
+    <section className="px-2 pt-1 min-[380px]:px-4" aria-label={title}>
+      <div className="flex h-fit min-w-0 flex-col self-start overflow-hidden rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-2.5 py-3.5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 min-[380px]:py-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
         <h3 className="mb-4 text-center text-[15px] font-semibold text-[#314238] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{title}</h3>
 
         <div className="w-full min-w-0 overflow-hidden">
@@ -85,11 +85,11 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
         </div>
 
         <div className="mt-3 flex flex-col border-t border-border pt-3">
-          <div className="grid grid-cols-3 gap-2 min-[380px]:gap-2.5 min-[420px]:gap-3">
+          <div className="grid grid-cols-3 gap-1.5 min-[380px]:gap-2.5 min-[420px]:gap-3">
             {data.map((item) => (
               <div
                 key={item.group}
-                className="flex min-h-[106px] min-w-0 flex-col items-center justify-center rounded-[24px] bg-[#FDFEFB] px-2 py-3 text-center shadow-[0_14px_28px_rgba(92,134,109,0.08)] min-[380px]:min-h-[112px] min-[380px]:px-2.5 min-[380px]:py-3.5 min-[420px]:min-h-[124px] min-[420px]:px-3 min-[420px]:py-4 dark:border dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#27362D,#1E2A23)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)]"
+                className="flex min-h-[106px] min-w-0 flex-col items-center justify-center rounded-[24px] bg-[#FDFEFB] px-1.5 py-3 text-center shadow-[0_14px_28px_rgba(92,134,109,0.08)] min-[380px]:min-h-[112px] min-[380px]:px-2.5 min-[380px]:py-3.5 min-[420px]:min-h-[124px] min-[420px]:px-3 min-[420px]:py-4 dark:border dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#27362D,#1E2A23)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)]"
               >
                 <p className="max-w-full text-center text-[8px] font-medium leading-[1.35] tracking-tight text-[#9B7A4B] min-[380px]:text-[8.5px] min-[420px]:text-[10px] min-[420px]:leading-[1.45] dark:text-muted-foreground dark:[text-shadow:none]">
                   {item.cardLabel}
