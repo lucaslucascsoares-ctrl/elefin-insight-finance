@@ -93,7 +93,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
                           isIncome ? 'text-[hsl(var(--success))]' : 'text-[hsl(var(--destructive))]'
                         }`}
                       >
-                        {isIncome ? '+' : '-'}
+                        {isIncome ? '+' : ''}
                         {formatCurrency(Number(transaction.amount))}
                       </span>
                       <button
@@ -116,7 +116,7 @@ const RecentTransactions = ({ transactions, categories }: RecentTransactionsProp
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir transação?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir transação</AlertDialogTitle>
             <AlertDialogDescription>Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

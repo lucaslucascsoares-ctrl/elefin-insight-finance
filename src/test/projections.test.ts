@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildMonthlyProjectionItems } from '@/lib/projections';
-import { MonthlyProjectionOverride, ProjectionTemplate } from '@/types/finance';
+import { generateProjectedInsight } from '@/lib/dashboardData';
+import { MonthlyProjectionItem, MonthlyProjectionOverride, ProjectionTemplate } from '@/types/finance';
 
 const buildTemplate = (partial: Partial<ProjectionTemplate>): ProjectionTemplate => ({
   id: 'template-1',
@@ -106,5 +107,66 @@ describe('buildMonthlyProjectionItems', () => {
       status: 'predicted',
       is_overridden: false,
     });
+  });
+});
+
+describe('generateProjectedInsight', () => {
+  it('returns a planning message when there are no active items', () => {
+    const result = generateProjectedInsight([]);
+
+    expect(result.type).toBe('success');
+    expect(result.message).toContain('Nenhuma conta projetada ativa neste mês');
+  });
+
+  it('warns when priorities are below the target', () => {
+    const items: MonthlyProjectionItem[] = [
+      {
+        id: 'item-1',
+        template_id: 'template-1',
+        user_id: 'user-1',
+        month: 3,
+        year: 2026,
+        title: 'Salario',
+        account_name: 'Salario',
+        category_name: 'Renda',
+        amount: 1000,
+        category_id: 'cat-income',
+        group_type: 'prioridades',
+        status: 'predicted',
+        paid_transaction_id: null,
+        is_overridden: false,
+        due_day: null,
+        reminder_enabled: false,
+        reminder_days_before: [],
+        reminder_on_due_date: false,
+        type: 'income',
+      } as MonthlyProjectionItem,
+      {
+        id: 'item-2',
+        template_id: 'template-2',
+        user_id: 'user-1',
+        month: 3,
+        year: 2026,
+        title: 'Cartão',
+        account_name: 'Cartão',
+        category_name: 'Essenciais',
+        amount: 500,
+        category_id: 'cat-expense',
+        group_type: 'essenciais',
+        status: 'predicted',
+        paid_transaction_id: null,
+        is_overridden: false,
+        due_day: null,
+        reminder_enabled: false,
+        reminder_days_before: [],
+        reminder_on_due_date: false,
+        type: 'expense',
+      } as MonthlyProjectionItem,
+    ];
+
+    const result = generateProjectedInsight(items);
+
+    expect(result.type).toBe('warning');
+    expect(result.message).toContain('Falta direcionar');
   });
 });

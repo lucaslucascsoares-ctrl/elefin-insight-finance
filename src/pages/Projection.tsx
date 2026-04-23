@@ -8,12 +8,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCategories } from '@/hooks/useCategories';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { useProjectionTemplates } from '@/hooks/useProjectionTemplates';
-import AuthPage from '@/pages/Auth';
+import { normalizeGroupType } from '@/lib/groupType';
 import { GROUP_LABELS, GroupType, ProjectionTemplate } from '@/types/finance';
 
 const Projection = () => {
-  const { session, loading: authLoading, signOut } = useAuth();
-  const userId = session?.user.id;
+  const { session, userId, signOut } = useAuth();
   const { preferences } = useNotificationPreferences(session);
   const { data: categories = [], isLoading: categoriesLoading } = useCategories(userId);
   const {
@@ -34,30 +33,18 @@ const Projection = () => {
       prioridades: [],
     };
 
-    templates.forEach((template) => {
-      groups[template.group_type].push(template);
+    templates.filter(Boolean).forEach((template) => {
+      groups[normalizeGroupType(template?.group_type)].push(template);
     });
 
     return groups;
   }, [templates]);
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-2xl">Elefin</div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <AuthPage />;
-  }
-
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
+    <div className="mx-auto flex h-dvh w-full max-w-lg flex-col overflow-hidden bg-background">
       <DashboardHeader onSignOut={signOut} title="Projeção de Gastos" />
 
-      <div className="px-4 pb-6 pt-2">
+      <div className="flex-1 overflow-y-auto px-4 pb-24 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <ProjectionInlineForm
           categories={categories}
           template={editingTemplate}
@@ -184,7 +171,7 @@ const Projection = () => {
                                 onClick={async () => {
                                   await deleteTemplate(template.id);
                                   toast.success('Conta removida da projeção.');
-                                  if (editingTemplate?.id === template.id) {
+                                  if (editingTemplate.id === template.id) {
                                     setEditingTemplate(null);
                                     setFormOpen(false);
                                   }

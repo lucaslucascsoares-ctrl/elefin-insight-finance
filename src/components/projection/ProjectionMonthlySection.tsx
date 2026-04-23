@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { BellRing, CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
 import MonthlyProjectionItemDrawer from '@/components/projection/MonthlyProjectionItemDrawer';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { normalizeGroupType } from '@/lib/groupType';
 import { Category, GROUP_LABELS, GroupType, MonthlyProjectionItem, ProjectionTemplate } from '@/types/finance';
 
 interface ProjectionMonthlySectionProps {
@@ -49,18 +50,22 @@ const ProjectionMonthlySection = ({
       prioridades: [],
     };
 
-    items.forEach((item) => {
-      groups[item.group_type].push(item);
+    items.filter(Boolean).forEach((item) => {
+      groups[normalizeGroupType(item?.group_type)].push(item);
     });
 
     return groups;
   }, [items]);
 
   const totalProjected = items
+    .filter(Boolean)
     .filter((item) => item.status !== 'ignored')
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const templateMap = useMemo(() => new Map(templates.map((template) => [template.id, template])), [templates]);
+  const templateMap = useMemo(
+    () => new Map(templates.filter(Boolean).map((template) => [template.id, template])),
+    [templates],
+  );
 
   return (
     <>
@@ -78,7 +83,7 @@ const ProjectionMonthlySection = ({
               className="flex w-full items-start justify-between gap-3 text-left"
             >
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-semibold text-foreground">Contas projetadas do mês</h2>
+                <h2 className="text-lg font-semibold text-foreground">Contas projetadas do m?s</h2>
                 <p className="mt-1 break-words text-sm text-muted-foreground">
                   Toque para ver suas contas fixas previstas.
                 </p>
@@ -91,7 +96,7 @@ const ProjectionMonthlySection = ({
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background dark:border-[#263731] dark:bg-[#1B2823]">
                   <ChevronDown
                     className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
-                      expanded ? 'rotate-180' : 'rotate-0'
+                    expanded ? 'rotate-180' : 'rotate-0'
                     }`}
                   />
                 </span>
@@ -137,9 +142,9 @@ const ProjectionMonthlySection = ({
                         <div className="divide-y divide-border/70 dark:divide-[#263731]">
                           {groupItems.map((item) => {
                             const categoryName =
-                              item.category_name ??
-                              categories.find((category) => category.id === item.category_id)?.name ??
-                              'Sem categoria';
+                            item.category_name ??
+                            categories.find((category) => category.id === item.category_id)?.name ??
+                            'Sem categoria';
 
                             return (
                               <button

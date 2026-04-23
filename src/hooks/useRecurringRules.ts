@@ -10,7 +10,7 @@ const normalize = (value: string | null | undefined) =>
     .toLowerCase()
     .trim();
 
-export function useRecurringRules(userId?: string) {
+export function useRecurringRules(userId: string) {
   const queryClient = useQueryClient();
   const queryKey = ['recurring_rules', userId];
 

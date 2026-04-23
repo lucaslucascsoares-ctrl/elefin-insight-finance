@@ -15,7 +15,7 @@ const HeroSummary = ({ transactions }: HeroSummaryProps) => {
   const [editOpen, setEditOpen] = useState(false);
   const [adjustValue, setAdjustValue] = useState('');
   const addTransaction = useAddTransaction();
-  const { session } = useAuth();
+  const { userId } = useAuth();
 
   const totalIncome = transactions
     .filter((t) => t.type === 'income')
@@ -28,7 +28,7 @@ const HeroSummary = ({ transactions }: HeroSummaryProps) => {
   const balance = totalIncome - totalExpense;
 
   const handleAdjust = async () => {
-    if (!session?.user?.id || !adjustValue) return;
+    if (!userId || !adjustValue) return;
 
     const targetBalance = parseFloat(adjustValue);
     const diff = targetBalance - balance;
@@ -39,7 +39,7 @@ const HeroSummary = ({ transactions }: HeroSummaryProps) => {
     }
 
     await addTransaction.mutateAsync({
-      user_id: session.user.id,
+      user_id: userId,
       type: diff > 0 ? 'income' : 'expense',
       amount: Math.abs(diff),
       category_id: null,

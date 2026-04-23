@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Transaction } from '@/types/finance';
 
-export function useTransactions(userId?: string) {
+export function useTransactions(userId: string) {
   return useQuery({
     queryKey: ['transactions', userId],
     enabled: Boolean(userId),

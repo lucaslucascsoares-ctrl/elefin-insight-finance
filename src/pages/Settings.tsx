@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Bell, LockKeyhole, MoonStar, ShieldCheck, Smartphone, UserRound } from 'lucide-react';
+import { Bell, LockKeyhole, MoonStar, Smartphone, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import DashboardHeader from '@/components/DashboardHeader';
-import AuthPage from '@/pages/Auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -15,25 +14,13 @@ import { NotificationPreferences } from '@/types/finance';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const Settings = () => {
-  const { session, loading, signOut, updatePassword } = useAuth();
+  const { session, user, signOut, updatePassword } = useAuth();
   const { preferences, requestPushPermission, savePreferences } = useNotificationPreferences(session);
   const { isDark } = useTheme();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
   const [savingNotifications, setSavingNotifications] = useState(false);
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-2xl">Elefin</div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <AuthPage />;
-  }
 
   const handlePasswordUpdate = async () => {
     if (password.length < 6) {
@@ -42,7 +29,7 @@ const Settings = () => {
     }
 
     if (password !== confirmPassword) {
-      toast.error('A confirmação da senha não confere.');
+      toast.error('A confirmao da senha no confere.');
       return;
     }
 
@@ -65,31 +52,31 @@ const Settings = () => {
 
   const handlePreferencesChange = async (
     nextPreferences: NotificationPreferences,
-    options?: { requestPermission?: boolean; successMessage?: string },
+    options: { requestPermission: boolean; successMessage: string },
   ) => {
     try {
       setSavingNotifications(true);
 
-      if (options?.requestPermission && nextPreferences.channels.push && nextPreferences.paymentRemindersEnabled) {
+      if (options.requestPermission && nextPreferences.channels.push && nextPreferences.paymentRemindersEnabled) {
         const permission = await requestPushPermission();
 
         if (permission === 'denied') {
-          toast.error('Permita notificações no navegador para receber os lembretes por push.');
+          toast.error('Permita notificaes no navegador para receber os lembretes por push.');
         }
 
         if (permission === 'unsupported') {
-          toast.error('Este navegador não oferece suporte a notificações push.');
+          toast.error('Este navegador no oferece suporte a notificaes push.');
         }
       }
 
       const { error } = await savePreferences(nextPreferences);
 
       if (error) {
-        toast.error('Não foi possível salvar as preferências de notificações.');
+        toast.error('No foi possvel salvar as preferncias de notificaes.');
         return;
       }
 
-      if (options?.successMessage) {
+      if (options.successMessage) {
         toast.success(options.successMessage);
       }
     } finally {
@@ -98,47 +85,47 @@ const Settings = () => {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
-      <DashboardHeader onSignOut={signOut} title="Configurações" />
+    <div className="mx-auto flex h-dvh w-full max-w-lg flex-col overflow-hidden bg-background">
+      <DashboardHeader onSignOut={signOut} title="Configuraï¿½ï¿½es" />
 
-      <div className="space-y-4 px-4 pb-6 pt-2">
-        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(15,23,42,0.82))] dark:shadow-[0_18px_38px_rgba(2,6,23,0.34)]">
+      <div className="flex-1 space-y-4 overflow-y-auto px-4 pb-24 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between gap-3 text-lg">
+            <CardTitle className="flex items-center justify-between gap-3 text-lg dark:text-[#E8EEE9]">
               <span className="flex items-center gap-2">
-                <MoonStar className="h-5 w-5" />
+                <MoonStar className="h-5 w-5 dark:text-[#ABBC82]" />
                 Aparência
               </span>
               <ThemeToggle />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">{isDark ? 'Modo escuro ativado' : 'Modo claro ativado'}</p>
+            <p className="font-medium text-foreground dark:text-[#E8EEE9]">{isDark ? 'Modo escuro ativado' : 'Modo claro ativado'}</p>
             <p>Use o botão para alternar entre uma visualização clara e uma versão dark mais suave para o app.</p>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
+        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <UserRound className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-lg dark:text-[#E8EEE9]">
+              <UserRound className="h-5 w-5 dark:text-[#ABBC82]" />
               Conta
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">{session.user.email}</p>
+            <p className="font-medium text-foreground dark:text-[#E8EEE9]">{user?.email ?? 'E-mail indisponível'}</p>
             <p>Este é o e-mail usado para entrar na sua conta Elefin.</p>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[28px] border-border/60 bg-white shadow-[0_14px_34px_rgba(15,23,42,0.06)]">
+        <Card className="rounded-[28px] border-border/60 bg-white shadow-[0_14px_34px_rgba(15,23,42,0.06)] dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]">
           <CardHeader className="space-y-3 pb-3">
-            <CardTitle className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.01em]">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+            <CardTitle className="flex items-center gap-3 text-[1.05rem] font-semibold tracking-[-0.01em] dark:text-[#E8EEE9]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-[#1F2A22] dark:text-[#ABBC82]">
                 <Bell className="h-4 w-4" />
               </span>
               <span className="notranslate" translate="no">
-                Preferências de notificações
+                Preferências de notificaes
               </span>
             </CardTitle>
             <p className="text-[0.95rem] leading-7 text-muted-foreground">
@@ -146,10 +133,10 @@ const Settings = () => {
             </p>
           </CardHeader>
           <CardContent className="space-y-4 pt-1">
-            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(241,245,249,0.78))] px-5 py-5">
+            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(248,250,252,0.95),rgba(241,245,249,0.78))] px-5 py-5 dark:border-[#233027] dark:bg-[linear-gradient(180deg,#1A2820,#152018)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[0.95rem] font-semibold tracking-[-0.01em] text-foreground notranslate" translate="no">
+                  <p className="text-[0.95rem] font-semibold tracking-[-0.01em] text-foreground notranslate dark:text-[#E8EEE9]" translate="no">
                     Ativar lembretes de pagamento
                   </p>
                   <p className="mt-1.5 text-[0.92rem] leading-7 text-muted-foreground">
@@ -177,14 +164,14 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] px-5 py-5">
-              <p className="text-[0.92rem] font-semibold uppercase tracking-[0.14em] text-slate-500 notranslate" translate="no">
+            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] px-5 py-5 dark:border-[#233027] dark:bg-[linear-gradient(180deg,#1A2820,#152018)]">
+              <p className="text-[0.92rem] font-semibold uppercase tracking-[0.14em] text-slate-500 notranslate dark:text-[#ABBC82]" translate="no">
                 Quando avisar
               </p>
               <div className="mt-4 space-y-2">
-                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50">
+                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#111A14]">
                   <div className="min-w-0">
-                    <p className="text-[0.95rem] font-medium tracking-[-0.01em] text-foreground notranslate" translate="no">
+                    <p className="text-[0.95rem] font-medium tracking-[-0.01em] text-foreground notranslate dark:text-[#E8EEE9]" translate="no">
                       Lembrar 2 dias antes
                     </p>
                     <p className="mt-1 text-[0.82rem] leading-6 text-muted-foreground">Ideal para contas que precisam de preparo.</p>
@@ -207,9 +194,9 @@ const Settings = () => {
                   />
                 </label>
 
-                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50">
+                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#111A14]">
                   <div className="min-w-0">
-                    <p className="text-[0.95rem] font-medium tracking-[-0.01em] text-foreground notranslate" translate="no">
+                    <p className="text-[0.95rem] font-medium tracking-[-0.01em] text-foreground notranslate dark:text-[#E8EEE9]" translate="no">
                       Lembrar no dia
                     </p>
                     <p className="mt-1 text-[0.82rem] leading-6 text-muted-foreground">Mostra o lembrete no próprio vencimento.</p>
@@ -233,15 +220,15 @@ const Settings = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] px-5 py-5">
-              <p className="text-[0.92rem] font-semibold uppercase tracking-[0.14em] text-slate-500 notranslate" translate="no">
+            <div className="rounded-3xl border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,250,252,0.92))] px-5 py-5 dark:border-[#233027] dark:bg-[linear-gradient(180deg,#1A2820,#152018)]">
+              <p className="text-[0.92rem] font-semibold uppercase tracking-[0.14em] text-slate-500 notranslate dark:text-[#ABBC82]" translate="no">
                 Canal
               </p>
               <div className="mt-4 space-y-2">
-                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50">
+                <label className="flex items-center justify-between gap-4 rounded-2xl px-3 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-[#111A14]">
                   <div className="min-w-0">
-                    <span className="inline-flex items-center gap-2 text-[0.95rem] font-medium tracking-[-0.01em] text-foreground">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                    <span className="inline-flex items-center gap-2 text-[0.95rem] font-medium tracking-[-0.01em] text-foreground dark:text-[#E8EEE9]">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-[#1F2A22] dark:text-[#ABBC82]">
                         <Smartphone className="h-3.5 w-3.5" />
                       </span>
                       <span className="notranslate" translate="no">
@@ -273,7 +260,7 @@ const Settings = () => {
                   />
                 </label>
 
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 px-4 py-3 opacity-60">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 px-4 py-3 opacity-60 dark:border-[#233027] dark:bg-[#111A14]/70">
                   <div className="min-w-0">
                     <p className="text-[0.95rem] font-medium text-muted-foreground notranslate" translate="no">
                       E-mail
@@ -289,10 +276,10 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
+        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)] dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_18px_38px_rgba(0,0,0,0.42)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <LockKeyhole className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-lg dark:text-[#E8EEE9]">
+              <LockKeyhole className="h-5 w-5 dark:text-[#ABBC82]" />
               Redefinir senha
             </CardTitle>
           </CardHeader>
@@ -302,39 +289,26 @@ const Settings = () => {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Nova senha"
-              className="h-12"
+              className="h-12 dark:border-[#233027] dark:bg-[#0F1612] dark:text-[#E8EEE9] dark:placeholder:text-[#5F6A63] dark:focus-visible:border-[#ABBC82] dark:focus-visible:ring-[#ABBC82]/20"
             />
             <Input
               type="password"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Confirmar nova senha"
-              className="h-12"
+              className="h-12 dark:border-[#233027] dark:bg-[#0F1612] dark:text-[#E8EEE9] dark:placeholder:text-[#5F6A63] dark:focus-visible:border-[#ABBC82] dark:focus-visible:ring-[#ABBC82]/20"
             />
             <Button
               type="button"
               onClick={() => void handlePasswordUpdate()}
               disabled={savingPassword}
-              className="h-12 w-full"
+              className="h-12 w-full dark:bg-[#ABBC82] dark:text-[#0F1612] dark:font-semibold dark:shadow-[0_4px_12px_rgba(171,188,130,0.25)] dark:hover:bg-[#BDD494]"
             >
               {savingPassword ? 'Salvando...' : 'Atualizar senha'}
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[28px] border-border/70 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ShieldCheck className="h-5 w-5" />
-              Como funciona
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>O padrão global vale para as contas novas e para as contas sem configuração própria.</p>
-            <p>Se uma conta tiver lembrete definido nela, essa configuração tem prioridade sobre o padrão global.</p>
-            <p>O aviso não marca como pago, não altera o valor e não cria movimentação sozinho.</p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

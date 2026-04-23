@@ -1,52 +1,12 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { useContext } from 'react';
+import { AuthContext } from '@/lib/authContext';
 
-export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
 
-  useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
-        setSession(session);
-      })
-      .catch(() => {
-        setSession(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
-  };
-
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    return { error };
-  };
-
-  const updatePassword = async (password: string) => {
-    const { error } = await supabase.auth.updateUser({ password });
-    return { error };
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
-
-  return { session, loading, signIn, signUp, updatePassword, signOut };
-}
+  return context;
+};

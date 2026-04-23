@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
+import { getAuthUserId } from '@/lib/authSession';
 import { MonthlyProjectionItem, NotificationPreferences } from '@/types/finance';
+import { DEFAULT_NOTIFICATION_PREFERENCES } from '@/lib/projectionTemplateMetadata';
 import { getDuePaymentReminders } from '@/lib/paymentReminders';
 
 const getStorageKey = (userId: string) => `elefin:payment-reminders:${userId}`;
@@ -30,16 +32,17 @@ export function usePaymentReminderNotifications({
 }: {
   session: Session | null;
   items: MonthlyProjectionItem[];
-  preferences: NotificationPreferences;
+  preferences: NotificationPreferences | null | undefined;
 }) {
   useEffect(() => {
-    const userId = session?.user.id;
+    const userId = getAuthUserId(session);
+    const safePreferences = preferences ?? DEFAULT_NOTIFICATION_PREFERENCES;
 
     if (!userId || typeof window === 'undefined' || !('Notification' in window)) {
       return;
     }
 
-    if (!preferences.paymentRemindersEnabled || !preferences.channels.push) {
+    if (!safePreferences.paymentRemindersEnabled || !safePreferences.channels?.push) {
       return;
     }
 
@@ -50,7 +53,7 @@ export function usePaymentReminderNotifications({
     const today = new Date();
     const reminders = getDuePaymentReminders({
       items,
-      preferences,
+      preferences: safePreferences,
       date: today,
     });
 
@@ -58,25 +61,29 @@ export function usePaymentReminderNotifications({
       return;
     }
 
-    const shownReminderKeys = readShownReminderKeys(userId);
-    let changed = false;
+    try {
+      const shownReminderKeys = readShownReminderKeys(userId);
+      let changed = false;
 
-    reminders.forEach((reminder) => {
-      if (shownReminderKeys.has(reminder.key)) {
-        return;
-      }
+      reminders.forEach((reminder) => {
+        if (shownReminderKeys.has(reminder.key)) {
+          return;
+        }
 
-      new Notification(reminder.title, {
-        body: reminder.body,
-        tag: reminder.key,
+        new Notification(reminder.title, {
+          body: reminder.body,
+          tag: reminder.key,
+        });
+
+        shownReminderKeys.add(reminder.key);
+        changed = true;
       });
 
-      shownReminderKeys.add(reminder.key);
-      changed = true;
-    });
-
-    if (changed) {
-      writeShownReminderKeys(userId, shownReminderKeys);
+      if (changed) {
+        writeShownReminderKeys(userId, shownReminderKeys);
+      }
+    } catch (error) {
+      console.error('payment-reminders', error);
     }
   }, [items, preferences, session]);
 }

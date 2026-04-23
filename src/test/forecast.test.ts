@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildMonthlyForecastData } from '@/lib/forecast';
-import { Category, RecurringRule, Transaction } from '@/types/finance';
+import { buildMonthlyForecastData, generateForecastInsight } from '@/lib/forecast';
+import { Category, MonthlyForecastData, RecurringRule, Transaction } from '@/types/finance';
 
 const categories: Category[] = [
   { id: 'cat-1', name: 'Moradia', group_type: 'essenciais', user_id: null },
@@ -56,19 +56,19 @@ describe('buildMonthlyForecastData', () => {
     });
 
     expect(result).not.toBeNull();
-    expect(result?.totalGastoAnterior).toBe(1450);
-    expect(result?.totalPrevisto).toBe(1550);
+    expect(result.totalGastoAnterior).toBe(1450);
+    expect(result.totalPrevisto).toBe(1550);
 
-    const essentials = result?.categorias.find((item) => item.nome === 'Essenciais');
-    const desires = result?.categorias.find((item) => item.nome === 'Desejos');
+    const essentials = result.categorias.find((item) => item.nome === 'Essenciais');
+    const desires = result.categorias.find((item) => item.nome === 'Desejos');
 
-    expect(essentials?.previsaoMesAtual).toBe(1300);
-    expect(essentials?.itens).toHaveLength(1);
-    expect(essentials?.itens[0].source).toBe('recurring');
+    expect(essentials.previsaoMesAtual).toBe(1300);
+    expect(essentials.itens).toHaveLength(1);
+    expect(essentials.itens[0].source).toBe('recurring');
 
-    expect(desires?.previsaoMesAtual).toBe(250);
-    expect(desires?.itens).toHaveLength(1);
-    expect(desires?.itens[0].source).toBe('history');
+    expect(desires.previsaoMesAtual).toBe(250);
+    expect(desires.itens).toHaveLength(1);
+    expect(desires.itens[0].source).toBe('history');
   });
 
   it('ignores recurring rules that start in the same target month', () => {
@@ -93,10 +93,67 @@ describe('buildMonthlyForecastData', () => {
       year: 2026,
     });
 
-    expect(result?.totalPrevisto).toBe(1450);
+    expect(result.totalPrevisto).toBe(1450);
 
-    const desires = result?.categorias.find((item) => item.nome === 'Desejos');
-    expect(desires?.previsaoMesAtual).toBe(250);
-    expect(desires?.itens[0].source).toBe('history');
+    const desires = result.categorias.find((item) => item.nome === 'Desejos');
+    expect(desires.previsaoMesAtual).toBe(250);
+    expect(desires.itens[0].source).toBe('history');
+  });
+});
+
+describe('generateForecastInsight', () => {
+  it('returns a neutral message when there is no forecast data', () => {
+    const result = generateForecastInsight(null);
+
+    expect(result.type).toBe('success');
+    expect(result.message).toContain('Ainda não há previsões suficientes');
+  });
+
+  it('warns when priorities are below the target', () => {
+    const data: MonthlyForecastData = {
+      mesReferencia: 'mar�o',
+      anoReferencia: 2026,
+      categorias: [],
+      totalGastoAnterior: 0,
+      totalPrevisto: 1050,
+      totalEntradaPrevisto: 1000,
+      totalSaidaPrevisto: 450,
+      incomeItems: [],
+      expenseItems: [],
+      groups: {
+        essenciais: 500,
+        desejos: 300,
+        prioridades: 50,
+      },
+    };
+
+    const result = generateForecastInsight(data);
+
+    expect(result.type).toBe('warning');
+    expect(result.message).toContain('Falta direcionar');
+  });
+
+  it('celebrates a balanced forecast', () => {
+    const data: MonthlyForecastData = {
+      mesReferencia: 'mar�o',
+      anoReferencia: 2026,
+      categorias: [],
+      totalGastoAnterior: 0,
+      totalPrevisto: 1000,
+      totalEntradaPrevisto: 1000,
+      totalSaidaPrevisto: 1000,
+      incomeItems: [],
+      expenseItems: [],
+      groups: {
+        essenciais: 500,
+        desejos: 300,
+        prioridades: 200,
+      },
+    };
+
+    const result = generateForecastInsight(data);
+
+    expect(result.type).toBe('success');
+    expect(result.message).toContain('Sua previsão está equilibrada');
   });
 });

@@ -1,4 +1,5 @@
 import { Transaction, Category, GroupType, GROUP_LABELS } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 import {
   AccordionItem,
   AccordionTrigger,
@@ -18,14 +19,14 @@ const BAR_COLORS: Record<GroupType, string> = {
 };
 
 const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps) => {
-  const monthExpenses = transactions.filter((t) => t.type === 'expense');
+  const monthExpenses = transactions.filter(Boolean).filter((t) => t.type === 'expense');
 
-  const categoryMap = new Map(categories.map((c) => [c.id, c]));
+  const categoryMap = new Map(categories.filter(Boolean).map((c) => [c.id, c]));
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
 
   monthExpenses.forEach((t) => {
     const cat = categoryMap.get(t.category_id || '');
-    if (cat) groups[cat.group_type] += Number(t.amount);
+    if (cat) groups[normalizeGroupType(cat?.group_type)] += Number(t.amount);
   });
 
   const totalExpenses = Object.values(groups).reduce((a, b) => a + b, 0);
@@ -42,7 +43,7 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
   return (
     <AccordionItem value="spending" className="border-border/50">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
-        Como estou gastando?
+        Como estou gastando
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
         {totalExpenses === 0 ? (
@@ -51,7 +52,8 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
           </p>
         ) : (
           <>
-            <ResponsiveContainer width="100%" height={220}>
+            <div className="w-full min-w-0 overflow-hidden">
+              <ResponsiveContainer width="100%" height={200} minWidth={0}>
               <BarChart data={data} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
                 <XAxis
@@ -73,7 +75,8 @@ const SpendingAccordion = ({ transactions, categories }: SpendingAccordionProps)
                   />
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
             <div className="mt-2 flex justify-between text-xs text-muted-foreground px-2">
               {(Object.keys(groups) as GroupType[]).map((g) => (
                 <span key={g}>{GROUP_LABELS[g]}: {formatCurrency(groups[g])}</span>

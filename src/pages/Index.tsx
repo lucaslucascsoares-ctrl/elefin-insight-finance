@@ -1,15 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Accordion } from '@/components/ui/accordion';
 import DashboardHeader from '@/components/DashboardHeader';
 import DashboardCarousel from '@/components/DashboardCarousel';
 import MonthPicker from '@/components/MonthPicker';
-import IdealComparison from '@/components/IdealComparison';
-import InsightsAccordion from '@/components/InsightsAccordion';
-import RecentTransactions from '@/components/RecentTransactions';
+import ProjectionInlineForm from '@/components/projection/ProjectionInlineForm';
+import ForecastDetailDashboard from '@/components/forecast/ForecastDetailDashboard';
 import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
-import PreviousMonthForecastCard from '@/components/PreviousMonthForecastCard';
-import ProjectionMonthlySection from '@/components/projection/ProjectionMonthlySection';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
@@ -21,7 +18,6 @@ import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { usePaymentReminderNotifications } from '@/hooks/usePaymentReminderNotifications';
 import { buildMonthlyForecastData } from '@/lib/forecast';
 import { filterTransactionsByMonth, isDateBeforeMonth } from '@/lib/monthFilters';
-import AuthPage from '@/pages/Auth';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MonthlyProjectionItem, RecurringRuleInput, Transaction } from '@/types/finance';
@@ -38,8 +34,7 @@ const getMonthPickerLabel = (year: number, month: number) =>
   new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
 const Index = () => {
-  const { session, loading: authLoading, signOut } = useAuth();
-  const userId = session?.user.id;
+  const { session, userId, signOut } = useAuth();
   const { preferences: notificationPreferences } = useNotificationPreferences(session);
   const {
     data: transactions = [],
@@ -56,14 +51,17 @@ const Index = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'income' | 'expense'>('expense');
   const [modalLockedType, setModalLockedType] = useState(false);
+  const [projectionModalOpen, setProjectionModalOpen] = useState(false);
+  const [forecastDetailOpen, setForecastDetailOpen] = useState(false);
+  const [forecastDetailDate, setForecastDetailDate] = useState<Date | null>(null);
   const attemptedMonthBalanceRef = useRef<Set<string>>(new Set());
   const { activeRules, saveRule, isLoading: recurringLoading } = useRecurringRules(userId);
-  const { templates, isLoading: templatesLoading } = useProjectionTemplates(userId);
+  const { templates, addTemplate, deleteTemplate, isLoading: templatesLoading } = useProjectionTemplates(userId);
 
-  const now = new Date();
-  const [selectedDate, setSelectedDate] = useState(() => new Date(now.getFullYear(), now.getMonth(), 1));
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const [selectedDate, setSelectedDate] = useState(() => new Date(currentYear, currentMonth, 1));
 
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
@@ -87,12 +85,12 @@ const Index = () => {
     [selectedMonth, selectedYear],
   );
   const monthViewKey = `${selectedYear}-${selectedMonth}`;
-  const maxFutureDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + 12, 1), [now]);
+  const maxFutureDate = useMemo(() => new Date(currentYear, currentMonth + 12, 1), [currentMonth, currentYear]);
   const canGoNext = selectedDate < maxFutureDate;
 
-  // ─── Caixa Inicial persistido ────────────────────────────────────────────
+  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Caixa Inicial persistido ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
   const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(userId, selectedMonth, selectedYear);
-  const ensureMonthBalance = useEnsureMonthBalance();
+  const { mutate: ensureMonthBalance, isPending: isEnsuringMonthBalance } = useEnsureMonthBalance();
 
   const hasCriticalError = txError || catError;
   const normalizedTransactions = useMemo(
@@ -115,9 +113,9 @@ const Index = () => {
 
   const monthTransactions = filterTransactionsByMonth(normalizedTransactions, selectedMonth, selectedYear);
 
-  // Caixa inicial calculado a partir de todas as transações anteriores ao mês
-  // Usado como fallback enquanto o registro do banco ainda não foi carregado,
-  // e como valor para persistir na primeira vez que o mês é acessado.
+  // Caixa inicial calculado a partir de todas as transa??es anteriores ao m?s
+  // Usado como fallback enquanto o registro do banco ainda no foi carregado,
+  // e como valor para persistir na primeira vez que o m?s ï¿½ acessado.
   const computedCaixaInicial = useMemo(() => {
     return normalizedTransactions.reduce((sum, t) => {
       const isBefore = isDateBeforeMonth(t.date, selectedMonth, selectedYear);
@@ -126,19 +124,19 @@ const Index = () => {
     }, 0);
   }, [normalizedTransactions, selectedMonth, selectedYear]);
 
-  // Persiste o caixa_inicial do mês na primeira vez que ele é acessado.
-  // Se já existir registro no banco (monthBalance !== null), não faz nada.
+  // Persiste o caixa_inicial do m?s na primeira vez que ele ï¿½ acessado.
+  // Se j existir registro no banco (monthBalance !== null), no faz nada.
   useEffect(() => {
-    if (!session || txLoading || balanceLoading) return;
+    if (!session || !userId || txLoading || balanceLoading) return;
     if (monthBalance !== null && monthBalance !== undefined) return;
-    if (ensureMonthBalance.isPending) return;
+    if (isEnsuringMonthBalance) return;
 
-    const monthBalanceKey = `${session.user.id}-${selectedYear}-${selectedMonth}`;
+    const monthBalanceKey = `${userId}-${selectedYear}-${selectedMonth}`;
     if (attemptedMonthBalanceRef.current.has(monthBalanceKey)) return;
     attemptedMonthBalanceRef.current.add(monthBalanceKey);
 
-    ensureMonthBalance.mutate({
-      user_id: session.user.id,
+    ensureMonthBalance({
+      user_id: userId,
       mes: selectedMonth,
       ano: selectedYear,
       caixa_inicial: computedCaixaInicial,
@@ -151,10 +149,12 @@ const Index = () => {
     selectedMonth,
     selectedYear,
     computedCaixaInicial,
-    // ensureMonthBalance omitido intencionalmente para evitar loop
+    ensureMonthBalance,
+    isEnsuringMonthBalance,
+    userId,
   ]);
 
-  // Fonte de verdade: valor do banco se existir, senão o valor calculado (antes de persistir)
+  // Fonte de verdade: valor do banco se existir, seno o valor calculado (antes de persistir)
   const caixaInicial = monthBalance?.caixa_inicial ?? computedCaixaInicial;
 
   const previousMonthTransactions = filterTransactionsByMonth(
@@ -177,15 +177,7 @@ const Index = () => {
   const { items: currentMonthProjectionItems = [] } = useMonthlyProjectionItems(userId, templates, currentMonth, currentYear, {
     enabled: !isViewingCurrentMonth,
   });
-  const isLoading =
-    authLoading ||
-    (Boolean(session) &&
-      (txLoading ||
-        catLoading ||
-        recurringLoading ||
-        templatesLoading ||
-        monthlyProjectionLoading ||
-        balanceLoading));
+  const isLoading = txLoading || catLoading || recurringLoading || templatesLoading || monthlyProjectionLoading || balanceLoading;
 
   usePaymentReminderNotifications({
     session,
@@ -208,22 +200,10 @@ const Index = () => {
     [activeRules, categories, normalizedTransactions, selectedMonth, selectedYear, userId],
   );
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="animate-pulse text-2xl">Elefin</div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return <AuthPage />;
-  }
-
   if (hasCriticalError) {
     return (
       <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-4 px-6 text-center">
-        <h1 className="text-2xl font-semibold text-foreground">Não foi possível carregar sua página</h1>
+        <h1 className="text-2xl font-semibold text-foreground">No foi possvel carregar sua p?gina</h1>
         <p className="text-sm text-muted-foreground">
           Houve uma falha ao buscar seus dados. Tente recarregar e verificar sua conexão.
         </p>
@@ -245,6 +225,10 @@ const Index = () => {
     setModalType(type);
     setModalLockedType(lockedType);
     setModalOpen(true);
+  };
+
+  const openProjectionModal = () => {
+    setProjectionModalOpen(true);
   };
 
   const handleSaveRecurringRule = async (input: RecurringRuleInput) => {
@@ -299,7 +283,7 @@ const Index = () => {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-background pb-24">
+    <div className="mx-auto flex h-dvh w-full max-w-lg flex-col overflow-hidden bg-background">
       <DashboardHeader onSignOut={signOut} onNewTransaction={() => openTransactionModal('expense', false)} />
       <MonthPicker
         label={monthPickerLabel}
@@ -308,49 +292,42 @@ const Index = () => {
         onNext={handleNextMonth}
       />
 
-      {isLoading ? (
-        <div className="space-y-4 px-4">
-          <Skeleton className="h-56 w-full rounded-[26px]" />
-          <Skeleton className="h-16 w-full rounded-[20px]" />
-          <Skeleton className="h-64 w-full rounded-[26px]" />
-          <Skeleton className="h-72 w-full rounded-[26px]" />
-          <Skeleton className="h-12 w-full rounded-lg" />
-        </div>
-      ) : (
-        <div key={monthViewKey}>
-          <DashboardCarousel
-            transactions={monthTransactions}
-            categories={categories}
-            projectedItems={monthlyProjectionItems}
-            caixaInicial={caixaInicial}
-            onOpenIncome={() => openTransactionModal('income', true)}
-            onOpenExpense={() => openTransactionModal('expense', true)}
-            onOpenGeneric={() => openTransactionModal('expense', false)}
-          />
-          <ProjectionMonthlySection
-            items={monthlyProjectionItems}
-            templates={templates}
-            categories={categories}
-            selectedDate={selectedDate}
-            onSaveMonthEdit={handleSaveMonthEdit}
-            onIgnoreMonth={handleIgnoreMonth}
-            onRestoreMonth={handleRestoreMonth}
-            onMarkPaid={handleMarkProjectionPaid}
-          />
-          <PreviousMonthForecastCard
-            data={forecastData}
-            currentMonthLabel={currentMonthLabel}
-            currentMonthShortLabel={currentMonthShortLabel}
-            previousMonthShortLabel={previousMonthShortLabel}
-          />
-
-          <Accordion type="multiple" defaultValue={['ideal', 'transactions']} className="mt-3">
-            <IdealComparison transactions={monthTransactions} categories={categories} />
-            <RecentTransactions transactions={monthTransactions} categories={categories} />
-            <InsightsAccordion transactions={monthTransactions} categories={categories} />
-          </Accordion>
-        </div>
-      )}
+      <div className="flex-1 overflow-y-auto pb-40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {isLoading ? (
+          <div className="space-y-4 px-4">
+            <Skeleton className="h-56 w-full rounded-[26px]" />
+            <Skeleton className="h-16 w-full rounded-[20px]" />
+            <Skeleton className="h-64 w-full rounded-[26px]" />
+            <Skeleton className="h-72 w-full rounded-[26px]" />
+            <Skeleton className="h-12 w-full rounded-lg" />
+          </div>
+        ) : (
+          <div key={monthViewKey}>
+            <DashboardCarousel
+              transactions={monthTransactions}
+              categories={categories}
+              projectedItems={monthlyProjectionItems}
+              forecastData={forecastData}
+              currentMonthLabel={currentMonthLabel}
+              currentMonthShortLabel={currentMonthShortLabel}
+              previousMonthShortLabel={previousMonthShortLabel}
+              recurringRules={activeRules}
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              caixaInicial={caixaInicial}
+              onOpenGeneric={() => openTransactionModal('expense', false)}
+              onOpenProjection={openProjectionModal}
+              onOpenForecastDetail={() => {
+                setForecastDetailDate(new Date());
+                setForecastDetailOpen(true);
+              }}
+              onDeleteProjectionTemplate={async (templateId) => {
+                await deleteTemplate(templateId);
+              }}
+            />
+          </div>
+        )}
+      </div>
 
       <FAB onClick={() => openTransactionModal('expense', false)} />
       <NewTransactionModal
@@ -367,6 +344,63 @@ const Index = () => {
         selectedDate={selectedDate}
         onSaveRecurringRule={handleSaveRecurringRule}
       />
+
+      <Dialog
+        open={projectionModalOpen}
+        onOpenChange={(open) => {
+          setProjectionModalOpen(open);
+        }}
+      >
+        <DialogContent className="max-h-[90vh] overflow-y-auto border border-[#D6E1CC] bg-[linear-gradient(180deg,#FCFDF9,#F7FAF1)] text-[#314238] shadow-[0_18px_38px_rgba(92,134,109,0.12)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] sm:max-w-2xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Projeção de Gastos</DialogTitle>
+            <DialogDescription>Cadastre contas fixas para alimentar a aba de planejamento.</DialogDescription>
+          </DialogHeader>
+
+          <ProjectionInlineForm
+            categories={categories}
+            open={projectionModalOpen}
+            onOpenChange={setProjectionModalOpen}
+            onCancelEdit={() => {}}
+            onSave={async (input) => {
+              await addTemplate(input);
+              setProjectionModalOpen(false);
+            }}
+            notificationPreferences={notificationPreferences}
+            compactLayout
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={forecastDetailOpen}
+        onOpenChange={(open) => {
+          setForecastDetailOpen(open);
+          if (!open) {
+            setForecastDetailDate(null);
+          } else if (!forecastDetailDate) {
+            setForecastDetailDate(new Date());
+          }
+        }}
+      >
+        <DialogContent className="max-h-[92vh] overflow-y-auto border border-border bg-card text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.14)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] sm:max-w-3xl">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Previsão detalhada do mês</DialogTitle>
+            <DialogDescription>Dashboard detalhado da previsão até o fim do mês.</DialogDescription>
+          </DialogHeader>
+
+          {forecastDetailDate ? (
+            <ForecastDetailDashboard
+              transactions={monthTransactions}
+              categories={categories}
+              projectedItems={monthlyProjectionItems}
+              recurringRules={activeRules}
+              caixaInicial={caixaInicial}
+              referenceDate={forecastDetailDate}
+            />
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

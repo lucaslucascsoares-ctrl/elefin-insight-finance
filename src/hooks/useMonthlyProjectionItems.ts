@@ -8,10 +8,10 @@ interface SaveProjectionOverrideInput {
   templateId: string;
   month: number;
   year: number;
-  amountOverride?: number | null;
-  titleOverride?: string | null;
-  status?: MonthlyProjectionStatus;
-  paidTransactionId?: string | null;
+  amountOverride: number | null;
+  titleOverride: string | null;
+  status: MonthlyProjectionStatus;
+  paidTransactionId: string | null;
 }
 
 export function useMonthlyProjectionItems(

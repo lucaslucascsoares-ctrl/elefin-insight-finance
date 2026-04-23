@@ -13,7 +13,7 @@ export interface Category {
   id: string;
   name: string;
   group_type: 'essenciais' | 'desejos' | 'prioridades';
-  user_id?: string | null;
+  user_id: string | null;
 }
 
 export type GroupType = 'essenciais' | 'desejos' | 'prioridades';
@@ -107,6 +107,11 @@ export interface MonthlyForecastData {
   categorias: ForecastCategorySummary[];
   totalGastoAnterior: number;
   totalPrevisto: number;
+  totalEntradaPrevisto: number;
+  totalSaidaPrevisto: number;
+  incomeItems: ForecastItem[];
+  expenseItems: ForecastItem[];
+  groups: Record<GroupType, number>;
 }
 
 export interface ProjectionReminderConfig {
@@ -119,7 +124,7 @@ export interface ProjectionReminderConfig {
 export interface ProjectionTemplate {
   id: string;
   user_id: string;
-  legacy_local_id?: string | null;
+  legacy_local_id: string | null;
   title: string;
   account_name: string;
   category_name: string;
@@ -149,6 +154,7 @@ export interface ProjectionTemplateInput {
   reminder_enabled: boolean | null;
   reminder_days_before: number[];
   reminder_on_due_date: boolean | null;
+  is_active: boolean;
 }
 
 export interface MonthlyProjectionOverride {
@@ -161,7 +167,7 @@ export interface MonthlyProjectionOverride {
   title_override: string | null;
   status: MonthlyProjectionStatus;
   paid_transaction_id: string | null;
-  created_at?: string;
+  created_at: string;
   updated_at: string;
 }
 

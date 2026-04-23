@@ -6,31 +6,28 @@ import {
   PlusCircle,
   Ruler,
   Settings as SettingsIcon,
-  WalletCards,
+  ShieldCheck,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useAuth } from '@/hooks/useAuth';
+import { useAdminStatus } from '@/hooks/useAdminPanel';
+import { canAccessAdminShell } from '@/lib/adminAccess';
 
 interface DashboardHeaderProps {
   onSignOut: () => void;
-  onNewTransaction?: () => void;
-  title?: string;
+  onNewTransaction: () => void;
 }
 
-const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeaderProps) => {
+const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  const headerTitle =
-    title ??
-    (location.pathname === '/projection'
-      ? 'Projecao de Gastos'
-      : location.pathname === '/settings'
-        ? 'Configuracoes'
-        : 'Painel do mes');
+  const { user } = useAuth();
+  const canCheckAdmin = canAccessAdminShell(user?.email);
+  const adminStatus = useAdminStatus(canCheckAdmin);
 
   const goToMonthPanel = () => {
     if (location.pathname === '/') {
@@ -62,38 +59,41 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
         return;
       }
 
-      onNewTransaction?.();
+      onNewTransaction();
     }, 300);
   };
 
   const menuItems = [
     {
       icon: LayoutDashboard,
-      label: 'Painel do mes',
+      label: 'Painel do mês',
       onClick: () => {
         setSheetOpen(false);
         goToMonthPanel();
       },
     },
-    { icon: PlusCircle, label: 'Nova Movimentacao', onClick: handleNewTransaction },
-    {
-      icon: WalletCards,
-      label: 'Projecao de Gastos',
-      onClick: () => {
-        setSheetOpen(false);
-        navigate('/projection');
-      },
-    },
-    { icon: Ruler, label: 'Regua de Gastos', onClick: () => scrollToElement('ideal-section') },
+    { icon: PlusCircle, label: 'Nova Movimentação', onClick: handleNewTransaction },
+    { icon: Ruler, label: 'Régua de Gastos', onClick: () => scrollToElement('ideal-section') },
     {
       icon: SettingsIcon,
-      label: 'Configuracoes',
+      label: 'Configurações',
       onClick: () => {
         setSheetOpen(false);
         navigate('/settings');
       },
     },
   ];
+
+  const adminMenuItem = canCheckAdmin || adminStatus.data?.isAdmin
+    ? {
+        icon: ShieldCheck,
+        label: 'Painel Admin',
+        onClick: () => {
+          setSheetOpen(false);
+          navigate('/admin');
+        },
+      }
+    : null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-[rgba(255,255,255,0.9)] px-4 py-4 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.95),rgba(17,26,23,0.9))]">
@@ -103,14 +103,10 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
             type="button"
             onClick={goToMonthPanel}
             className="min-w-0 text-left"
-            aria-label="Voltar ao painel do mes"
+            aria-label="Voltar ao painel do mês"
           >
-            <span className="block text-[1.02rem] font-semibold tracking-[-0.02em] text-foreground">elefin</span>
+            <span className="block text-[1.45rem] font-bold tracking-[-0.03em] text-foreground">elefin</span>
           </button>
-
-          <div className="mt-1 truncate text-[1rem] font-semibold tracking-[-0.02em] text-slate-700 dark:text-[#E6F2EE]">
-            {headerTitle}
-          </div>
         </div>
 
         <ThemeToggle compact />
@@ -129,23 +125,23 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
 
           <SheetContent
             side="right"
-            className="w-80 border-l border-slate-200/80 bg-[rgba(255,255,255,0.96)] px-0 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.98),rgba(17,26,23,0.98))]"
+            className="w-[72vw] max-w-[248px] overflow-y-auto border-l border-slate-200/80 bg-[rgba(255,255,255,0.96)] px-0 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.98),rgba(17,26,23,0.98))]"
           >
             <SheetHeader className="border-b border-slate-200/70 px-5 pb-5 pt-5 text-left dark:border-[#263731]">
               <SheetTitle className="text-left text-lg font-semibold tracking-[-0.02em] text-foreground">elefin</SheetTitle>
             </SheetHeader>
 
-            <nav className="mt-4 flex flex-col gap-1 px-3">
-              {menuItems.map((item) => (
+            <nav className="mt-4 flex flex-col gap-1 px-2.5">
+              {[...menuItems, ...(adminMenuItem ? [adminMenuItem] : [])].map((item) => (
                 <button
                   key={item.label}
                   onClick={item.onClick}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-slate-100/90 dark:hover:bg-[#1B2823]"
+                  className="flex w-full min-w-0 items-center gap-2.5 rounded-2xl px-3 py-3 text-sm font-medium text-foreground transition-colors hover:bg-slate-100/90 dark:hover:bg-[#1B2823]"
                 >
                   <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 dark:bg-[#1F2D28] dark:text-[#B8CBC3]">
                     <item.icon className="h-4 w-4" />
                   </span>
-                  {item.label}
+                  <span className="min-w-0 flex-1 truncate text-left">{item.label}</span>
                 </button>
               ))}
 
@@ -156,12 +152,12 @@ const DashboardHeader = ({ onSignOut, onNewTransaction, title }: DashboardHeader
                   setSheetOpen(false);
                   onSignOut();
                 }}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-destructive transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                className="flex w-full min-w-0 items-center gap-2.5 rounded-2xl px-3 py-3 text-sm font-medium text-destructive transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30"
               >
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-50 text-destructive dark:bg-rose-950/40">
                   <LogOut className="h-4 w-4" />
                 </span>
-                Sair
+                <span className="min-w-0 flex-1 truncate text-left">Sair</span>
               </button>
             </nav>
           </SheetContent>

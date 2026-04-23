@@ -1,3 +1,7 @@
+import { useEffect } from 'react';
+import { ReactElement } from 'react';
+import { AuthLoadingScreen } from '@/components/AuthProvider';
+import { useAuth } from '@/hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -8,6 +12,9 @@ import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Projection from './pages/Projection';
 import Settings from './pages/Settings';
+import AuthPage from './pages/Auth';
+import AdminPage from './pages/Admin';
+import { canAccessAdminShell } from '@/lib/adminAccess';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,17 +41,70 @@ const MissingSupabaseConfig = () => (
   </div>
 );
 
+const ForceLoginReset = () => {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reset') !== '1') return;
+
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith('sb-') || key.includes('supabase')) {
+        window.localStorage.removeItem(key);
+      }
+    }
+
+    window.sessionStorage.clear();
+    window.location.replace('/');
+  }, []);
+
+  return null;
+};
+
+const ProtectedRoute = ({ children }: { children: ReactElement }) => {
+  const { loading, isAuthenticated } = useAuth();
+
+  if (loading) {
+    return <AuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }: { children: ReactElement }) => {
+  const { loading, isAuthenticated, user } = useAuth();
+  const isMasterEmail = canAccessAdminShell(user?.email);
+
+  if (loading) {
+    return <AuthLoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage />;
+  }
+
+  if (isMasterEmail) {
+    return children;
+  }
+
+  return <NotFound />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <ForceLoginReset />
       {isSupabaseConfigured ? (
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/projection" element={<Projection />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+            <Route path="/projection" element={<ProtectedRoute><Projection /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

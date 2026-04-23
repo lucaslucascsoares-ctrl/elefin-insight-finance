@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
 import { ProjectionTemplate, ProjectionTemplateInput } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 import {
   parseProjectionTemplateDescription,
   serializeProjectionTemplateDescription,
@@ -9,11 +10,16 @@ import {
 
 type ProjectionTemplateRow = Omit<ProjectionTemplate, 'due_day' | 'reminder_enabled' | 'reminder_days_before' | 'reminder_on_due_date'>;
 
-const normalizeTemplate = (template: ProjectionTemplateRow & { subcategory_name?: string | null }) => {
+const normalizeTemplate = (template: (ProjectionTemplateRow & { subcategory_name: string | null }) | null | undefined) => {
+  if (!template) {
+    return null;
+  }
+
   const parsedDescription = parseProjectionTemplateDescription(template.description);
 
   return {
     ...template,
+    group_type: normalizeGroupType(template.group_type),
     account_name: template.account_name ?? template.title,
     category_name: template.category_name ?? template.subcategory_name ?? 'Sem categoria',
     legacy_local_id: template.legacy_local_id ?? null,
@@ -37,7 +43,7 @@ const createDescriptionPayload = (input: ProjectionTemplateInput) =>
     },
   });
 
-export function useProjectionTemplates(userId?: string) {
+export function useProjectionTemplates(userId: string) {
   const queryClient = useQueryClient();
   const queryKey = ['projection_templates', userId];
 
@@ -53,7 +59,7 @@ export function useProjectionTemplates(userId?: string) {
         .order('account_name');
 
       if (error) throw error;
-      return (data as ProjectionTemplateRow[]).map(normalizeTemplate);
+      return ((data ?? []) as ProjectionTemplateRow[]).map(normalizeTemplate).filter(Boolean) as ProjectionTemplate[];
     },
   });
 
@@ -73,7 +79,7 @@ export function useProjectionTemplates(userId?: string) {
           category_id: input.category_id,
           group_type: input.group_type,
           source: 'projecao',
-          is_active: true,
+          is_active: input.is_active ?? true,
         })
         .select()
         .single();
@@ -98,6 +104,7 @@ export function useProjectionTemplates(userId?: string) {
           default_amount: input.default_amount,
           category_id: input.category_id,
           group_type: input.group_type,
+          is_active: input.is_active ?? true,
         })
         .eq('id', templateId)
         .select()
@@ -132,7 +139,7 @@ export function useProjectionTemplates(userId?: string) {
     },
   });
 
-  const activeTemplates = useMemo(() => templates.filter((template) => template.is_active), [templates]);
+  const activeTemplates = useMemo(() => templates.filter(Boolean).filter((template) => template.is_active), [templates]);
 
   return {
     templates,

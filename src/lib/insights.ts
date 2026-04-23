@@ -1,4 +1,5 @@
 import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, Transaction } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 
 export interface InsightResult {
   message: string;
@@ -10,25 +11,27 @@ const formatCurrency = (value: number) =>
 
 export function generateInsight(transactions: Transaction[], categories: Category[]): InsightResult {
   const totalIncome = transactions
+    .filter(Boolean)
     .filter((transaction) => transaction.type === 'income')
     .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
 
   if (totalIncome === 0) {
     return {
-      message: 'Adicione entradas no mês para receber uma leitura das suas metas de gasto.',
+      message: 'Adicione entradas no m?s para receber uma leitura das suas metas de gasto.',
       type: 'success',
     };
   }
 
-  const categoryMap = new Map(categories.map((category) => [category.id, category]));
+  const categoryMap = new Map(categories.filter(Boolean).map((category) => [category.id, category]));
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
 
   transactions
+    .filter(Boolean)
     .filter((transaction) => transaction.type === 'expense')
     .forEach((transaction) => {
       const category = categoryMap.get(transaction.category_id || '');
       if (category) {
-        groups[category.group_type] += Number(transaction.amount);
+        groups[normalizeGroupType(category?.group_type)] += Number(transaction.amount);
       }
     });
 
@@ -54,21 +57,21 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (essentials.delta > 0) {
     return {
-      message: `${essentials.label} estão acima da meta em ${formatCurrency(essentials.delta)}. O próximo passo é reduzir esse grupo para voltar ao limite ideal e proteger seu caixa.`,
+      message: `${essentials.label} esto acima da meta em ${formatCurrency(essentials.delta)}. O pr�ximo passo � reduzir esse grupo para voltar ao limite ideal e proteger seu caixa.`,
       type: 'warning',
     };
   }
 
   if (desires.delta > 0) {
     return {
-      message: `${desires.label} passaram da meta em ${formatCurrency(desires.delta)}. Vale cortar gastos variáveis agora para não pressionar as prioridades do mês.`,
+      message: `${desires.label} passaram da meta em ${formatCurrency(desires.delta)}. Vale cortar gastos variveis agora para no pressionar as prioridades do m?s.`,
       type: 'warning',
     };
   }
 
   if (priorities.delta < 0) {
     return {
-      message: `${priorities.label} estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(
+      message: `${priorities.label} esto abaixo da meta de 20%. Falta direcionar ${formatCurrency(
         Math.abs(priorities.delta),
       )} para esse objetivo.`,
       type: 'warning',
@@ -78,7 +81,7 @@ export function generateInsight(transactions: Transaction[], categories: Categor
   const reserve = totalIncome - metrics.reduce((sum, item) => sum + item.spent, 0);
 
   return {
-    message: `Seu mês está equilibrado. Essenciais, Desejos e Prioridades estão dentro da meta, e você ainda preserva ${formatCurrency(
+    message: `Seu m?s est equilibrado. Essenciais, Desejos e Prioridades esto dentro da meta, e voc ainda preserva ${formatCurrency(
       Math.max(reserve, 0),
     )} de folga no caixa.`,
     type: 'success',

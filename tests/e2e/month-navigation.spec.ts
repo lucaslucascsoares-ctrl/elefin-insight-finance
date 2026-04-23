@@ -17,16 +17,16 @@ test('navega entre março e abril sem misturar dados entre os meses', async ({ p
   const frontend = trackFrontendErrors(page);
 
   await loginThroughUi(page);
-  await page.getByTestId('dashboard-tab-real').click();
+  await page.getByRole('button', { name: 'Ir para dashboard Real' }).click();
 
   const realSlide = page.getByTestId('dashboard-slide-real');
   await expect(realSlide.getByText('- R$ 1.000,00')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Avançar um mês' }).click();
+  await page.getByRole('button', { name: /Avan[cç]ar um m[eê]s/i }).click();
   await expect(page.getByText(/abril de 2026/i)).toBeVisible();
   await expect(realSlide.getByText('- R$ 0,00')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Voltar um mês' }).click();
+  await page.getByRole('button', { name: /Voltar um m[eê]s/i }).click();
   await expect(page.getByText(/março de 2026/i)).toBeVisible();
   await expect(realSlide.getByText('- R$ 1.000,00')).toBeVisible();
 

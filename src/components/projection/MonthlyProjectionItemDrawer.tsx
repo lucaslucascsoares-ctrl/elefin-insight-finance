@@ -21,7 +21,7 @@ interface MonthlyProjectionItemDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   item: MonthlyProjectionItem | null;
-  template?: ProjectionTemplate | null;
+  template: ProjectionTemplate | null;
   categories: Category[];
   selectedDate: Date;
   onSaveMonthEdit: (item: MonthlyProjectionItem, title: string, amount: number) => Promise<void>;
@@ -32,8 +32,8 @@ interface MonthlyProjectionItemDrawerProps {
 
 const statusLabels = {
   predicted: 'Prevista',
-  edited: 'Editada no mês',
-  ignored: 'Ignorada no mês',
+  edited: 'Editada no m?s',
+  ignored: 'Ignorada no m?s',
   paid: 'Paga',
 } as const;
 
@@ -106,16 +106,16 @@ const MonthlyProjectionItemDrawer = ({
             toast.success('Conta marcada como paga.');
             onOpenChange(false);
           } catch {
-            toast.error('Não foi possível atualizar o status da conta.');
+            toast.error('No foi possvel atualizar o status da conta.');
           }
         },
-        onError: () => toast.error('Não foi possível marcar essa conta como paga.'),
+        onError: () => toast.error('No foi possvel marcar essa conta como paga.'),
       },
     );
   };
 
-  const canRestore = item?.status === 'ignored' || item?.status === 'edited';
-  const originalAmount = template?.default_amount ?? item?.amount ?? 0;
+  const canRestore = item.status === 'ignored' || item.status === 'edited';
+  const originalAmount = template?.default_amount ?? item.amount ?? 0;
 
   return (
     <>
@@ -177,7 +177,7 @@ const MonthlyProjectionItemDrawer = ({
                     className="h-12 rounded-2xl text-base font-semibold"
                     onClick={() => setEditOpen(true)}
                   >
-                    Editar só este mês
+                    Editar s este m?s
                   </Button>
                   {item.status !== 'ignored' ? (
                     <Button
@@ -188,14 +188,14 @@ const MonthlyProjectionItemDrawer = ({
                       onClick={async () => {
                         try {
                           await onIgnoreMonth(item);
-                          toast.success('Conta ignorada neste mês.');
+                          toast.success('Conta ignorada neste m?s.');
                           onOpenChange(false);
                         } catch {
-                          toast.error('Não foi possível ignorar essa conta neste mês.');
+                          toast.error('No foi possvel ignorar essa conta neste m?s.');
                         }
                       }}
                     >
-                      Ignorar neste mês
+                      Ignorar neste m?s
                     </Button>
                   ) : null}
                   {canRestore ? (
@@ -207,14 +207,14 @@ const MonthlyProjectionItemDrawer = ({
                       onClick={async () => {
                         try {
                           await onRestoreMonth(item);
-                          toast.success('Conta restaurada para o padrão.');
+                          toast.success('Conta restaurada para o padr?o.');
                           onOpenChange(false);
                         } catch {
-                          toast.error('Não foi possível restaurar essa conta.');
+                          toast.error('No foi possvel restaurar essa conta.');
                         }
                       }}
                     >
-                      Restaurar padrão
+                      Restaurar padr?o
                     </Button>
                   ) : null}
                 </div>
@@ -234,7 +234,7 @@ const MonthlyProjectionItemDrawer = ({
         <DialogContent className="max-w-sm rounded-[28px] border-border/60 bg-white p-0">
           <div className="px-6 py-6">
             <DialogHeader className="mb-5">
-              <DialogTitle className="text-xl font-semibold text-foreground">Editar só este mês</DialogTitle>
+              <DialogTitle className="text-xl font-semibold text-foreground">Editar s este m?s</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4">

@@ -2,7 +2,7 @@ import { Moon, SunMedium } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 
 interface ThemeToggleProps {
-  compact?: boolean;
+  compact: boolean;
 }
 
 const ThemeToggle = ({ compact = false }: ThemeToggleProps) => {

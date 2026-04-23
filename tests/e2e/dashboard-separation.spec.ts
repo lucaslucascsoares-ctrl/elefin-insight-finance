@@ -28,15 +28,14 @@ test('mantém contas projetadas apenas no planejamento e fora do financeiro real
   const projectionSlide = page.getByTestId('dashboard-slide-projection');
   const realSlide = page.getByTestId('dashboard-slide-real');
 
-  await expect(page.getByTestId('dashboard-tab-projection')).toContainText('Planejamento');
-  await expect(projectionSlide).toContainText('Contas projetadas do mês');
+  await expect(projectionSlide).toContainText(/Contas projetadas do mes/i);
   await expect(projectionSlide).toContainText('R$ 800,00');
 
-  await page.getByTestId('dashboard-tab-real').click();
+  await page.getByRole('button', { name: 'Ir para dashboard Real' }).click();
   await expect(realSlide.getByText('- R$ 0,00')).toBeVisible();
 
-  await page.getByTestId('dashboard-tab-projection').click();
-  await expect(projectionSlide).toContainText('Contas projetadas do mês');
+  await page.getByRole('button', { name: 'Ir para dashboard Planejamento' }).click();
+  await expect(projectionSlide).toContainText(/Contas projetadas do mes/i);
   await expect(projectionSlide).toContainText('R$ 800,00');
 
   await frontend.expectClean();

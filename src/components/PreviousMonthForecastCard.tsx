@@ -68,7 +68,7 @@ const PreviousMonthForecastCard = ({
         <div className="rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.95))] px-4 py-5 shadow-[0_18px_36px_rgba(15,23,42,0.06)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.34)]">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]">Previsão</p>
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-[#8EA39B]">Previso</p>
               <h3 className="mt-1 break-words text-[1.05rem] font-semibold tracking-[-0.02em] text-foreground dark:text-[#E6F2EE]">
                 {data ? `Previsão baseada em ${data.mesReferencia}` : 'Previsão baseada no mês anterior'}
               </h3>
@@ -101,8 +101,8 @@ const PreviousMonthForecastCard = ({
                       <Lock className="h-4 w-4" />
                     </span>
                     <p className="text-sm leading-7 text-muted-foreground dark:!text-[#C5D8D0]">
-                      Esses dados refletem seus gastos do mês anterior e servem como referência para o mês atual.
-                      Contas fixas entram primeiro, e o histórico recente complementa a previsão.
+                      Esses dados refletem seus gastos do m?s anterior e servem como refer?ncia para o m?s atual.
+                      Contas fixas entram primeiro, e o hist?rico recente complementa a previso.
                     </p>
                   </div>
 
@@ -167,7 +167,7 @@ const PreviousMonthForecastCard = ({
                   <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-600 shadow-[0_8px_18px_rgba(15,23,42,0.05)] dark:!bg-[#21453C] dark:!text-[#CDE4DB] dark:shadow-none">
                     <Lock className="h-4 w-4" />
                   </span>
-                  <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">Sem dados do mês anterior para comparar.</p>
+                  <p className="text-sm leading-7 text-muted-foreground dark:text-[#B8CBC3]">Sem dados do m?s anterior para comparar.</p>
                 </div>
               )}
             </div>
@@ -179,15 +179,15 @@ const PreviousMonthForecastCard = ({
         <DrawerContent className="max-h-[85dvh] border-t border-slate-200/80 bg-[rgba(255,255,255,0.98)] backdrop-blur-xl dark:border-[#263731] dark:bg-[rgba(11,18,16,0.96)]">
           <DrawerHeader>
             <DrawerTitle className="tracking-[-0.02em]">
-              {selectedCategory?.nome || 'Detalhes da previsão'}
+              {selectedCategory.nome || 'Detalhes da previso'}
             </DrawerTitle>
             <DrawerDescription>
-              Itens previstos para {currentMonthLabel}, com origem recorrente ou histórica.
+              Itens previstos para {currentMonthLabel}, com origem recorrente ou hist?rica.
             </DrawerDescription>
           </DrawerHeader>
 
           <div className="space-y-3 overflow-y-auto px-4 pb-6">
-            {selectedCategory?.itens.map((item) => (
+            {selectedCategory.itens.map((item) => (
               <div
                 key={item.id}
                 className="rounded-3xl border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(248,250,252,0.92))] px-4 py-4 shadow-[0_14px_26px_rgba(15,23,42,0.05)] dark:border-[#263731] dark:bg-[#16211D] dark:shadow-[0_14px_26px_rgba(3,10,8,0.28)]"
@@ -211,7 +211,7 @@ const PreviousMonthForecastCard = ({
                   <span className="text-[11px] text-muted-foreground dark:text-[#8EA39B]">
                     {item.source === 'recurring'
                       ? 'Tem prioridade na previsão'
-                      : 'Entrou pelo histórico do mês anterior'}
+                      : 'Usa histórico recente'}
                   </span>
                 </div>
               </div>

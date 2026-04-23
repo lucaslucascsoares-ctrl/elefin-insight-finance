@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Category, GroupType } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 
-export function useCategories(userId?: string) {
+export function useCategories(userId: string) {
   return useQuery({
     queryKey: ['categories', userId],
     enabled: Boolean(userId),
@@ -13,7 +14,15 @@ export function useCategories(userId?: string) {
         .or(`user_id.is.null,user_id.eq.${userId}`)
         .order('name');
       if (error) throw error;
-      return data as Category[];
+      return ((data ?? []) as Partial<Category>[])
+        .filter((category): category is Partial<Category> & { id: string; name: string } =>
+          Boolean(category?.id && category?.name),
+        )
+        .map((category) => ({
+          ...category,
+          group_type: normalizeGroupType(category.group_type),
+          user_id: category.user_id ?? null,
+        })) as Category[];
     },
     staleTime: 1000 * 60 * 5,
   });

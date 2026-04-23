@@ -206,7 +206,7 @@ export function findExistingCategory(categories: Category[], itemName: string, g
 
   return (
     categories.find(
-      (category) => category.group_type === groupType && normalize(category.name) === normalizedItem,
+      (category) => category?.group_type === groupType && normalize(category?.name ?? '') === normalizedItem,
     ) ?? null
   );
 }
@@ -219,9 +219,9 @@ export function getCustomCategoriesByGroup(categories: Category[], groupType: Gr
       .map(normalize),
   );
 
-  return categories.filter(
-    (category) => category.group_type === groupType && !taxonomyNames.has(normalize(category.name)),
-  );
+  return categories
+    .filter(Boolean)
+    .filter((category) => category?.group_type === groupType && !taxonomyNames.has(normalize(category?.name ?? '')));
 }
 
 export function getProjectionCategoriesByGroup(groupType: GroupType) {

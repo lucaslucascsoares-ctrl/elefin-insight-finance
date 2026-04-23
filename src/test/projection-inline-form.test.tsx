@@ -71,10 +71,18 @@ describe('ProjectionInlineForm', () => {
           default_amount: 800,
           due_day: 10,
           reminder_enabled: true,
-          reminder_days_before: [2],
+          reminder_days_before: [],
           reminder_on_due_date: true,
         }),
       );
     });
+  });
+
+  it('exibe lembrete automático sem opções manuais', () => {
+    renderForm();
+
+    expect(screen.getByText(/lembrete automático/i)).toBeInTheDocument();
+    expect(screen.queryByText(/lembrar 2 dias antes/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/lembrar no dia/i)).not.toBeInTheDocument();
   });
 });

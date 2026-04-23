@@ -1,5 +1,7 @@
 import {
   Category,
+  GROUP_LABELS,
+  GROUP_LIMITS,
   ForecastCategorySummary,
   ForecastGroupType,
   ForecastItem,
@@ -8,6 +10,7 @@ import {
   RecurringRule,
   Transaction,
 } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 
 const normalize = (value: string | null | undefined) =>
   (value || '')
@@ -18,14 +21,21 @@ const normalize = (value: string | null | undefined) =>
 
 const createId = (prefix: string, seed: string) => `${prefix}-${normalize(seed).replace(/\s+/g, '-')}`;
 
-const getForecastGroup = (category?: Category | null): ForecastGroupType =>
-  category?.group_type || 'outros';
+const getForecastGroup = (category: Category | null | undefined): ForecastGroupType =>
+  category ? normalizeGroupType(category.group_type, 'essenciais') : 'outros';
 
-const getForecastTitle = (description: string | null | undefined, category?: Category | null) =>
+const getForecastTitle = (description: string | null | undefined, category: Category | null | undefined) =>
   description?.trim() || category?.name || 'Outros';
 
-const getItemKey = (title: string, categoryId: string | null, groupType: ForecastGroupType) =>
-  `${groupType}:${categoryId || 'sem-categoria'}:${normalize(title)}`;
+const getItemKey = (
+  title: string,
+  categoryId: string | null,
+  groupType: ForecastGroupType,
+  type: ForecastItem['type'],
+) => `${type}:${groupType}:${categoryId || 'sem-categoria'}:${normalize(title)}`;
+
+const formatCurrency = (value: number) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const isApplicableForMonth = (startsAt: string, month: number, year: number) => {
   const start = new Date(`${startsAt.slice(0, 10)}T00:00:00`);
@@ -54,10 +64,20 @@ export function buildMonthlyForecastData({
   const previousMonthDate = new Date(year, month - 1, 1);
   const previousMonth = previousMonthDate.getMonth();
   const previousYear = previousMonthDate.getFullYear();
-  const categoryMap = new Map(categories.map((category) => [category.id, category]));
+  const safeCategories = categories.filter(Boolean);
+  const safeTransactions = transactions.filter(Boolean);
+  const safeRecurringRules = recurringRules.filter(Boolean);
+  const categoryMap = new Map(safeCategories.map((category) => [category.id, category]));
 
-  const previousMonthExpenses = transactions.filter((transaction) => {
+  const previousMonthExpenses = safeTransactions.filter((transaction) => {
     if (transaction.type !== 'expense') return false;
+    const date = new Date(`${transaction.date.slice(0, 10)}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return false;
+    return date.getMonth() === previousMonth && date.getFullYear() === previousYear;
+  });
+
+  const previousMonthIncome = safeTransactions.filter((transaction) => {
+    if (transaction.type !== 'income') return false;
     const date = new Date(`${transaction.date.slice(0, 10)}T00:00:00`);
     if (Number.isNaN(date.getTime())) return false;
     return date.getMonth() === previousMonth && date.getFullYear() === previousYear;
@@ -75,7 +95,61 @@ export function buildMonthlyForecastData({
     previousGroups[getForecastGroup(category)] += Number(transaction.amount);
   });
 
-  const recurringForecasts = recurringRules
+  const recurringIncomeForecasts = safeRecurringRules
+    .filter((rule) => rule.active && rule.type === 'income' && isApplicableForMonth(rule.starts_at, month, year))
+    .map<ForecastItem>((rule) => {
+      const category = categoryMap.get(rule.category_id || '');
+      const title = getForecastTitle(rule.description, category);
+
+      return {
+        id: createId('recurring-income', `${rule.id}-${month}-${year}`),
+        user_id: userId,
+        month,
+        year,
+        type: 'income',
+        title,
+        amount: Number(rule.amount),
+        category_id: rule.category_id,
+        group_type: getForecastGroup(category),
+        source: 'recurring',
+        status: 'predicted',
+        reference_month: new Date(`${rule.starts_at.slice(0, 10)}T00:00:00`).getMonth(),
+        reference_year: new Date(`${rule.starts_at.slice(0, 10)}T00:00:00`).getFullYear(),
+        recurring_rule_id: rule.id,
+        reference_transaction_id: null,
+      };
+    });
+
+  const recurringIncomeKeys = new Set(
+    recurringIncomeForecasts.map((item) => getItemKey(item.title, item.category_id, item.group_type, item.type)),
+  );
+
+  const historyIncomeForecasts = previousMonthIncome
+    .map<ForecastItem>((transaction) => {
+      const category = categoryMap.get(transaction.category_id || '');
+      const title = getForecastTitle(transaction.description, category);
+
+      return {
+        id: createId('history-income', `${transaction.id}-${month}-${year}`),
+        user_id: userId,
+        month,
+        year,
+        type: 'income',
+        title,
+        amount: Number(transaction.amount),
+        category_id: transaction.category_id,
+        group_type: getForecastGroup(category),
+        source: 'history',
+        status: 'predicted',
+        reference_month: previousMonth,
+        reference_year: previousYear,
+        recurring_rule_id: null,
+        reference_transaction_id: transaction.id,
+      };
+    })
+    .filter((item) => !recurringIncomeKeys.has(getItemKey(item.title, item.category_id, item.group_type, item.type)));
+
+  const recurringForecasts = safeRecurringRules
     .filter((rule) => rule.active && rule.type === 'expense' && isApplicableForMonth(rule.starts_at, month, year))
     .map<ForecastItem>((rule) => {
       const category = categoryMap.get(rule.category_id || '');
@@ -101,10 +175,10 @@ export function buildMonthlyForecastData({
     });
 
   const recurringKeys = new Set(
-    recurringForecasts.map((item) => getItemKey(item.title, item.category_id, item.group_type)),
+    recurringForecasts.map((item) => getItemKey(item.title, item.category_id, item.group_type, item.type)),
   );
 
-  const historyForecasts = previousMonthExpenses
+  const historyExpenseForecasts = previousMonthExpenses
     .map<ForecastItem>((transaction) => {
       const category = categoryMap.get(transaction.category_id || '');
       const title = getForecastTitle(transaction.description, category);
@@ -127,11 +201,13 @@ export function buildMonthlyForecastData({
         reference_transaction_id: transaction.id,
       };
     })
-    .filter((item) => !recurringKeys.has(getItemKey(item.title, item.category_id, item.group_type)));
+    .filter((item) => !recurringKeys.has(getItemKey(item.title, item.category_id, item.group_type, item.type)));
 
-  const forecastItems = [...recurringForecasts, ...historyForecasts];
+  const incomeForecastItems = [...recurringIncomeForecasts, ...historyIncomeForecasts];
+  const expenseForecastItems = [...recurringForecasts, ...historyExpenseForecasts];
+  const forecastItems = [...incomeForecastItems, ...expenseForecastItems];
 
-  if (forecastItems.length === 0 && previousMonthExpenses.length === 0) {
+  if (forecastItems.length === 0 && previousMonthExpenses.length === 0 && previousMonthIncome.length === 0) {
     return null;
   }
 
@@ -142,8 +218,18 @@ export function buildMonthlyForecastData({
     outros: 0,
   };
 
+  const forecastGroups: Record<GroupType, number> = {
+    essenciais: 0,
+    desejos: 0,
+    prioridades: 0,
+  };
+
   forecastItems.forEach((item) => {
-    currentForecastTotals[item.group_type] += Number(item.amount);
+    const groupType = item?.group_type ?? 'outros';
+    currentForecastTotals[groupType] += Number(item?.amount ?? 0);
+    if (groupType !== 'outros') {
+      forecastGroups[groupType] += Number(item?.amount ?? 0);
+    }
   });
 
   const categoryOrder: ForecastGroupType[] = ['essenciais', 'desejos', 'prioridades', 'outros'];
@@ -158,7 +244,7 @@ export function buildMonthlyForecastData({
     nome: labels[groupType],
     valorReal: previousGroups[groupType],
     previsaoMesAtual: currentForecastTotals[groupType],
-    itens: forecastItems.filter((item) => item.group_type === groupType),
+    itens: forecastItems.filter((item) => (item?.group_type ?? 'outros') === groupType),
   }));
 
   return {
@@ -167,6 +253,94 @@ export function buildMonthlyForecastData({
     categorias,
     totalGastoAnterior: Object.values(previousGroups).reduce((sum, value) => sum + value, 0),
     totalPrevisto: forecastItems.reduce((sum, item) => sum + Number(item.amount), 0),
+    totalEntradaPrevisto: incomeForecastItems.reduce((sum, item) => sum + Number(item.amount), 0),
+    totalSaidaPrevisto: expenseForecastItems.reduce((sum, item) => sum + Number(item.amount), 0),
+    incomeItems: incomeForecastItems,
+    expenseItems: expenseForecastItems,
+    groups: forecastGroups,
+  };
+}
+
+export interface ForecastInsightResult {
+  message: string;
+  type: 'warning' | 'success';
+}
+
+export function generateForecastInsight(data: MonthlyForecastData | null): ForecastInsightResult {
+  if (!data) {
+    return {
+      message: 'Ainda não há previsões suficientes para montar uma leitura dos próximos dias.',
+      type: 'success',
+    };
+  }
+
+  const totalForecastIncome = Number(data.totalEntradaPrevisto ?? 0);
+  const totalForecastExpenses = Number(data.totalSaidaPrevisto ?? 0);
+  const baseAmount = totalForecastIncome > 0 ? totalForecastIncome : Number(data.totalPrevisto ?? 0);
+
+  if (baseAmount <= 0 || (totalForecastIncome <= 0 && totalForecastExpenses <= 0)) {
+    return {
+      message: 'Ainda não há previsões suficientes para montar uma leitura dos próximos dias.',
+      type: 'success',
+    };
+  }
+
+  if (totalForecastExpenses <= 0 && totalForecastIncome > 0) {
+    return {
+      message: `Você já prevê ${formatCurrency(totalForecastIncome)} em entradas e nenhuma saída recorrente. A folga estimada para os próximos dias é de ${formatCurrency(totalForecastIncome)}.`,
+      type: 'success',
+    };
+  }
+
+  const forecastGroups: Record<GroupType, number> = {
+    essenciais: Number(data.groups.essenciais ?? 0),
+    desejos: Number(data.groups.desejos ?? 0),
+    prioridades: Number(data.groups.prioridades ?? 0),
+  };
+
+  const metrics = (Object.keys(forecastGroups) as GroupType[]).map((group) => {
+    const spent = forecastGroups[group];
+    const ideal = baseAmount * GROUP_LIMITS[group];
+
+    return {
+      group,
+      label: GROUP_LABELS[group],
+      spent,
+      ideal,
+      delta: spent - ideal,
+    };
+  });
+
+  const essentials = metrics.find((item) => item.group === 'essenciais')!;
+  const desires = metrics.find((item) => item.group === 'desejos')!;
+  const priorities = metrics.find((item) => item.group === 'prioridades')!;
+
+  if (essentials.delta > 0) {
+    return {
+      message: `${essentials.label} previstas estão acima da meta em ${formatCurrency(essentials.delta)}. Vale reduzir esse grupo antes que ele pressione o restante da previsão.`,
+      type: 'warning',
+    };
+  }
+
+  if (desires.delta > 0) {
+    return {
+      message: `${desires.label} previstas passaram da meta em ${formatCurrency(desires.delta)}. Ajuste esse bloco para preservar as prioridades do mês.`,
+      type: 'warning',
+    };
+  }
+
+  if (priorities.delta < 0) {
+    return {
+      message: `${priorities.label} previstas estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(Math.abs(priorities.delta))} para esse objetivo.`,
+      type: 'warning',
+    };
+  }
+
+  const reserve = Math.max(totalForecastIncome - totalForecastExpenses, 0);
+
+  return {
+    message: `Sua previsão está equilibrada. Entradas e saídas permanecem dentro da meta, e você ainda preserva ${formatCurrency(reserve)} de folga estimada.`,
+    type: 'success',
   };
 }
 

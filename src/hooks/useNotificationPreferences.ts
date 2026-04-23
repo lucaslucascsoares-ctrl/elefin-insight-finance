@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
+import { getAuthUser } from '@/lib/authSession';
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationPreferences } from '@/types/finance';
 import {
@@ -9,7 +10,7 @@ import {
 
 export function useNotificationPreferences(session: Session | null) {
   const derivedPreferences = useMemo(
-    () => getNotificationPreferencesFromMetadata(session?.user.user_metadata?.notification_preferences),
+    () => getNotificationPreferencesFromMetadata(getAuthUser(session)?.user_metadata?.notification_preferences),
     [session],
   );
 
@@ -22,14 +23,14 @@ export function useNotificationPreferences(session: Session | null) {
   const savePreferences = async (nextPreferences: NotificationPreferences) => {
     const { data, error } = await supabase.auth.updateUser({
       data: {
-        ...(session?.user.user_metadata ?? {}),
+        ...(getAuthUser(session)?.user_metadata ?? {}),
         notification_preferences: nextPreferences,
       },
     });
 
     if (!error) {
       setPreferences(
-        getNotificationPreferencesFromMetadata(data.user?.user_metadata?.notification_preferences ?? nextPreferences),
+        getNotificationPreferencesFromMetadata(data.user.user_metadata?.notification_preferences ?? nextPreferences),
       );
     }
 

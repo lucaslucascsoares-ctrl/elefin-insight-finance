@@ -36,7 +36,7 @@ const sanitizeDueDay = (dueDay: number | null | undefined) => {
 };
 
 export const buildProjectionReminderConfig = (
-  reminder?: Partial<ProjectionReminderConfig> | null,
+  reminder: Partial<ProjectionReminderConfig> | null,
 ): ProjectionReminderConfig => ({
   due_day: sanitizeDueDay(reminder?.due_day),
   reminder_enabled:
@@ -124,9 +124,11 @@ export const getEffectiveReminderConfig = ({
   preferences,
 }: {
   reminder: ProjectionReminderConfig;
-  preferences: NotificationPreferences;
+  preferences: NotificationPreferences | null | undefined;
 }) => {
-  if (!preferences.paymentRemindersEnabled) {
+  const safePreferences = preferences ?? DEFAULT_NOTIFICATION_PREFERENCES;
+
+  if (!safePreferences.paymentRemindersEnabled) {
     return {
       dueDay: reminder.due_day,
       enabled: false,
@@ -136,11 +138,12 @@ export const getEffectiveReminderConfig = ({
   }
 
   const enabled =
-    reminder.reminder_enabled === null ? preferences.paymentRemindersEnabled : reminder.reminder_enabled;
+    reminder.reminder_enabled === null ? safePreferences.paymentRemindersEnabled : reminder.reminder_enabled;
 
-  const daysBefore = reminder.reminder_days_before.length > 0 ? reminder.reminder_days_before : preferences.defaultDaysBefore;
+  const daysBefore =
+    reminder.reminder_days_before.length > 0 ? reminder.reminder_days_before : safePreferences.defaultDaysBefore;
   const onDueDate =
-    reminder.reminder_on_due_date === null ? preferences.defaultOnDueDate : reminder.reminder_on_due_date;
+    reminder.reminder_on_due_date === null ? safePreferences.defaultOnDueDate : reminder.reminder_on_due_date;
 
   return {
     dueDay: reminder.due_day,

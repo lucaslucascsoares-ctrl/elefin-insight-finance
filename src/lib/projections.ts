@@ -1,4 +1,5 @@
 import { MonthlyProjectionItem, MonthlyProjectionOverride, ProjectionTemplate } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 
 export const createMonthlyProjectionOverrideId = (templateId: string, month: number, year: number) =>
   `${templateId}:${year}-${month}`;
@@ -23,7 +24,7 @@ export const buildMonthlyProjectionItems = ({
   );
 
   return templates
-    .filter((template) => template.is_active)
+    .filter((template) => template?.is_active)
     .map((template) => {
       const override = relevantOverrides.get(template.id);
       const amount = override?.amount_override ?? template.default_amount;
@@ -40,7 +41,7 @@ export const buildMonthlyProjectionItems = ({
         category_name: template.category_name,
         amount,
         category_id: template.category_id,
-        group_type: template.group_type,
+        group_type: normalizeGroupType(template.group_type),
         status: override?.status ?? 'predicted',
         paid_transaction_id: override?.paid_transaction_id ?? null,
         is_overridden: Boolean(
@@ -55,8 +56,15 @@ export const buildMonthlyProjectionItems = ({
       };
     })
     .sort((first, second) => {
-      if (first.group_type !== second.group_type) {
-        return first.group_type.localeCompare(second.group_type);
+      if (!first || !second) {
+        return 0;
+      }
+
+      const firstGroupType = normalizeGroupType(first?.group_type);
+      const secondGroupType = normalizeGroupType(second?.group_type);
+
+      if (firstGroupType !== secondGroupType) {
+        return firstGroupType.localeCompare(secondGroupType);
       }
 
       return first.title.localeCompare(second.title, 'pt-BR');

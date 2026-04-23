@@ -1,5 +1,5 @@
 import { MonthlyProjectionItem, NotificationPreferences, ProjectionReminderConfig } from '@/types/finance';
-import { getEffectiveReminderConfig } from '@/lib/projectionTemplateMetadata';
+import { DEFAULT_NOTIFICATION_PREFERENCES, getEffectiveReminderConfig } from '@/lib/projectionTemplateMetadata';
 
 export interface DuePaymentReminder {
   key: string;
@@ -31,7 +31,7 @@ export const getReminderDatesForItem = ({
     MonthlyProjectionItem,
     'status' | 'due_day' | 'reminder_enabled' | 'reminder_days_before' | 'reminder_on_due_date'
   >;
-  preferences: NotificationPreferences;
+  preferences: NotificationPreferences | null | undefined;
   year: number;
   month: number;
 }) => {
@@ -49,7 +49,7 @@ export const getReminderDatesForItem = ({
     preferences,
   });
 
-  if (!effectiveConfig.enabled || !effectiveConfig.dueDay) {
+  if (!(effectiveConfig?.enabled ?? false) || !effectiveConfig?.dueDay) {
     return [];
   }
 
@@ -78,13 +78,13 @@ export const getDuePaymentReminders = ({
   date,
 }: {
   items: MonthlyProjectionItem[];
-  preferences: NotificationPreferences;
+  preferences: NotificationPreferences | null | undefined;
   date: Date;
 }): DuePaymentReminder[] =>
   items.flatMap((item) => {
     const reminderDates = getReminderDatesForItem({
       item,
-      preferences,
+      preferences: preferences ?? DEFAULT_NOTIFICATION_PREFERENCES,
       year: date.getFullYear(),
       month: date.getMonth(),
     });

@@ -31,11 +31,11 @@ test('marca uma conta projetada como paga e reflete isso apenas no dashboard rea
   await page.getByTestId('mark-paid-action').click();
 
   await expect(page.getByTestId('mark-paid-action')).toBeHidden();
-  await page.getByTestId('dashboard-tab-real').click();
+  await page.getByRole('button', { name: 'Ir para dashboard Real' }).click();
   await expect(page.getByTestId('dashboard-slide-real').getByText('- R$ 800,00')).toBeVisible();
 
   await page.reload();
-  await page.getByTestId('dashboard-tab-real').click();
+  await page.getByRole('button', { name: 'Ir para dashboard Real' }).click();
   await expect(page.getByTestId('dashboard-slide-real').getByText('- R$ 800,00')).toBeVisible();
 
   await frontend.expectClean();

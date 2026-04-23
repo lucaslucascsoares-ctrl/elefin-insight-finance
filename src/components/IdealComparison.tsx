@@ -1,4 +1,5 @@
 import { Transaction, Category, GroupType, GROUP_LABELS, GROUP_LIMITS } from '@/types/finance';
+import { normalizeGroupType } from '@/lib/groupType';
 import {
   AccordionItem,
   AccordionTrigger,
@@ -17,13 +18,13 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
     .filter((t) => t.type === 'income')
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
-  const categoryMap = new Map(categories.map((c) => [c.id, c]));
-  const expenses = transactions.filter((t) => t.type === 'expense');
+  const categoryMap = new Map(categories.filter(Boolean).map((c) => [c.id, c]));
+  const expenses = transactions.filter(Boolean).filter((t) => t.type === 'expense');
 
   const groups: Record<GroupType, number> = { essenciais: 0, desejos: 0, prioridades: 0 };
   expenses.forEach((t) => {
     const cat = categoryMap.get(t.category_id || '');
-    if (cat) groups[cat.group_type] += Number(t.amount);
+    if (cat) groups[normalizeGroupType(cat?.group_type)] += Number(t.amount);
   });
 
   const formatCurrency = (value: number) =>
@@ -40,7 +41,7 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
   return (
     <AccordionItem value="ideal" className="border-border/50 dark:border-[#263731]" id="accordion-ideal">
       <AccordionTrigger className="px-4 text-sm font-semibold text-foreground hover:no-underline">
-        Comparado ao ideal?
+        Comparado ao ideal
       </AccordionTrigger>
       <AccordionContent className="px-4 pb-4">
         <div className="space-y-5">
@@ -73,7 +74,7 @@ const IdealComparison = ({ transactions, categories }: IdealComparisonProps) => 
         </div>
         {totalIncome === 0 && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Adicione receitas para ver a comparação com o ideal.
+        Adicione receitas para ver a comparação com o ideal.
           </p>
         )}
       </AccordionContent>
