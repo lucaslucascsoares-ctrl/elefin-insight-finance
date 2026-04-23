@@ -140,11 +140,11 @@ const DashboardCarousel = ({
   }, [currentDashboard]);
 
   return (
-    <section className="pt-1" data-testid="dashboard-carousel">
+    <section className="pt-0.5" data-testid="dashboard-carousel">
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="mt-4 flex items-start snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex items-start snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <div className="min-w-full basis-full shrink-0 snap-center" data-testid="dashboard-slide-real">
           <FinanceMonthCard
@@ -165,7 +165,7 @@ const DashboardCarousel = ({
             type="button"
             data-testid="new-transaction-button"
             onClick={onOpenGeneric}
-            className="mt-4 flex h-16 w-full items-center justify-center rounded-[22px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-6 text-center text-[1rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_16px_34px_rgba(92,134,109,0.10)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             + Nova Movimentação
           </button>
@@ -177,7 +177,7 @@ const DashboardCarousel = ({
             type="button"
             data-testid="forecast-month-detail-trigger"
             onClick={onOpenForecastDetail}
-            className="mt-4 flex h-16 w-full items-center justify-center rounded-[22px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-6 text-center text-[1rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_16px_34px_rgba(92,134,109,0.10)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             Previsão detalhada do mês
           </button>
@@ -198,14 +198,14 @@ const DashboardCarousel = ({
             type="button"
             data-testid="new-transaction-button-projection"
             onClick={onOpenProjection}
-            className="mt-4 flex h-16 w-full items-center justify-center rounded-[22px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-6 text-center text-[1rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_16px_34px_rgba(92,134,109,0.10)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             Projeção de Gastos
           </button>
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-center gap-2">
+      <div className="mt-3 flex items-center justify-center gap-2">
         {dashboardTabs.map((tab) => (
           <button
             key={tab.key}

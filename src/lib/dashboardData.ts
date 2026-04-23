@@ -1,4 +1,4 @@
-import {
+﻿import {
   Category,
   GROUP_LABELS,
   GROUP_LIMITS,
@@ -63,10 +63,10 @@ export interface ProjectedInsightResult {
 
 const buildReserveLead = (reserve: number) => {
   if (reserve <= 0) {
-    return 'o espaço ficou curto';
+    return 'o espaÃ§o ficou curto';
   }
 
-  return `com ${formatReserve(reserve)} de folga, o espaço tá apertado`;
+  return `com ${formatReserve(reserve)} de folga, o espaÃ§o tÃ¡ apertado`;
 };
 
 export const generateProjectedInsight = (items: MonthlyProjectionItem[]): ProjectedInsightResult => {
@@ -87,7 +87,7 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
 
   if (activeItems.length === 0) {
     return {
-      message: 'Seu planejamento ainda está em branco. Quando você adicionar projeções, eu organizo a leitura do mês por aqui. ✨',
+      message: 'Seu planejamento ainda estÃ¡ em branco. Quando vocÃª adicionar projeÃ§Ãµes, eu organizo a leitura do mÃªs por aqui. âœ¨',
       type: 'success',
     };
   }
@@ -95,7 +95,7 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
   const baseAmount = totalIncome > 0 ? totalIncome : totalExpense;
   if (baseAmount <= 0) {
     return {
-      message: 'Ainda faltam alguns valores por aqui. Quando você ajustar isso, eu monto uma leitura mais clara das suas prioridades.',
+      message: 'Ainda faltam alguns valores por aqui. Quando vocÃª ajustar isso, eu monto uma leitura mais clara das suas prioridades.',
       type: 'success',
     };
   }
@@ -120,7 +120,7 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
 
   if (essentials.delta > 0) {
     return {
-      message: `Suas essenciais pesaram esse mês. ${buildReserveLead(reserve)} — vale segurar o estilo de vida por agora.`,
+      message: `Suas essenciais pesaram esse mÃªs. ${buildReserveLead(reserve)} â€” vale segurar o estilo de vida por agora.`,
       type: 'warning',
     };
   }
@@ -129,8 +129,8 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
     return {
       message:
         reserve > 0
-          ? `O estilo de vida subiu além do ideal. Ainda tem ${formatReserve(reserve)} de respiro, mas vale aparar os extras antes que isso aperte o restante do mês.`
-          : 'O estilo de vida passou do ponto e encostou no seu caixa. Segurar os extras agora pode devolver fôlego ao mês.',
+          ? `O estilo de vida subiu alÃ©m do ideal. Ainda tem ${formatReserve(reserve)} de respiro, mas vale aparar os extras antes que isso aperte o restante do mÃªs.`
+          : 'O estilo de vida passou do ponto e encostou no seu caixa. Segurar os extras agora pode devolver fÃ´lego ao mÃªs.',
       type: 'warning',
     };
   }
@@ -141,8 +141,8 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
     return {
       message:
         reserve > 0
-          ? `Suas prioridades ficaram leves por enquanto. Ainda faltam ${missingAmount} para esse bloco ganhar mais força — se der, vale puxar um pouco da folga para cá.`
-          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, então vale reorganizar o mês antes de abrir espaço para outras frentes.`,
+          ? `Suas prioridades ficaram leves por enquanto. Ainda faltam ${missingAmount} para esse bloco ganhar mais forÃ§a â€” se der, vale puxar um pouco da folga para cÃ¡.`
+          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, entÃ£o vale reorganizar o mÃªs antes de abrir espaÃ§o para outras frentes.`,
       type: 'warning',
     };
   }
@@ -150,8 +150,8 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
   return {
     message:
       reserve > 0
-        ? `Seu planejamento está redondo. Depois de cobrir o mês, ainda sobram ${formatReserve(reserve)} de folga — ótimo sinal. ✨`
-        : 'Seu planejamento está bem encaixado. Agora é mais acompanhar o mês de perto e manter esse ritmo.',
+        ? `Seu planejamento estÃ¡ redondo. Depois de cobrir o mÃªs, ainda sobram ${formatReserve(reserve)} de folga â€” Ã³timo sinal. âœ¨`
+        : 'Seu planejamento estÃ¡ bem encaixado. Agora Ã© mais acompanhar o mÃªs de perto e manter esse ritmo.',
     type: 'success',
   };
 };
@@ -189,3 +189,4 @@ export const getRealMonthData = (
     transactionCount: transactions.length,
   };
 };
+

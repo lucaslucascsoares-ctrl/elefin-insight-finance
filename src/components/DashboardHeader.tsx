@@ -96,7 +96,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
     : null;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-[rgba(255,255,255,0.9)] px-4 py-4 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.95),rgba(17,26,23,0.9))]">
+    <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-[rgba(255,255,255,0.9)] px-4 py-3.5 backdrop-blur-xl dark:border-[#263731] dark:bg-[linear-gradient(180deg,rgba(11,18,16,0.95),rgba(17,26,23,0.9))]">
       <div className="mx-auto grid max-w-lg grid-cols-[1fr_auto_auto] items-center gap-3">
         <div className="min-w-0">
           <button
@@ -105,7 +105,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
             className="min-w-0 text-left"
             aria-label="Voltar ao painel do mês"
           >
-            <span className="block text-[1.45rem] font-bold tracking-[-0.03em] text-foreground">elefin</span>
+            <span className="block text-[1.3rem] font-bold tracking-[-0.03em] text-foreground min-[380px]:text-[1.45rem]">elefin</span>
           </button>
         </div>
 
@@ -117,7 +117,7 @@ const DashboardHeader = ({ onSignOut, onNewTransaction }: DashboardHeaderProps) 
               variant="ghost"
               size="icon"
               aria-label="Abrir menu principal"
-              className="h-10 w-10 rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-[0_8px_18px_rgba(15,23,42,0.06)] hover:bg-slate-50 hover:text-slate-700 dark:border-[#314740] dark:bg-[#16211D] dark:text-[#B8CBC3] dark:shadow-[0_12px_24px_rgba(3,10,8,0.26)] dark:hover:bg-[#1B2823] dark:hover:text-[#E6F2EE]"
+              className="h-9 w-9 rounded-full border border-slate-200/80 bg-white text-slate-500 shadow-[0_8px_18px_rgba(15,23,42,0.06)] hover:bg-slate-50 hover:text-slate-700 min-[380px]:h-10 min-[380px]:w-10 dark:border-[#314740] dark:bg-[#16211D] dark:text-[#B8CBC3] dark:shadow-[0_12px_24px_rgba(3,10,8,0.26)] dark:hover:bg-[#1B2823] dark:hover:text-[#E6F2EE]"
             >
               <Menu className="h-4.5 w-4.5" />
             </Button>

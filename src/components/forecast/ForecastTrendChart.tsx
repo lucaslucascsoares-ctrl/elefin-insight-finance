@@ -12,15 +12,25 @@ const ForecastTrendChart = ({ data }: ForecastTrendChartProps) => {
   const currentDay = data.find((point) => point.isCurrentDay);
 
   return (
-    <div className="h-80">
+    <div className="h-[19rem] min-[380px]:h-80">
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-        <LineChart data={data}>
+        <LineChart data={data} margin={{ top: 4, right: 4, left: -26, bottom: 0 }}>
           <CartesianGrid stroke="rgba(138, 154, 104, 0.58)" strokeDasharray="4 4" />
-          <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+          <XAxis
+            dataKey="label"
+            stroke="hsl(var(--muted-foreground))"
+            tickLine={false}
+            axisLine={false}
+            tick={{ fontSize: 10 }}
+            tickMargin={6}
+            minTickGap={12}
+          />
           <YAxis
             stroke="hsl(var(--muted-foreground))"
             tickLine={false}
             axisLine={false}
+            width={40}
+            tick={{ fontSize: 10 }}
             tickFormatter={(value) => formatCurrency(Number(value))}
           />
           <Tooltip

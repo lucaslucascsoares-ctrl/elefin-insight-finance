@@ -37,26 +37,27 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
 
   return (
     <section className="px-3 pt-1 min-[380px]:px-4" aria-label={title}>
-      <div className="flex h-fit min-w-0 flex-col self-start overflow-hidden rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-3 py-5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
-        <h3 className="mb-5 text-center text-[15px] font-semibold text-[#314238] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{title}</h3>
+      <div className="flex h-fit min-w-0 flex-col self-start overflow-hidden rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-3 py-4 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 min-[380px]:py-5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
+        <h3 className="mb-4 text-center text-[15px] font-semibold text-[#314238] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{title}</h3>
 
         <div className="w-full min-w-0 overflow-hidden">
-          <ResponsiveContainer width="100%" height={200} minWidth={0}>
-            <BarChart data={data} margin={{ top: 24, right: 4, left: -18, bottom: 18 }}>
+          <ResponsiveContainer width="100%" height={188} minWidth={0}>
+            <BarChart data={data} margin={{ top: 18, right: 2, left: -24, bottom: 8 }}>
               <XAxis
                 dataKey="chartLabel"
                 axisLine={false}
                 tickLine={false}
                 interval={0}
-                tickMargin={8}
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tickMargin={6}
+                tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
               />
               <YAxis
                 domain={[0, 100]}
                 ticks={[20, 40, 60, 80, 100]}
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                width={28}
+                tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }}
               />
               {[20, 40, 60, 80, 100].map((tick) => (
                 <ReferenceLine
@@ -66,7 +67,7 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
                   strokeDasharray="4 4"
                 />
               ))}
-              <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={92}>
+              <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={76}>
                 {data.map((entry) => (
                   <Cell key={entry.group} fill={BAR_COLORS[entry.group]} />
                 ))}
@@ -75,22 +76,22 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
                   position="top"
                   offset={8}
                   formatter={(value: number) => `${value}%`}
-                  style={{ fontSize: 12, fontWeight: 700, fill: 'hsl(var(--foreground))' }}
+                  style={{ fontSize: 11, fontWeight: 700, fill: 'hsl(var(--foreground))' }}
                 />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-4 flex flex-col border-t border-border pt-4">
+        <div className="mt-3 flex flex-col border-t border-border pt-3">
           <div className="grid grid-cols-3 gap-2 min-[380px]:gap-3">
             {data.map((item) => (
               <div
                 key={item.group}
-                className="flex min-h-[104px] min-w-0 flex-col items-center justify-center rounded-2xl bg-[rgba(255,255,255,0.72)] px-1.5 py-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] min-[380px]:min-h-[118px] min-[380px]:px-3 min-[380px]:py-4 dark:border dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#27362D,#1E2A23)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)]"
+                className="flex min-h-[96px] min-w-0 flex-col items-center justify-center rounded-2xl bg-[rgba(255,255,255,0.72)] px-1 py-2.5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] min-[380px]:min-h-[118px] min-[380px]:px-3 min-[380px]:py-4 dark:border dark:border-[#3E5542] dark:bg-[linear-gradient(180deg,#27362D,#1E2A23)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.06)]"
               >
-                <p className="max-w-full text-center text-[10px] font-bold leading-4 tracking-0 text-[#9B7A4B] [overflow-wrap:normal] [text-shadow:0_1px_0_rgba(255,255,255,0.42)] min-[380px]:text-[12px] min-[380px]:leading-5 dark:text-muted-foreground dark:[text-shadow:none]">{item.name}</p>
-                <p className="mt-2 max-w-full whitespace-nowrap text-center text-[12px] font-semibold text-[#314238] min-[380px]:text-[13px] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">
+                <p className="max-w-full text-center text-[9px] font-bold leading-4 tracking-0 text-[#9B7A4B] [overflow-wrap:anywhere] [text-shadow:0_1px_0_rgba(255,255,255,0.42)] min-[380px]:text-[12px] min-[380px]:leading-5 dark:text-muted-foreground dark:[text-shadow:none]">{item.name}</p>
+                <p className="mt-1.5 max-w-full whitespace-nowrap text-center text-[11px] font-semibold text-[#314238] min-[380px]:mt-2 min-[380px]:text-[13px] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">
                   {formatCurrency(item.amount)}
                 </p>
               </div>

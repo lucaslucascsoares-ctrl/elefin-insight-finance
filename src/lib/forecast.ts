@@ -1,4 +1,4 @@
-import {
+﻿import {
   Category,
   GROUP_LABELS,
   GROUP_LIMITS,
@@ -36,6 +36,14 @@ const getItemKey = (
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+const buildReserveLead = (reserve: number) => {
+  if (reserve <= 0) {
+    return 'o espaÃ§o ficou curto';
+  }
+
+  return `com ${formatCurrency(Math.max(reserve, 0))} de folga, ainda existe uma margem boa`;
+};
 
 const isApplicableForMonth = (startsAt: string, month: number, year: number) => {
   const start = new Date(`${startsAt.slice(0, 10)}T00:00:00`);
@@ -269,7 +277,7 @@ export interface ForecastInsightResult {
 export function generateForecastInsight(data: MonthlyForecastData | null): ForecastInsightResult {
   if (!data) {
     return {
-      message: 'Ainda não há previsões suficientes para montar uma leitura dos próximos dias.',
+      message: 'Ainda faltam sinais para eu montar a previsÃ£o com seguranÃ§a. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. âœ¨',
       type: 'success',
     };
   }
@@ -280,14 +288,14 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
 
   if (baseAmount <= 0 || (totalForecastIncome <= 0 && totalForecastExpenses <= 0)) {
     return {
-      message: 'Ainda não há previsões suficientes para montar uma leitura dos próximos dias.',
+      message: 'Ainda faltam sinais para eu montar a previsÃ£o com seguranÃ§a. Assim que aparecerem mais dados, eu fecho essa leitura por aqui. âœ¨',
       type: 'success',
     };
   }
 
   if (totalForecastExpenses <= 0 && totalForecastIncome > 0) {
     return {
-      message: `Você já prevê ${formatCurrency(totalForecastIncome)} em entradas e nenhuma saída recorrente. A folga estimada para os próximos dias é de ${formatCurrency(totalForecastIncome)}.`,
+      message: `Por enquanto a previsÃ£o estÃ¡ leve: entram ${formatCurrency(totalForecastIncome)} e ainda nÃ£o apareceu nenhuma saÃ­da fixa no radar. Bom espaÃ§o para organizar o resto do mÃªs.`,
       type: 'success',
     };
   }
@@ -314,38 +322,49 @@ export function generateForecastInsight(data: MonthlyForecastData | null): Forec
   const essentials = metrics.find((item) => item.group === 'essenciais')!;
   const desires = metrics.find((item) => item.group === 'desejos')!;
   const priorities = metrics.find((item) => item.group === 'prioridades')!;
+  const reserve = totalForecastIncome - totalForecastExpenses;
 
   if (essentials.delta > 0) {
     return {
-      message: `${essentials.label} previstas estão acima da meta em ${formatCurrency(essentials.delta)}. Vale reduzir esse grupo antes que ele pressione o restante da previsão.`,
+      message: `As essenciais jÃ¡ vÃªm pesadas na previsÃ£o. ${buildReserveLead(reserve)} â€” vale aliviar esse bloco antes que ele aperte todo o mÃªs.`,
       type: 'warning',
     };
   }
 
   if (desires.delta > 0) {
     return {
-      message: `${desires.label} previstas passaram da meta em ${formatCurrency(desires.delta)}. Ajuste esse bloco para preservar as prioridades do mês.`,
+      message:
+        reserve > 0
+          ? `O estilo de vida subiu alÃ©m do ideal na previsÃ£o. ${buildReserveLead(reserve)} â€” entÃ£o ajustar os extras agora pode te devolver margem.`
+          : 'O estilo de vida subiu alÃ©m do ideal e encostou na sua folga prevista. Segurar os extras agora pode evitar aperto mais Ã  frente.',
       type: 'warning',
     };
   }
 
   if (priorities.delta < 0) {
+    const missingAmount = formatCurrency(Math.abs(priorities.delta));
+
     return {
-      message: `${priorities.label} previstas estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(Math.abs(priorities.delta))} para esse objetivo.`,
+      message:
+        reserve > 0
+          ? `Suas prioridades ainda estÃ£o tÃ­midas na previsÃ£o. Faltam ${missingAmount} nesse bloco â€” se der, vale puxar um pouco da sobra para cÃ¡.`
+          : `Suas prioridades ainda estÃ£o abaixo do ideal. Faltam ${missingAmount} nesse bloco, entÃ£o talvez valha reorganizar o mÃªs antes de abrir outras frentes.`,
       type: 'warning',
     };
   }
 
-  const reserve = Math.max(totalForecastIncome - totalForecastExpenses, 0);
-
   return {
-    message: `Sua previsão está equilibrada. Entradas e saídas permanecem dentro da meta, e você ainda preserva ${formatCurrency(reserve)} de folga estimada.`,
+    message:
+      reserve > 0
+        ? `Sua previsÃ£o estÃ¡ bem encaixada. Depois de cobrir o mÃªs, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga â€” Ã³timo sinal. âœ¨`
+        : 'Sua previsÃ£o estÃ¡ redonda. Agora Ã© acompanhar o mÃªs de perto e manter esse ritmo.',
     type: 'success',
   };
 }
 
 export const FORECAST_SOURCE_LABELS: Record<ForecastItem['source'], string> = {
   recurring: 'Recorrente',
-  history: 'Histórico',
+  history: 'HistÃ³rico',
   manual: 'Manual',
 };
+

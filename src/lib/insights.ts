@@ -1,4 +1,4 @@
-import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, Transaction } from '@/types/finance';
+﻿import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, Transaction } from '@/types/finance';
 import { normalizeGroupType } from '@/lib/groupType';
 
 export interface InsightResult {
@@ -9,6 +9,14 @@ export interface InsightResult {
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+const buildReserveLead = (reserve: number) => {
+  if (reserve <= 0) {
+    return 'o espaÃ§o ficou curto';
+  }
+
+  return `com ${formatCurrency(Math.max(reserve, 0))} de folga, o mÃªs ainda respira`;
+};
+
 export function generateInsight(transactions: Transaction[], categories: Category[]): InsightResult {
   const totalIncome = transactions
     .filter(Boolean)
@@ -17,7 +25,7 @@ export function generateInsight(transactions: Transaction[], categories: Categor
 
   if (totalIncome === 0) {
     return {
-      message: 'Adicione entradas no m?s para receber uma leitura das suas metas de gasto.',
+      message: 'Ainda faltam entradas neste mÃªs. Quando elas aparecerem, eu consigo te mostrar melhor para onde o dinheiro estÃ¡ indo. âœ¨',
       type: 'success',
     };
   }
@@ -38,7 +46,6 @@ export function generateInsight(transactions: Transaction[], categories: Categor
   const metrics = (Object.keys(groups) as GroupType[]).map((group) => {
     const spent = groups[group];
     const ideal = totalIncome * GROUP_LIMITS[group];
-    const percentage = totalIncome > 0 ? spent / totalIncome : 0;
     const delta = spent - ideal;
 
     return {
@@ -46,7 +53,6 @@ export function generateInsight(transactions: Transaction[], categories: Categor
       label: GROUP_LABELS[group],
       spent,
       ideal,
-      percentage,
       delta,
     };
   });
@@ -54,36 +60,43 @@ export function generateInsight(transactions: Transaction[], categories: Categor
   const essentials = metrics.find((item) => item.group === 'essenciais')!;
   const desires = metrics.find((item) => item.group === 'desejos')!;
   const priorities = metrics.find((item) => item.group === 'prioridades')!;
+  const reserve = totalIncome - metrics.reduce((sum, item) => sum + item.spent, 0);
 
   if (essentials.delta > 0) {
     return {
-      message: `${essentials.label} esto acima da meta em ${formatCurrency(essentials.delta)}. O pr�ximo passo � reduzir esse grupo para voltar ao limite ideal e proteger seu caixa.`,
+      message: `Suas essenciais pesaram neste mÃªs. ${buildReserveLead(reserve)} â€” vale aliviar esse bloco antes que ele aperte todo o resto.`,
       type: 'warning',
     };
   }
 
   if (desires.delta > 0) {
     return {
-      message: `${desires.label} passaram da meta em ${formatCurrency(desires.delta)}. Vale cortar gastos variveis agora para no pressionar as prioridades do m?s.`,
+      message:
+        reserve > 0
+          ? `O estilo de vida passou do ideal. ${buildReserveLead(reserve)} â€” entÃ£o cortar um pouco dos extras agora pode te devolver margem.`
+          : 'O estilo de vida passou do ideal e encostou no caixa. Segurar os extras agora pode devolver fÃ´lego ao mÃªs.',
       type: 'warning',
     };
   }
 
   if (priorities.delta < 0) {
+    const missingAmount = formatCurrency(Math.abs(priorities.delta));
+
     return {
-      message: `${priorities.label} esto abaixo da meta de 20%. Falta direcionar ${formatCurrency(
-        Math.abs(priorities.delta),
-      )} para esse objetivo.`,
+      message:
+        reserve > 0
+          ? `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco â€” se der, vale puxar um pouco da folga para cÃ¡.`
+          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, entÃ£o vale reorganizar o mÃªs antes de abrir espaÃ§o para outras coisas.`,
       type: 'warning',
     };
   }
 
-  const reserve = totalIncome - metrics.reduce((sum, item) => sum + item.spent, 0);
-
   return {
-    message: `Seu m?s est equilibrado. Essenciais, Desejos e Prioridades esto dentro da meta, e voc ainda preserva ${formatCurrency(
-      Math.max(reserve, 0),
-    )} de folga no caixa.`,
+    message:
+      reserve > 0
+        ? `Seu mÃªs estÃ¡ bem encaixado. Depois de cobrir tudo, ainda sobram ${formatCurrency(Math.max(reserve, 0))} de folga â€” Ã³timo sinal. âœ¨`
+        : 'Seu mÃªs estÃ¡ redondo. Agora Ã© mais manter esse ritmo e acompanhar de perto para nÃ£o sair da linha.',
     type: 'success',
   };
 }
+

@@ -292,7 +292,7 @@ const Index = () => {
         onNext={handleNextMonth}
       />
 
-      <div className="flex-1 overflow-y-auto pb-40 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex-1 overflow-y-auto pb-24 min-[380px]:pb-28 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {isLoading ? (
           <div className="space-y-4 px-4">
             <Skeleton className="h-56 w-full rounded-[26px]" />
