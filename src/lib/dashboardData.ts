@@ -1,4 +1,11 @@
-import { Category, GROUP_LABELS, GROUP_LIMITS, GroupType, MonthlyProjectionItem, Transaction } from '@/types/finance';
+import {
+  Category,
+  GROUP_LABELS,
+  GROUP_LIMITS,
+  GroupType,
+  MonthlyProjectionItem,
+  Transaction,
+} from '@/types/finance';
 import { normalizeGroupType } from '@/lib/groupType';
 
 export interface GroupAmountSummary {
@@ -47,10 +54,20 @@ export const getProjectedMonthData = (items: MonthlyProjectionItem[]): Projected
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
+const formatReserve = (value: number) => formatCurrency(Math.max(value, 0));
+
 export interface ProjectedInsightResult {
   message: string;
   type: 'warning' | 'success';
 }
+
+const buildReserveLead = (reserve: number) => {
+  if (reserve <= 0) {
+    return 'o espaço ficou curto';
+  }
+
+  return `com ${formatReserve(reserve)} de folga, o espaço tá apertado`;
+};
 
 export const generateProjectedInsight = (items: MonthlyProjectionItem[]): ProjectedInsightResult => {
   const activeItems = items.filter(Boolean).filter((item) => item.status !== 'ignored' && item.status !== 'paid');
@@ -70,7 +87,7 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
 
   if (activeItems.length === 0) {
     return {
-      message: 'Nenhuma conta projetada ativa neste mês. Quando houver itens, esta caixa vai comparar o que está previsto com as metas do planejamento.',
+      message: 'Seu planejamento ainda está em branco. Quando você adicionar projeções, eu organizo a leitura do mês por aqui. ✨',
       type: 'success',
     };
   }
@@ -78,7 +95,7 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
   const baseAmount = totalIncome > 0 ? totalIncome : totalExpense;
   if (baseAmount <= 0) {
     return {
-      message: 'As contas projetadas estão sem valor definido ainda. Ajuste os itens para que esta caixa mostre a leitura de prioridades do planejamento.',
+      message: 'Ainda faltam alguns valores por aqui. Quando você ajustar isso, eu monto uma leitura mais clara das suas prioridades.',
       type: 'success',
     };
   }
@@ -99,32 +116,42 @@ export const generateProjectedInsight = (items: MonthlyProjectionItem[]): Projec
   const essentials = metrics.find((item) => item.group === 'essenciais')!;
   const desires = metrics.find((item) => item.group === 'desejos')!;
   const priorities = metrics.find((item) => item.group === 'prioridades')!;
+  const reserve = totalIncome - totalExpense;
 
   if (essentials.delta > 0) {
     return {
-      message: `${essentials.label} previstas estão acima da meta em ${formatCurrency(essentials.delta)}. Vale reduzir esse grupo antes que ele pressione o restante do planejamento.`,
+      message: `Suas essenciais pesaram esse mês. ${buildReserveLead(reserve)} — vale segurar o estilo de vida por agora.`,
       type: 'warning',
     };
   }
 
   if (desires.delta > 0) {
     return {
-      message: `${desires.label} previstas passaram da meta em ${formatCurrency(desires.delta)}. Ajuste esse bloco para preservar as prioridades do mês.`,
+      message:
+        reserve > 0
+          ? `O estilo de vida subiu além do ideal. Ainda tem ${formatReserve(reserve)} de respiro, mas vale aparar os extras antes que isso aperte o restante do mês.`
+          : 'O estilo de vida passou do ponto e encostou no seu caixa. Segurar os extras agora pode devolver fôlego ao mês.',
       type: 'warning',
     };
   }
 
   if (priorities.delta < 0) {
+    const missingAmount = formatCurrency(Math.abs(priorities.delta));
+
     return {
-      message: `${priorities.label} previstas estão abaixo da meta de 20%. Falta direcionar ${formatCurrency(Math.abs(priorities.delta))} para esse objetivo.`,
+      message:
+        reserve > 0
+          ? `Suas prioridades ficaram leves por enquanto. Ainda faltam ${missingAmount} para esse bloco ganhar mais força — se der, vale puxar um pouco da folga para cá.`
+          : `Suas prioridades ficaram abaixo do ideal. Ainda faltam ${missingAmount} nesse bloco, então vale reorganizar o mês antes de abrir espaço para outras frentes.`,
       type: 'warning',
     };
   }
 
-  const reserve = Math.max(totalIncome - totalExpense, 0);
-
   return {
-    message: `Seu planejamento está equilibrado. Entradas e saídas permanecem dentro da meta, e você ainda preserva ${formatCurrency(reserve)} de folga estimada.`,
+    message:
+      reserve > 0
+        ? `Seu planejamento está redondo. Depois de cobrir o mês, ainda sobram ${formatReserve(reserve)} de folga — ótimo sinal. ✨`
+        : 'Seu planejamento está bem encaixado. Agora é mais acompanhar o mês de perto e manter esse ritmo.',
     type: 'success',
   };
 };

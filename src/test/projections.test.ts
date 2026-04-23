@@ -111,11 +111,11 @@ describe('buildMonthlyProjectionItems', () => {
 });
 
 describe('generateProjectedInsight', () => {
-  it('returns a planning message when there are no active items', () => {
+  it('returns an assistant message when there are no active items', () => {
     const result = generateProjectedInsight([]);
 
     expect(result.type).toBe('success');
-    expect(result.message).toContain('Nenhuma conta projetada ativa neste mês');
+    expect(result.message).toContain('planejamento ainda está em branco');
   });
 
   it('warns when priorities are below the target', () => {
@@ -126,8 +126,8 @@ describe('generateProjectedInsight', () => {
         user_id: 'user-1',
         month: 3,
         year: 2026,
-        title: 'Salario',
-        account_name: 'Salario',
+        title: 'Salário',
+        account_name: 'Salário',
         category_name: 'Renda',
         amount: 1000,
         category_id: 'cat-income',
@@ -167,6 +167,6 @@ describe('generateProjectedInsight', () => {
     const result = generateProjectedInsight(items);
 
     expect(result.type).toBe('warning');
-    expect(result.message).toContain('Falta direcionar');
+    expect(result.message).toContain('Ainda faltam');
   });
 });
