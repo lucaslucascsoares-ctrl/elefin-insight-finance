@@ -146,7 +146,7 @@ const DashboardCarousel = ({
         onScroll={handleScroll}
         className="mt-3 flex min-w-0 items-start snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-real">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-real">
           <FinanceMonthCard
             transactions={transactions}
             categories={categories}
@@ -171,7 +171,7 @@ const DashboardCarousel = ({
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-forecast">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-forecast">
           <ForecastMonthCard data={forecastData} />
           <button
             type="button"
@@ -183,7 +183,7 @@ const DashboardCarousel = ({
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-3.5 min-[380px]:px-4" data-testid="dashboard-slide-projection">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-projection">
           <ProjectedMonthCard
             items={projectedData.activeItems}
             onDeleteTemplate={onDeleteProjectionTemplate}
