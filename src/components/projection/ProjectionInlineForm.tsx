@@ -30,7 +30,7 @@ interface ProjectionInlineFormProps {
   onCancelEdit: () => void;
   onSave: (input: ProjectionTemplateInput) => void | Promise<void>;
   notificationPreferences: NotificationPreferences;
-  compactLayout: boolean;
+  compactLayout?: boolean;
 }
 
 const defaultGroupType: GroupType = 'essenciais';

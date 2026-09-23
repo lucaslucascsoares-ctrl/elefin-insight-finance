@@ -6,6 +6,7 @@ import { MonthlyProjectionItem, MonthlyProjectionOverride, ProjectionTemplate } 
 const buildTemplate = (partial: Partial<ProjectionTemplate>): ProjectionTemplate => ({
   id: 'template-1',
   user_id: 'user-1',
+  legacy_local_id: null,
   title: 'Internet',
   account_name: 'Internet',
   category_name: 'Habitação',
@@ -39,6 +40,7 @@ describe('buildMonthlyProjectionItems', () => {
         title_override: 'Internet abril',
         status: 'edited',
         paid_transaction_id: null,
+        created_at: '2026-04-01T00:00:00.000Z',
         updated_at: '2026-04-01T00:00:00.000Z',
       },
     ];

@@ -49,6 +49,7 @@ const ForecastTrendChart = ({ data }: ForecastTrendChartProps) => {
           <Line
             type="monotone"
             dataKey="actualBalance"
+            name="Saldo realizado"
             stroke="#6FB7A1"
             strokeWidth={2.5}
             dot={false}
@@ -57,6 +58,7 @@ const ForecastTrendChart = ({ data }: ForecastTrendChartProps) => {
           <Line
             type="monotone"
             dataKey="projectedBalance"
+            name="Saldo projetado"
             stroke="#D8E9E2"
             strokeWidth={2.5}
             strokeDasharray="7 5"

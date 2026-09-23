@@ -88,17 +88,6 @@ vi.mock('@/hooks/useCategories', () => ({
   }),
 }));
 
-vi.mock('@/hooks/useMonthBalance', () => ({
-  useMonthBalance: () => ({
-    data: null,
-    isLoading: false,
-  }),
-  useEnsureMonthBalance: () => ({
-    isPending: false,
-    mutate: vi.fn(),
-  }),
-}));
-
 vi.mock('@/hooks/useRecurringRules', () => ({
   useRecurringRules: () => ({
     activeRules: [],

@@ -28,6 +28,7 @@ describe('DashboardCarousel copy', () => {
         categories={[]}
         projectedItems={[]}
         caixaInicial={0}
+        onDeleteProjectionTemplate={vi.fn()}
         forecastData={null}
         currentMonthLabel="abril"
         currentMonthShortLabel="abr/26"

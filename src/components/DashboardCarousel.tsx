@@ -144,9 +144,9 @@ const DashboardCarousel = ({
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="mt-3 flex min-w-0 items-start snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex min-w-0 items-stretch snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-real">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden flex flex-col gap-3 px-2 min-[380px]:px-4" data-testid="dashboard-slide-real">
           <FinanceMonthCard
             transactions={transactions}
             categories={categories}
@@ -155,7 +155,7 @@ const DashboardCarousel = ({
             onOpenExpense={onOpenExpense}
             onOpenGeneric={onOpenGeneric}
           />
-          <div className="mt-3">
+          <div>
             <IdealComparisonCard
               title={'Seu mês comparado ao ideal'}
               groups={realData.groups}
@@ -165,30 +165,30 @@ const DashboardCarousel = ({
             type="button"
             data-testid="new-transaction-button"
             onClick={onOpenGeneric}
-            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-auto flex h-[3.25rem] w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             + Nova Movimentação
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-forecast">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden flex flex-col gap-3 px-2 min-[380px]:px-4" data-testid="dashboard-slide-forecast">
           <ForecastMonthCard data={forecastData} />
           <button
             type="button"
             data-testid="forecast-month-detail-trigger"
             onClick={onOpenForecastDetail}
-            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-auto flex h-[3.25rem] w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             Previsão detalhada do mês
           </button>
         </div>
 
-        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden px-0 min-[480px]:px-4" data-testid="dashboard-slide-projection">
+        <div className="min-w-full basis-full shrink-0 snap-center overflow-hidden flex flex-col gap-3 px-2 min-[380px]:px-4" data-testid="dashboard-slide-projection">
           <ProjectedMonthCard
             items={projectedData.activeItems}
             onDeleteTemplate={onDeleteProjectionTemplate}
           />
-          <div className="mt-3">
+          <div>
             <IdealComparisonCard
               title={'Seu mês comparado ao ideal'}
               groups={projectedData.groups}
@@ -198,7 +198,7 @@ const DashboardCarousel = ({
             type="button"
             data-testid="new-transaction-button-projection"
             onClick={onOpenProjection}
-            className="mt-3 flex h-13 w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
+            className="mt-auto flex h-[3.25rem] w-full items-center justify-center rounded-[20px] border border-emerald-100/80 bg-[linear-gradient(180deg,#FFFFFF,#F3F8F5)] px-5 text-center text-[0.95rem] font-semibold tracking-[-0.02em] text-slate-900 shadow-[0_12px_24px_rgba(92,134,109,0.08)] transition-all hover:-translate-y-[1px] hover:bg-[linear-gradient(180deg,#FFFFFF,#EEF6F1)] min-[380px]:h-14 min-[380px]:rounded-[22px] min-[380px]:px-6 min-[380px]:text-[1rem] dark:border-[#c99755] dark:bg-[linear-gradient(180deg,#d9a55f,#c6904f)] dark:text-[#182019] dark:shadow-[0_18px_34px_rgba(0,0,0,0.28)] dark:hover:bg-[linear-gradient(180deg,#e1af68,#ca9655)]"
           >
             Projeção de Gastos
           </button>

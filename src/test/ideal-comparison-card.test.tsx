@@ -12,6 +12,7 @@ vi.mock('recharts', () => ({
   Bar: ({ children }: { children: ReactNode }) => <div>{children}</div>,
   Cell: () => <div />,
   LabelList: () => <div />,
+  ReferenceLine: () => <div />,
 }));
 
 describe('IdealComparisonCard', () => {
@@ -26,9 +27,9 @@ describe('IdealComparisonCard', () => {
 
     expect(screen.getByLabelText('Seu mês comparado ao ideal')).toBeInTheDocument();
     expect(screen.getByText('Seu mês comparado ao ideal')).toBeInTheDocument();
-    expect(screen.getByText('Necessidades Essenciais')).toBeInTheDocument();
+    expect(screen.getByText('Essenciais')).toBeInTheDocument();
     expect(screen.getByText('Estilo de Vida')).toBeInTheDocument();
-    expect(screen.getByText('Prioridades Financeiras')).toBeInTheDocument();
+    expect(screen.getByText('Prioridades')).toBeInTheDocument();
     expect(screen.getByText('Nenhuma despesa real registrada neste mês.')).toBeInTheDocument();
   });
 

@@ -76,8 +76,8 @@ describe('dashboardData', () => {
 
   it('usa apenas lançamentos reais na visão de execução', () => {
     const categories: Category[] = [
-      { id: 'cat-1', name: 'Moradia', group_type: 'essenciais' },
-      { id: 'cat-2', name: 'Lazer', group_type: 'desejos' },
+      { id: 'cat-1', name: 'Moradia', group_type: 'essenciais', user_id: null },
+      { id: 'cat-2', name: 'Lazer', group_type: 'desejos', user_id: null },
     ];
 
     const transactions: Transaction[] = [

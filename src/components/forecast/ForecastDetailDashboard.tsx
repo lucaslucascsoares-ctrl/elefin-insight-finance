@@ -1,6 +1,6 @@
-﻿import { useMemo } from 'react';
+import { useMemo } from 'react';
 import BalanceSummaryCard from '@/components/BalanceSummaryCard';
-import type { Category, MonthlyProjectionItem, RecurringRule, Transaction } from '@/types/finance';
+import type { Category, MonthlyForecastData, RecurringRule, Transaction } from '@/types/finance';
 import {
   buildForecastDetailDashboardData,
   ForecastDetailDashboardData,
@@ -9,33 +9,39 @@ import ForecastPieChart from '@/components/forecast/ForecastPieChart';
 import ForecastTrendChart from '@/components/forecast/ForecastTrendChart';
 
 interface ForecastDetailDashboardProps {
+  forecastData: MonthlyForecastData | null;
   transactions: Transaction[];
   categories: Category[];
-  projectedItems: MonthlyProjectionItem[];
   recurringRules: RecurringRule[];
   caixaInicial: number;
-  referenceDate: Date;
+  month: number;
+  year: number;
+  today: Date;
 }
 
 const ForecastDetailDashboard = ({
+  forecastData,
   transactions,
   categories,
-  projectedItems,
   recurringRules,
   caixaInicial,
-  referenceDate,
+  month,
+  year,
+  today,
 }: ForecastDetailDashboardProps) => {
   const detail = useMemo(
     () =>
       buildForecastDetailDashboardData({
+        forecastData,
         transactions,
         categories,
         recurringRules,
-        projectedItems,
         caixaInicial,
-        referenceDate,
+        month,
+        year,
+        today,
       }),
-    [transactions, categories, recurringRules, projectedItems, caixaInicial, referenceDate],
+    [forecastData, transactions, categories, recurringRules, caixaInicial, month, year, today],
   );
 
   return (
@@ -56,7 +62,7 @@ const HeaderCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
         {detail.windowStartLabel} até {detail.windowEndLabel}
       </h2>
       <p className="mt-2 text-[13px] leading-5 text-muted-foreground min-[380px]:text-sm min-[380px]:leading-6">
-        A leitura é recalculada ao abrir o painel, usando a data local como ponto de partida.
+        {detail.windowDescription}
       </p>
     </div>
   </div>
@@ -87,7 +93,7 @@ const InsightCard = ({ detail }: { detail: ForecastDetailDashboardData }) => (
   <div className="rounded-[28px] border border-border bg-card px-1.5 py-4 text-sm leading-6 text-muted-foreground min-[380px]:px-5 dark:border-[#263731] dark:bg-[#1B2823]">
     <p className={detail.insightType === 'warning' ? 'text-warning' : 'text-muted-foreground'}>{detail.insightMessage}</p>
     <div className="mt-5 grid grid-cols-3 items-stretch gap-1.5 min-[380px]:gap-2.5 min-[420px]:gap-3">
-      <BalanceSummaryCard eyebrow="Agora" title="Saldo atual" value={detail.currentBalance} compact />
+      <BalanceSummaryCard eyebrow={detail.currentBalanceLabel} title={detail.currentBalanceLabel} value={detail.currentBalance} compact />
       <BalanceSummaryCard eyebrow="Projeção" title="Saldo projetado" value={detail.projectedBalance} compact />
       <BalanceSummaryCard
         eyebrow="Período"

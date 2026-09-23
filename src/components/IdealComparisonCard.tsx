@@ -37,7 +37,7 @@ const IdealComparisonCard = ({ title, groups, footerMessage, emptyMessage }: Ide
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   return (
-    <section className="px-0 pt-1 min-[380px]:px-4" aria-label={title}>
+    <section className="pt-1" aria-label={title}>
       <div className="flex h-fit w-full min-w-0 flex-col self-start overflow-hidden rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-0.5 py-3 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 min-[380px]:py-4.5 dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:shadow-[0_18px_38px_rgba(3,10,8,0.36)]">
         <h3 className="mb-4 text-center text-[15px] font-semibold text-[#314238] dark:text-[#E8EEE9] dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.40)]">{title}</h3>
 
