@@ -2,18 +2,33 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Transaction } from '@/types/finance';
 
+// O PostgREST do Supabase limita cada resposta a 1000 linhas por padrão;
+// buscamos em páginas para não perder transações antigas nos saldos.
+const PAGE_SIZE = 1000;
+
 export function useTransactions(userId: string) {
   return useQuery({
     queryKey: ['transactions', userId],
     enabled: Boolean(userId),
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('date', { ascending: false });
-      if (error) throw error;
-      return data as Transaction[];
+      const transactions: Transaction[] = [];
+
+      for (let from = 0; ; from += PAGE_SIZE) {
+        const { data, error } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('user_id', userId)
+          .order('date', { ascending: false })
+          .order('id', { ascending: true })
+          .range(from, from + PAGE_SIZE - 1);
+        if (error) throw error;
+
+        const page = (data ?? []) as Transaction[];
+        transactions.push(...page);
+        if (page.length < PAGE_SIZE) break;
+      }
+
+      return transactions;
     },
   });
 }

@@ -106,12 +106,12 @@ describe('generateForecastInsight', () => {
     const result = generateForecastInsight(null);
 
     expect(result.type).toBe('success');
-    expect(result.message).toContain('Ainda não há previsões suficientes');
+    expect(result.message).toContain('Ainda faltam sinais');
   });
 
   it('warns when priorities are below the target', () => {
     const data: MonthlyForecastData = {
-      mesReferencia: 'mar�o',
+      mesReferencia: 'março',
       anoReferencia: 2026,
       categorias: [],
       totalGastoAnterior: 0,
@@ -130,12 +130,12 @@ describe('generateForecastInsight', () => {
     const result = generateForecastInsight(data);
 
     expect(result.type).toBe('warning');
-    expect(result.message).toContain('Falta direcionar');
+    expect(result.message).toContain('Suas prioridades ainda estão tímidas');
   });
 
   it('celebrates a balanced forecast', () => {
     const data: MonthlyForecastData = {
-      mesReferencia: 'mar�o',
+      mesReferencia: 'março',
       anoReferencia: 2026,
       categorias: [],
       totalGastoAnterior: 0,
@@ -154,6 +154,6 @@ describe('generateForecastInsight', () => {
     const result = generateForecastInsight(data);
 
     expect(result.type).toBe('success');
-    expect(result.message).toContain('Sua previsão está equilibrada');
+    expect(result.message).toContain('Sua previsão está redonda');
   });
 });
