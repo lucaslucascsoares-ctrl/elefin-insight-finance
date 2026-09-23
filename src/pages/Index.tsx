@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
 import DashboardCarousel from '@/components/DashboardCarousel';
 import MonthPicker from '@/components/MonthPicker';
@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
-import { useMonthBalance, useEnsureMonthBalance } from '@/hooks/useMonthBalance';
 import { useRecurringRules } from '@/hooks/useRecurringRules';
 import { useProjectionTemplates } from '@/hooks/useProjectionTemplates';
 import { useMonthlyProjectionItems } from '@/hooks/useMonthlyProjectionItems';
@@ -54,7 +53,6 @@ const Index = () => {
   const [projectionModalOpen, setProjectionModalOpen] = useState(false);
   const [forecastDetailOpen, setForecastDetailOpen] = useState(false);
   const [forecastDetailDate, setForecastDetailDate] = useState<Date | null>(null);
-  const attemptedMonthBalanceRef = useRef<Set<string>>(new Set());
   const { activeRules, saveRule, isLoading: recurringLoading } = useRecurringRules(userId);
   const { templates, addTemplate, deleteTemplate, isLoading: templatesLoading } = useProjectionTemplates(userId);
 
@@ -89,8 +87,6 @@ const Index = () => {
   const canGoNext = selectedDate < maxFutureDate;
 
   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Caixa Inicial persistido ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-  const { data: monthBalance, isLoading: balanceLoading } = useMonthBalance(userId, selectedMonth, selectedYear);
-  const { mutate: ensureMonthBalance, isPending: isEnsuringMonthBalance } = useEnsureMonthBalance();
 
   const hasCriticalError = txError || catError;
   const normalizedTransactions = useMemo(
@@ -113,49 +109,15 @@ const Index = () => {
 
   const monthTransactions = filterTransactionsByMonth(normalizedTransactions, selectedMonth, selectedYear);
 
-  // Caixa inicial calculado a partir de todas as transa??es anteriores ao m?s
-  // Usado como fallback enquanto o registro do banco ainda no foi carregado,
-  // e como valor para persistir na primeira vez que o m?s ï¿½ acessado.
-  const computedCaixaInicial = useMemo(() => {
+  // Caixa inicial = saldo acumulado de todas as transações anteriores ao mês.
+  // Sempre recalculado para refletir lançamentos retroativos e meses futuros.
+  const caixaInicial = useMemo(() => {
     return normalizedTransactions.reduce((sum, t) => {
       const isBefore = isDateBeforeMonth(t.date, selectedMonth, selectedYear);
       if (!isBefore) return sum;
       return sum + Number(t.amount) * (t.type === 'income' ? 1 : -1);
     }, 0);
   }, [normalizedTransactions, selectedMonth, selectedYear]);
-
-  // Persiste o caixa_inicial do m?s na primeira vez que ele ï¿½ acessado.
-  // Se j existir registro no banco (monthBalance !== null), no faz nada.
-  useEffect(() => {
-    if (!session || !userId || txLoading || balanceLoading) return;
-    if (monthBalance !== null && monthBalance !== undefined) return;
-    if (isEnsuringMonthBalance) return;
-
-    const monthBalanceKey = `${userId}-${selectedYear}-${selectedMonth}`;
-    if (attemptedMonthBalanceRef.current.has(monthBalanceKey)) return;
-    attemptedMonthBalanceRef.current.add(monthBalanceKey);
-
-    ensureMonthBalance({
-      user_id: userId,
-      mes: selectedMonth,
-      ano: selectedYear,
-      caixa_inicial: computedCaixaInicial,
-    });
-  }, [
-    session,
-    txLoading,
-    balanceLoading,
-    monthBalance,
-    selectedMonth,
-    selectedYear,
-    computedCaixaInicial,
-    ensureMonthBalance,
-    isEnsuringMonthBalance,
-    userId,
-  ]);
-
-  // Fonte de verdade: valor do banco se existir, seno o valor calculado (antes de persistir)
-  const caixaInicial = monthBalance?.caixa_inicial ?? computedCaixaInicial;
 
   const previousMonthTransactions = filterTransactionsByMonth(
     normalizedTransactions,
@@ -177,7 +139,7 @@ const Index = () => {
   const { items: currentMonthProjectionItems = [] } = useMonthlyProjectionItems(userId, templates, currentMonth, currentYear, {
     enabled: !isViewingCurrentMonth,
   });
-  const isLoading = txLoading || catLoading || recurringLoading || templatesLoading || monthlyProjectionLoading || balanceLoading;
+  const isLoading = txLoading || catLoading || recurringLoading || templatesLoading || monthlyProjectionLoading;
 
   usePaymentReminderNotifications({
     session,
