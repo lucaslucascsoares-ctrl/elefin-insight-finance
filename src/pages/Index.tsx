@@ -16,6 +16,7 @@ import { useMonthlyProjectionItems } from '@/hooks/useMonthlyProjectionItems';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { usePaymentReminderNotifications } from '@/hooks/usePaymentReminderNotifications';
 import { buildMonthlyForecastData } from '@/lib/forecast';
+import { getForecastDetailReferenceDate } from '@/lib/forecastDetail';
 import { filterTransactionsByMonth, isDateBeforeMonth } from '@/lib/monthFilters';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -280,7 +281,7 @@ const Index = () => {
               onOpenGeneric={() => openTransactionModal('expense', false)}
               onOpenProjection={openProjectionModal}
               onOpenForecastDetail={() => {
-                setForecastDetailDate(new Date());
+                setForecastDetailDate(getForecastDetailReferenceDate(selectedMonth, selectedYear));
                 setForecastDetailOpen(true);
               }}
               onDeleteProjectionTemplate={async (templateId) => {
@@ -341,7 +342,7 @@ const Index = () => {
           if (!open) {
             setForecastDetailDate(null);
           } else if (!forecastDetailDate) {
-            setForecastDetailDate(new Date());
+            setForecastDetailDate(getForecastDetailReferenceDate(selectedMonth, selectedYear));
           }
         }}
       >

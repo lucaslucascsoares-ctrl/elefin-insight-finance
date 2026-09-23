@@ -85,6 +85,21 @@ const getProjectionDueDate = (baseDay: number | null, referenceDate: Date) => {
   return new Date(referenceDate.getFullYear(), referenceDate.getMonth(), clamped);
 };
 
+/**
+ * Data de referência da previsão detalhada para o mês selecionado no dashboard:
+ * - mês atual: hoje (a leitura parte do dia em que o painel é aberto);
+ * - mês passado: último dia do mês (tudo já realizado);
+ * - mês futuro: primeiro dia do mês (tudo ainda previsto).
+ */
+export function getForecastDetailReferenceDate(month: number, year: number, today = new Date()) {
+  const selected = year * 12 + month;
+  const current = today.getFullYear() * 12 + today.getMonth();
+
+  if (selected === current) return startOfLocalDay(today);
+  if (selected < current) return new Date(year, month + 1, 0);
+  return new Date(year, month, 1);
+}
+
 export function getForecastAnalysisWindow(referenceDate: Date) {
   const localDate = startOfLocalDay(referenceDate);
   const monthStart = startOfMonth(localDate);
