@@ -6,7 +6,6 @@ import ProjectionInlineForm from '@/components/projection/ProjectionInlineForm';
 import ForecastDetailDashboard from '@/components/forecast/ForecastDetailDashboard';
 import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
@@ -86,8 +85,6 @@ const Index = () => {
   const monthViewKey = `${selectedYear}-${selectedMonth}`;
   const maxFutureDate = useMemo(() => new Date(currentYear, currentMonth + 12, 1), [currentMonth, currentYear]);
   const canGoNext = selectedDate < maxFutureDate;
-
-  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Caixa Inicial persistido ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
   const hasCriticalError = txError || catError;
   const normalizedTransactions = useMemo(
@@ -308,17 +305,21 @@ const Index = () => {
         onSaveRecurringRule={handleSaveRecurringRule}
       />
 
-      <Dialog
+      <Sheet
         open={projectionModalOpen}
         onOpenChange={(open) => {
           setProjectionModalOpen(open);
         }}
       >
-        <DialogContent className="max-h-[90vh] overflow-y-auto border border-[#D6E1CC] bg-[linear-gradient(180deg,#FCFDF9,#F7FAF1)] text-[#314238] shadow-[0_18px_38px_rgba(92,134,109,0.12)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] sm:max-w-2xl">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Projeção de Gastos</DialogTitle>
-            <DialogDescription>Cadastre contas fixas para alimentar a aba de planejamento.</DialogDescription>
-          </DialogHeader>
+        <SheetContent
+          side="right"
+          data-testid="projection-panel"
+          className="w-full overflow-y-auto border-l border-[#D6E1CC] bg-[linear-gradient(180deg,#FCFDF9,#F7FAF1)] p-3 pt-12 text-[#314238] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] sm:max-w-2xl sm:p-6 sm:pt-12"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Projeção de Gastos</SheetTitle>
+            <SheetDescription>Cadastre contas fixas para alimentar a aba de planejamento.</SheetDescription>
+          </SheetHeader>
 
           <ProjectionInlineForm
             categories={categories}
@@ -332,8 +333,8 @@ const Index = () => {
             notificationPreferences={notificationPreferences}
             compactLayout
           />
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       <Sheet
         open={forecastDetailOpen}

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, ChevronUp, Minus, Plus, X } from 'lucide-react';
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -133,7 +133,7 @@ const NewTransactionModal = ({
     }
 
     if (!userId) {
-      throw new Error('Usu?rio n?o autenticado.');
+      throw new Error('Usuário não autenticado.');
     }
 
     return addCategory.mutateAsync({
@@ -150,7 +150,7 @@ const NewTransactionModal = ({
       setSelectedCategoryId(category.id);
       setCategoryPickerOpen(false);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : 'N?o foi poss?vel carregar a categoria.');
+      setFormError(error instanceof Error ? error.message : 'Não foi possível carregar a categoria.');
     }
   };
 
@@ -159,12 +159,12 @@ const NewTransactionModal = ({
     const transactionDate = getTransactionDateForMonth(selectedDate);
 
     if (!userId) {
-      setFormError('Sua sess?o expirou. Entre novamente.');
+      setFormError('Sua sessão expirou. Entre novamente.');
       return;
     }
 
     if (!numericAmount || numericAmount <= 0) {
-      setFormError('Informe um valor v?lido.');
+      setFormError('Informe um valor válido.');
       return;
     }
 
@@ -338,22 +338,26 @@ const NewTransactionModal = ({
   const showExpenseCategory = type === 'expense';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[90dvh] w-[min(540px,calc(100vw-64px))] max-w-[calc(100vw-64px)] flex-col gap-0 overflow-hidden rounded-[26px] border border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] dark:border-[#233027] dark:bg-[#111A14] dark:shadow-[0_24px_48px_rgba(0,0,0,0.60)] [&>button:last-child]:hidden sm:rounded-[26px]">
-        <DialogClose className="absolute right-6 top-6 z-10 rounded-full border border-transparent p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800 dark:border-[#233027] dark:text-[#94A39B] dark:hover:bg-[#152018] dark:hover:text-[#ABBC82]">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        data-testid="new-transaction-panel"
+        className="flex h-full w-full flex-col gap-0 overflow-hidden border-l border-[#ece7de] bg-white p-0 shadow-[0_28px_90px_rgba(15,23,42,0.35)] [background:#ffffff] dark:border-[#233027] dark:bg-[#111A14] dark:shadow-[0_24px_48px_rgba(0,0,0,0.60)] [&>button:last-child]:hidden sm:max-w-[540px]"
+      >
+        <SheetClose className="absolute right-6 top-6 z-10 rounded-full border border-transparent p-1 text-slate-500 transition hover:bg-[#f5f3ee] hover:text-slate-800 dark:border-[#233027] dark:text-[#94A39B] dark:hover:bg-[#152018] dark:hover:text-[#ABBC82]">
           <X className="h-7 w-7" />
           <span className="sr-only">Fechar</span>
-        </DialogClose>
+        </SheetClose>
 
         <div className="flex-shrink-0 px-5 pb-4 pt-7 sm:px-8">
-          <DialogHeader className="space-y-2 text-center">
-            <DialogTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 dark:text-[#E6F2EE] sm:text-[24px]">
+          <SheetHeader className="space-y-2 text-center">
+            <SheetTitle className="text-[22px] font-semibold tracking-[-0.02em] text-slate-800 dark:text-[#E6F2EE] sm:text-[24px]">
               Nova Movimentação
-            </DialogTitle>
-            <DialogDescription className="sr-only">
+            </SheetTitle>
+            <SheetDescription className="sr-only">
               Registre uma entrada ou saída do mês atual.
-            </DialogDescription>
-          </DialogHeader>
+            </SheetDescription>
+          </SheetHeader>
 
           <div className="mt-5 flex w-full overflow-hidden rounded-[18px] bg-[#f7f5f1] p-1.5 dark:bg-[#152018]">
             {([
@@ -428,7 +432,7 @@ const NewTransactionModal = ({
                   <span className="flex-1">
                     <span className="block text-[15px] font-medium text-slate-800 dark:text-[#E6F2EE]">Repetir todo mês</span>
                     <span className="mt-1 block text-sm text-slate-500 dark:text-[#B8CBC3]">
-                      Se ativado, esta conta entra automaticamente nas pr?ximas previs?es mensais.
+                      Se ativado, esta conta entra automaticamente nas próximas previsões mensais.
                     </span>
                   </span>
                 </label>
@@ -440,7 +444,7 @@ const NewTransactionModal = ({
               <Input
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Ex: Almo?o no restaurante"
+                placeholder="Ex: Almoço no restaurante"
                 className="h-[64px] rounded-[18px] border-[#e5e1d8] px-5 text-[16px] text-slate-700 shadow-none focus-visible:border-[#d9d1c2] focus-visible:ring-0 dark:border-[#233027] dark:bg-[#0F1612] dark:text-[#E6F2EE] dark:placeholder:text-[#5F6A63] dark:focus-visible:border-[#ABBC82] dark:focus-visible:ring-[#ABBC82]/20"
               />
             </div>
@@ -463,8 +467,8 @@ const NewTransactionModal = ({
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
 
