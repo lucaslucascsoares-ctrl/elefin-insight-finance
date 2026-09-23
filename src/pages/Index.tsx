@@ -7,6 +7,7 @@ import ForecastDetailDashboard from '@/components/forecast/ForecastDetailDashboa
 import NewTransactionModal from '@/components/NewTransactionModal';
 import FAB from '@/components/FAB';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,7 +17,6 @@ import { useMonthlyProjectionItems } from '@/hooks/useMonthlyProjectionItems';
 import { useNotificationPreferences } from '@/hooks/useNotificationPreferences';
 import { usePaymentReminderNotifications } from '@/hooks/usePaymentReminderNotifications';
 import { buildMonthlyForecastData } from '@/lib/forecast';
-import { getForecastDetailReferenceDate } from '@/lib/forecastDetail';
 import { filterTransactionsByMonth, isDateBeforeMonth } from '@/lib/monthFilters';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -53,7 +53,7 @@ const Index = () => {
   const [modalLockedType, setModalLockedType] = useState(false);
   const [projectionModalOpen, setProjectionModalOpen] = useState(false);
   const [forecastDetailOpen, setForecastDetailOpen] = useState(false);
-  const [forecastDetailDate, setForecastDetailDate] = useState<Date | null>(null);
+  const [forecastDetailOpenedAt, setForecastDetailOpenedAt] = useState(() => new Date());
   const { activeRules, saveRule, isLoading: recurringLoading } = useRecurringRules(userId);
   const { templates, addTemplate, deleteTemplate, isLoading: templatesLoading } = useProjectionTemplates(userId);
 
@@ -281,7 +281,7 @@ const Index = () => {
               onOpenGeneric={() => openTransactionModal('expense', false)}
               onOpenProjection={openProjectionModal}
               onOpenForecastDetail={() => {
-                setForecastDetailDate(getForecastDetailReferenceDate(selectedMonth, selectedYear));
+                setForecastDetailOpenedAt(new Date());
                 setForecastDetailOpen(true);
               }}
               onDeleteProjectionTemplate={async (templateId) => {
@@ -335,35 +335,35 @@ const Index = () => {
         </DialogContent>
       </Dialog>
 
-      <Dialog
+      <Sheet
         open={forecastDetailOpen}
         onOpenChange={(open) => {
           setForecastDetailOpen(open);
-          if (!open) {
-            setForecastDetailDate(null);
-          } else if (!forecastDetailDate) {
-            setForecastDetailDate(getForecastDetailReferenceDate(selectedMonth, selectedYear));
-          }
+          if (open) setForecastDetailOpenedAt(new Date());
         }}
       >
-        <DialogContent className="max-h-[92vh] w-[calc(100vw-0.75rem)] overflow-y-auto border border-border bg-card p-2 text-card-foreground shadow-[0_18px_38px_rgba(15,23,42,0.14)] dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] dark:shadow-[0_18px_38px_rgba(3,10,8,0.45)] min-[380px]:p-3 sm:max-w-3xl sm:p-6">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Previsão detalhada do mês</DialogTitle>
-            <DialogDescription>Dashboard detalhado da previsão até o fim do mês.</DialogDescription>
-          </DialogHeader>
+        <SheetContent
+          side="right"
+          data-testid="forecast-detail-panel"
+          className="w-full overflow-y-auto border-l border-border bg-card p-2 pt-10 text-card-foreground dark:border-[#263731] dark:bg-[linear-gradient(180deg,#111A17,#16211D)] dark:text-[#E6F2EE] min-[380px]:p-3 min-[380px]:pt-10 sm:max-w-xl sm:p-5 sm:pt-12"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Previsão detalhada do mês</SheetTitle>
+            <SheetDescription>Dashboard detalhado da previsão do mês selecionado.</SheetDescription>
+          </SheetHeader>
 
-          {forecastDetailDate ? (
-            <ForecastDetailDashboard
-              transactions={monthTransactions}
-              categories={categories}
-              projectedItems={monthlyProjectionItems}
-              recurringRules={activeRules}
-              caixaInicial={caixaInicial}
-              referenceDate={forecastDetailDate}
-            />
-          ) : null}
-        </DialogContent>
-      </Dialog>
+          <ForecastDetailDashboard
+            forecastData={forecastData}
+            transactions={normalizedTransactions}
+            categories={categories}
+            recurringRules={activeRules}
+            caixaInicial={caixaInicial}
+            month={selectedMonth}
+            year={selectedYear}
+            today={forecastDetailOpenedAt}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
