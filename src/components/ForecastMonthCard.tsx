@@ -22,7 +22,7 @@ const ForecastMonthCard = ({ data }: ForecastMonthCardProps) => {
   const forecastInsight = useMemo(() => generateForecastInsight(data), [data]);
 
   return (
-    <section className="px-0 pt-1 min-[480px]:px-4">
+    <section className="pt-1">
       <div className="min-w-0 rounded-[28px] border border-[#D6E1CC] bg-[linear-gradient(180deg,#F1F5E9,#E8EEDB)] px-4 py-5 shadow-[0_18px_36px_rgba(92,134,109,0.08)] min-[380px]:px-5 dark:border-[#233027] dark:bg-[linear-gradient(180deg,#152018,#111A14)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.40)]">
         <div className="mb-5 flex items-center justify-center">
           <div className="notranslate text-center" translate="no">
@@ -70,7 +70,7 @@ const ForecastMonthCard = ({ data }: ForecastMonthCardProps) => {
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-3">
         <IdealComparisonCard
           title="Previsão do mês"
           groups={data?.groups ?? { essenciais: 0, desejos: 0, prioridades: 0 }}
