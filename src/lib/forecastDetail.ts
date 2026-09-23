@@ -126,7 +126,23 @@ const getItemDueDay = (
   return reference?.getDate() ?? 1;
 };
 
-const toDetailGroup = (groupType: ForecastItem['group_type'] | null | undefined): ForecastDetailGroupKey =>
+const normalizeText = (value: string | null | undefined) =>
+  (value || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
+
+// Mesma identidade usada em lib/forecast.ts para casar recorrências com o histórico:
+// tipo + categoria + título (descrição ou, na falta dela, o nome da categoria).
+const getMatchKey = (
+  type: Transaction['type'],
+  categoryId: string | null,
+  title: string | null | undefined,
+  category: Category | undefined,
+) => `${type}:${categoryId || 'sem-categoria'}:${normalizeText(title?.trim() || category?.name || 'Outros')}`;
+
+const toDetailGroup =(groupType: ForecastItem['group_type'] | null | undefined): ForecastDetailGroupKey =>
   !groupType || groupType === 'outros' ? 'sem-categoria' : groupType;
 
 export function buildForecastDetailDashboardData({
@@ -181,21 +197,39 @@ export function buildForecastDetailDashboardData({
   });
 
   // Previsto: os mesmos itens do card "Previsão" (recorrências + histórico do mês anterior),
-  // posicionados no dia em que costumam acontecer. Itens com vencimento já passado no mês
-  // atual são considerados cobertos pelo realizado.
+  // posicionados no dia em que costumam acontecer. No mês atual, um item sai da projeção
+  // quando já existe um lançamento correspondente no mês (mesmo tipo, categoria e descrição);
+  // se venceu e ainda não foi lançado, continua projetado como pendente para hoje.
   const forecastItems = [...(forecastData?.incomeItems ?? []), ...(forecastData?.expenseItems ?? [])];
   const futureByDay = new Map<string, number>();
   let futureIncome = 0;
   let futureExpense = 0;
   const futureExpenseItems: ForecastItem[] = [];
 
+  const unmatchedActuals = new Map<string, number>();
+  actualTransactions.forEach((transaction) => {
+    const key = getMatchKey(transaction.type, transaction.category_id, transaction.description, categoryMap.get(transaction.category_id || ''));
+    unmatchedActuals.set(key, (unmatchedActuals.get(key) ?? 0) + 1);
+  });
+
+  const isCoveredByActual = (item: ForecastItem) => {
+    const key = getMatchKey(item.type, item.category_id, item.title, categoryMap.get(item.category_id || ''));
+    const available = unmatchedActuals.get(key) ?? 0;
+    if (available === 0) return false;
+    unmatchedActuals.set(key, available - 1);
+    return true;
+  };
+
   forecastItems.forEach((item) => {
+    if (mode === 'past') return;
+    if (mode === 'current' && isCoveredByActual(item)) return;
+
     const day = Math.min(getItemDueDay(item, transactionsById, rulesById), monthEnd.getDate());
     const dueDate = new Date(year, month, day);
-    if (realizedUntil && dueDate <= realizedUntil) return;
+    const eventDate = realizedUntil && dueDate < realizedUntil ? realizedUntil : dueDate;
 
     const amount = Number(item.amount) || 0;
-    const key = toDayKey(dueDate);
+    const key = toDayKey(eventDate);
     if (item.type === 'income') {
       futureIncome += amount;
       futureByDay.set(key, (futureByDay.get(key) ?? 0) + amount);
@@ -217,7 +251,8 @@ export function buildForecastDetailDashboardData({
 
     if (isRealized) {
       actualRunning += actualByDay.get(key) ?? 0;
-      projectedRunning = actualRunning;
+      // No dia atual a projeção parte do realizado e já inclui as pendências vencidas.
+      projectedRunning = actualRunning + (isCurrentDay ? futureByDay.get(key) ?? 0 : 0);
     } else {
       projectedRunning += futureByDay.get(key) ?? 0;
     }

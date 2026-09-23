@@ -123,6 +123,52 @@ describe('buildForecastDetailDashboardData', () => {
     expect(detail.linePoints.find((point) => point.isCurrentDay)?.label).toContain('08');
   });
 
+  it('no mês atual mantém como pendente a conta vencida que ainda não foi lançada', () => {
+    const aprilTx = [...transactions, tx('apr-salary', '2026-04-05', 'income', 6000, null, 'Salário')];
+    const detail = buildForecastDetailDashboardData({
+      forecastData: forecastFor(3, 2026, aprilTx),
+      transactions: aprilTx,
+      categories,
+      recurringRules,
+      caixaInicial: 0,
+      month: 3,
+      year: 2026,
+      today: new Date(2026, 3, 15, 9),
+    });
+
+    // Aluguel (dia 10) e lazer (dia 12) venceram sem lançamento: continuam na projeção, a partir de hoje.
+    expect(detail.projectedExpense).toBe(2610);
+    expect(detail.currentBalance).toBe(6000);
+    expect(detail.projectedBalance).toBe(6000 - 2610);
+    const todayPoint = detail.linePoints.find((point) => point.isCurrentDay);
+    expect(todayPoint?.actualBalance).toBe(6000);
+    expect(todayPoint?.projectedBalance).toBe(6000 - 2610);
+  });
+
+  it('no mês atual não conta duas vezes uma conta paga antes do vencimento', () => {
+    const aprilTx = [
+      ...transactions,
+      tx('apr-salary', '2026-04-05', 'income', 6000, null, 'Salário'),
+      tx('apr-rent', '2026-04-03', 'expense', 2000, 'cat-home', 'Aluguel'),
+    ];
+    const detail = buildForecastDetailDashboardData({
+      forecastData: forecastFor(3, 2026, aprilTx),
+      transactions: aprilTx,
+      categories,
+      recurringRules,
+      caixaInicial: 0,
+      month: 3,
+      year: 2026,
+      today: new Date(2026, 3, 8, 9),
+    });
+
+    expect(detail.actualExpense).toBe(2000);
+    // Só o lazer (dia 12) ainda está por vir; o aluguel do dia 10 já foi pago no dia 3.
+    expect(detail.projectedExpense).toBe(2610);
+    expect(detail.projectedBalance).toBe(6000 - 2610);
+    expect(detail.pieSlices.find((slice) => slice.key === 'essenciais')?.value).toBe(2000);
+  });
+
   it('em um mês passado mostra só o realizado', () => {
     const detail = buildForecastDetailDashboardData({
       forecastData: forecastFor(2, 2026),
